@@ -30,7 +30,10 @@ const translations = {
     // Product specs
     color: 'Цвет',
     power: 'Мощность',
-    tires: 'Резина',
+    fuel: 'Подача топлива',
+    cooling: 'Охлаждение',
+    max_speed: 'Макс. скорость',
+    wheels: 'Колёса',
     rub: '₽',
     // Admin
     loginTitle: 'Вход в админку',
@@ -85,7 +88,10 @@ const translations = {
     successMsg: '谢谢！订单已发送，我们会与您联系 🏍️',
     color: '颜色',
     power: '功率',
-    tires: '轮胎',
+    fuel: '燃油供给',
+    cooling: '冷却方式',
+    max_speed: '最高速度',
+    wheels: '车轮',
     rub: '₽',
     loginTitle: '管理员登录',
     loginBtn: '登录',

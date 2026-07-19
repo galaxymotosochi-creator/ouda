@@ -8,7 +8,7 @@ export default function ProductCard({ product, onAdd, inCart }) {
 
   const handleClick = () => {
     if (hasColors && colors.length > 1) {
-      onAdd(product, true) // true = open color picker
+      onAdd(product, true)
     } else {
       onAdd({
         ...product,
@@ -30,28 +30,32 @@ export default function ProductCard({ product, onAdd, inCart }) {
       />
       <div className="product-body">
         <div className="product-name">{product.name}</div>
-        <div className="product-specs">
-          <span>{t('color')}: <strong>
-            {hasColors
-              ? colors.map(c => translateColor(c.name)).join(', ')
-              : translateColor(product.color || '—')}
-          </strong></span>
-          <span>{t('power')}: <strong>{product.power}</strong></span>
-          <span>{t('tires')}: <strong>{product.tires}</strong></span>
-        </div>
 
+        {/* Colors — one line with swatches */}
         {hasColors && (
-          <div className="color-swatches">
-            {colors.map((c, i) => (
-              <div
-                key={i}
-                className={`color-swatch-display ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`}
-                style={c.hex !== 'chameleon' ? { background: c.hex } : {}}
-                title={c.name}
-              />
-            ))}
+          <div className="product-colors">
+            <span className="spec-label">{t('color')}:</span>
+            <div className="color-swatches" style={{margin:0,display:'inline-flex'}}>
+              {colors.map((c, i) => (
+                <div
+                  key={i}
+                  className={`color-swatch-display ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`}
+                  style={c.hex !== 'chameleon' ? { background: c.hex } : {}}
+                  title={c.name}
+                />
+              ))}
+            </div>
           </div>
         )}
+
+        {/* Specs list */}
+        <div className="product-specs">
+          <span className="spec-label">{t('power')}:</span> <strong>{product.power}</strong>
+          <span className="spec-label">{t('fuel')}:</span> <strong>{product.fuel}</strong>
+          <span className="spec-label">{t('cooling')}:</span> <strong>{product.cooling}</strong>
+          <span className="spec-label">{t('max_speed')}:</span> <strong>{product.max_speed}</strong>
+          <span className="spec-label">{t('wheels')}:</span> <strong>{product.wheels}</strong>
+        </div>
 
         <div className="product-price">
           {product.price.toLocaleString('ru-RU')} {t('rub')}

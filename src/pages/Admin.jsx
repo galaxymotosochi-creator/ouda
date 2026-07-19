@@ -19,7 +19,7 @@ export default function Admin() {
   const [products, setProducts] = useState([])
   const [stock, setStock] = useState([])
   const [newProduct, setNewProduct] = useState({
-    name: '', price: '', colors: [], power: '', tires: '', description: '', image: ''
+    name: '', price: '', colors: [], power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', image: ''
   })
 
   useEffect(() => {
@@ -63,7 +63,7 @@ export default function Admin() {
         list.push(product)
         setLocal(LS_PRODUCTS, list)
       })
-    setNewProduct({ name: '', price: '', colors: [], power: '', tires: '', description: '', image: '' })
+    setNewProduct({ name: '', price: '', colors: [], power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', image: '' })
     setTimeout(loadData, 300)
   }
 
@@ -189,8 +189,14 @@ export default function Admin() {
                 </div>
                 <input placeholder={t('power')} value={newProduct.power}
                   onChange={e => setNewProduct({...newProduct, power: e.target.value})} />
-                <input placeholder={t('tires')} value={newProduct.tires}
-                  onChange={e => setNewProduct({...newProduct, tires: e.target.value})} />
+                <input placeholder={t('fuel')} value={newProduct.fuel}
+                  onChange={e => setNewProduct({...newProduct, fuel: e.target.value})} />
+                <input placeholder={t('cooling')} value={newProduct.cooling}
+                  onChange={e => setNewProduct({...newProduct, cooling: e.target.value})} />
+                <input placeholder={t('max_speed')} value={newProduct.max_speed}
+                  onChange={e => setNewProduct({...newProduct, max_speed: e.target.value})} />
+                <input placeholder={t('wheels')} value={newProduct.wheels}
+                  onChange={e => setNewProduct({...newProduct, wheels: e.target.value})} />
                 <input placeholder={t('photoLink')} value={newProduct.image}
                   onChange={e => setNewProduct({...newProduct, image: e.target.value})} />
                 <div className="full-width">
@@ -202,13 +208,16 @@ export default function Admin() {
             </form>
             <table className="admin-table">
               <thead><tr>
-                <th>{t('nameLabel')}</th><th>{t('priceLabel')}</th><th>{t('color')}</th><th>{t('power')}</th><th>{t('tires')}</th><th></th>
+                <th>{t('nameLabel')}</th><th>{t('priceLabel')}</th><th>{t('power')}</th><th>{t('fuel')}</th><th>{t('wheels')}</th><th>Цвета</th><th></th>
               </tr></thead>
               <tbody>
                 {products.map(p => (
                   <tr key={p.id}>
                     <td><strong>{p.name}</strong></td>
                     <td>{p.price.toLocaleString('ru-RU')} ₽</td>
+                    <td>{p.power||'—'}</td>
+                    <td>{p.fuel||'—'}</td>
+                    <td>{p.wheels||'—'}</td>
                     <td>{p.colors?.length > 0 ? (
                       <div className="color-swatches" style={{margin:0}}>
                         {p.colors.map((c, i) => (
@@ -216,8 +225,6 @@ export default function Admin() {
                         ))}
                       </div>
                     ) : (p.color || '—')}</td>
-                    <td>{p.power||'—'}</td>
-                    <td>{p.tires||'—'}</td>
                     <td><button className="admin-btn admin-btn-done" onClick={() => deleteProduct(p.id)} style={{color:'#ef4444'}}>🗑️</button></td>
                   </tr>
                 ))}
