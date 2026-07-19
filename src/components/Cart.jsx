@@ -16,7 +16,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...form,
-          items: items.map(i => ({ product_id: i.id, name: i.name, price: i.price, qty: i.qty })),
+          items: items.map(i => ({ product_id: i.id, name: i.name, price: i.price, qty: i.qty, color: i.selectedColor || '' })),
           total: totalSum,
         }),
       })
@@ -25,7 +25,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
       const localOrders = JSON.parse(localStorage.getItem('ouda_orders') || '[]')
       localOrders.push({
         id: Date.now(), ...form,
-        items: items.map(i => ({ product_id: i.id, name: i.name, price: i.price, qty: i.qty })),
+        items: items.map(i => ({ product_id: i.id, name: i.name, price: i.price, qty: i.qty, color: i.selectedColor || '' })),
         total: totalSum, status: 'new', created_at: new Date().toISOString(),
       })
       localStorage.setItem('ouda_orders', JSON.stringify(localOrders))
@@ -51,7 +51,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
                 <img className="cart-item-img" src={item.image || '/placeholder.svg'} alt={item.name}
                   onError={(e) => { e.target.src = '/placeholder.svg' }} />
                 <div className="cart-item-info">
-                  <div className="cart-item-name">{item.name}</div>
+                  <div className="cart-item-name">{item.name}{item.selectedColor ? ` — ${item.selectedColor}` : ''}</div>
                   <div className="cart-item-price">{(item.price * item.qty).toLocaleString('ru-RU')} {t('rub')}</div>
                   <div className="cart-item-qty">
                     <button onClick={() => onUpdateQty(item.id, -1)}>−</button>

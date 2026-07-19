@@ -18,7 +18,7 @@ export default function Admin() {
   const [products, setProducts] = useState([])
   const [stock, setStock] = useState([])
   const [newProduct, setNewProduct] = useState({
-    name: '', price: '', color: '', power: '', tires: '', description: '', image: ''
+    name: '', price: '', colors: [], power: '', tires: '', description: '', image: ''
   })
 
   useEffect(() => {
@@ -42,16 +42,39 @@ export default function Admin() {
     setTimeout(loadData, 300)
   }
 
+  const addColor = () => {
+    setNewProduct(prev => ({
+      ...prev,
+      colors: [...prev.colors, { name: '', hex: '#111111', image: '', price: '' }]
+    }))
+  }
+
+  const updateColor = (idx, field, value) => {
+    setNewProduct(prev => {
+      const colors = [...prev.colors]
+      colors[idx] = { ...colors[idx], [field]: value }
+      return { ...prev, colors }
+    })
+  }
+
+  const removeColor = (idx) => {
+    setNewProduct(prev => ({
+      ...prev,
+      colors: prev.colors.filter((_, i) => i !== idx)
+    }))
+  }
+
   const addProduct = (e) => {
     e.preventDefault()
-    const product = { ...newProduct, price: Number(newProduct.price), id: Date.now() }
+    const basePrice = Number(newProduct.price) || (newProduct.colors[0]?.price ? Number(newProduct.colors[0].price) : 0)
+    const product = { ...newProduct, price: basePrice, id: Date.now() }
     fetch(`${API}/api/products`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(product) })
       .catch(() => {
         const list = getLocal(LS_PRODUCTS)
         list.push(product)
         setLocal(LS_PRODUCTS, list)
       })
-    setNewProduct({ name: '', price: '', color: '', power: '', tires: '', description: '', image: '' })
+    setNewProduct({ name: '', price: '', colors: [], power: '', tires: '', description: '', image: '' })
     setTimeout(loadData, 300)
   }
 
@@ -155,8 +178,24 @@ export default function Admin() {
                   onChange={e => setNewProduct({...newProduct, name: e.target.value})} required />
                 <input placeholder={`${t('priceLabel')} *`} type="number" value={newProduct.price}
                   onChange={e => setNewProduct({...newProduct, price: e.target.value})} required />
-                <input placeholder={t('color')} value={newProduct.color}
-                  onChange={e => setNewProduct({...newProduct, color: e.target.value})} />
+                <div className="full-width">
+                  <div style={{fontSize:13,color:'var(--text-muted)',marginBottom:8}}>🎨 {t('color')}</div>
+                  <div className="color-editor">
+                    <div className="color-editor-list">
+                      {newProduct.colors.map((c, i) => (
+                        <div key={i} className="color-editor-item">
+                          <div className="swatch" style={{background:c.hex}} />
+                          <input placeholder="Название" value={c.name} onChange={e => updateColor(i,'name',e.target.value)} />
+                          <input placeholder="#hex" value={c.hex} onChange={e => updateColor(i,'hex',e.target.value)} style={{maxWidth:90}} />
+                          <input placeholder="Фото" value={c.image} onChange={e => updateColor(i,'image',e.target.value)} style={{maxWidth:120}} />
+                          <input placeholder="Цена" type="number" value={c.price} onChange={e => updateColor(i,'price',e.target.value)} style={{maxWidth:80}} />
+                          <button className="remove" onClick={() => removeColor(i)}>✕</button>
+                        </div>
+                      ))}
+                    </div>
+                    <button type="button" className="add-btn" onClick={addColor}>+ {t('addColor')}</button>
+                  </div>
+                </div>
                 <input placeholder={t('power')} value={newProduct.power}
                   onChange={e => setNewProduct({...newProduct, power: e.target.value})} />
                 <input placeholder={t('tires')} value={newProduct.tires}
@@ -179,7 +218,13 @@ export default function Admin() {
                   <tr key={p.id}>
                     <td><strong>{p.name}</strong></td>
                     <td>{p.price.toLocaleString('ru-RU')} ₽</td>
-                    <td>{p.color||'—'}</td>
+                    <td>{p.colors?.length > 0 ? (
+                      <div className="color-swatches" style={{margin:0}}>
+                        {p.colors.map((c, i) => (
+                          <div key={i} className="color-swatch" style={{background:c.hex,width:16,height:16,cursor:'default'}} title={c.name} />
+                        ))}
+                      </div>
+                    ) : (p.color || '—')}</td>
                     <td>{p.power||'—'}</td>
                     <td>{p.tires||'—'}</td>
                     <td><button className="admin-btn admin-btn-done" onClick={() => deleteProduct(p.id)} style={{color:'#ef4444'}}>🗑️</button></td>
