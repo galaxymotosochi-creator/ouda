@@ -4,52 +4,49 @@ import { useLang } from '../i18n'
 export default function ProductCard({ product, onAdd, inCart }) {
   const { t, translateColor } = useLang()
   const colors = product.colors || []
-  const [selectedColor, setSelectedColor] = useState(0)
+  const hasColors = colors.length > 0
 
-  const currentColor = colors[selectedColor]
-  const displayImage = product.image || '/placeholder.svg'
-  const displayPrice = product.price
-
-  const handleAdd = () => {
-    onAdd({
-      ...product,
-      selectedColor: currentColor?.name || product.color,
-      selectedHex: currentColor?.hex || '',
-      image: displayImage,
-      price: displayPrice,
-    })
+  const handleClick = () => {
+    if (hasColors && colors.length > 1) {
+      onAdd(product, true) // true = open color picker
+    } else {
+      onAdd({
+        ...product,
+        selectedColor: hasColors ? colors[0].name : (product.color || ''),
+        selectedHex: hasColors ? colors[0].hex : '',
+        image: product.image || '/placeholder.svg',
+        price: product.price,
+      }, false)
+    }
   }
 
   return (
     <div className="product-card">
       <img
         className="product-img"
-        src={displayImage}
+        src={product.image || '/placeholder.svg'}
         alt={product.name}
         onError={(e) => { e.target.src = '/placeholder.svg' }}
       />
       <div className="product-body">
         <div className="product-name">{product.name}</div>
         <div className="product-specs">
-          {colors.length > 0 ? (
-            <span>{t('color')}:
-              <strong>{translateColor(currentColor?.name || '')}</strong>
-            </span>
-          ) : (
-            <span>{t('color')}: <strong>{translateColor(product.color)}</strong></span>
-          )}
+          <span>{t('color')}: <strong>
+            {hasColors
+              ? colors.map(c => translateColor(c.name)).join(', ')
+              : translateColor(product.color || '—')}
+          </strong></span>
           <span>{t('power')}: <strong>{product.power}</strong></span>
           <span>{t('tires')}: <strong>{product.tires}</strong></span>
         </div>
 
-        {colors.length > 1 && (
+        {hasColors && (
           <div className="color-swatches">
             {colors.map((c, i) => (
               <div
                 key={i}
-                className={`color-swatch ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''} ${i === selectedColor ? 'selected' : ''}`}
+                className={`color-swatch-display ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`}
                 style={c.hex !== 'chameleon' ? { background: c.hex } : {}}
-                onClick={() => setSelectedColor(i)}
                 title={c.name}
               />
             ))}
@@ -57,11 +54,11 @@ export default function ProductCard({ product, onAdd, inCart }) {
         )}
 
         <div className="product-price">
-          {displayPrice.toLocaleString('ru-RU')} {t('rub')}
+          {product.price.toLocaleString('ru-RU')} {t('rub')}
         </div>
         <button
           className={`product-add ${inCart ? 'in-cart' : ''}`}
-          onClick={handleAdd}
+          onClick={handleClick}
         >
           {inCart ? t('inCart') : t('addToCart')}
         </button>

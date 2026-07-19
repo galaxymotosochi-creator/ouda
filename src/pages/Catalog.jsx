@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useLang } from '../i18n'
+import { PRESET_COLORS } from '../colors'
 import Header from '../components/Header'
 import Cart from '../components/Cart'
 import ProductCard from '../components/ProductCard'
@@ -13,42 +14,70 @@ export default function Catalog() {
   const [cartOpen, setCartOpen] = useState(false)
   const [toast, setToast] = useState(null)
 
+  // Color picker modal state
+  const [colorModal, setColorModal] = useState(null) // { product, callback }
+
   useEffect(() => {
     fetch(`${API}/api/products`)
       .then(r => r.json())
       .then(setProducts)
       .catch(() => {
-        setProducts([
-          { id: 1, name: 'OUDA Street 50', price: 79900, image: '/placeholder.svg', color: 'Чёрный', power: '50cc', tires: '10"', description: 'Городской скутер 50cc' },
-          { id: 2, name: 'OUDA Sport 125', price: 129900, image: '/placeholder.svg', color: 'Красный', power: '125cc', tires: '12"', description: 'Спортивный скутер 125cc' },
-          { id: 3, name: 'OUDA Electric', price: 99900, image: '/placeholder.svg', color: 'Белый', power: '2000W', tires: '10"', description: 'Электроскутер 2000W' },
-        ])
+        setProducts([])
       })
   }, [])
 
-  const addToCart = (product) => {
+  const addToCart = useCallback((product, colorName, colorHex) => {
+    const key = `${product.id}_${colorName}`
     setCart(prev => {
-      const exists = prev.find(item => item.id === product.id)
+      const exists = prev.find(item => item.cartKey === key)
       if (exists) {
         return prev.map(item =>
-          item.id === product.id ? { ...item, qty: item.qty + 1 } : item
+          item.cartKey === key ? { ...item, qty: item.qty + 1 } : item
         )
       }
-      return [...prev, { ...product, qty: 1 }]
+      return [{
+        ...product,
+        cartKey: key,
+        selectedColor: colorName,
+        selectedHex: colorHex || '',
+        qty: 1,
+      }, ...prev]
     })
+  }, [])
+
+  const handleAddClick = (product, needsColor) => {
+    if (needsColor) {
+      // Show color picker
+      setColorModal({
+        product,
+        colors: product.colors,
+      })
+    } else {
+      const firstColor = product.colors?.[0]
+      addToCart(product, firstColor?.name || product.color, firstColor?.hex || '')
+    }
   }
 
-  const updateQty = (id, delta) => {
+  const handleColorSelect = (colorName, colorHex) => {
+    if (!colorModal) return
+    addToCart(colorModal.product, colorName, colorHex)
+    setColorModal(null)
+  }
+
+  const updateQty = useCallback((cartKey, delta) => {
     setCart(prev =>
-      prev.map(item =>
-        item.id === id ? { ...item, qty: Math.max(1, item.qty + delta) } : item
-      )
+      prev.map(item => {
+        if (item.cartKey !== cartKey) return item
+        const newQty = item.qty + delta
+        if (newQty <= 0) return null
+        return { ...item, qty: newQty }
+      }).filter(Boolean)
     )
-  }
+  }, [])
 
-  const removeFromCart = (id) => {
-    setCart(prev => prev.filter(item => item.id !== id))
-  }
+  const removeFromCart = useCallback((cartKey) => {
+    setCart(prev => prev.filter(item => item.cartKey !== cartKey))
+  }, [])
 
   const totalItems = cart.reduce((s, i) => s + i.qty, 0)
   const totalSum = cart.reduce((s, i) => s + i.price * i.qty, 0)
@@ -75,7 +104,7 @@ export default function Catalog() {
             <ProductCard
               key={product.id}
               product={product}
-              onAdd={addToCart}
+              onAdd={handleAddClick}
               inCart={cart.some(c => c.id === product.id)}
             />
           ))}
@@ -89,6 +118,15 @@ export default function Catalog() {
         totalSum={totalSum}
         onUpdateQty={updateQty}
         onRemove={removeFromCart}
+        onAddAnother={(item) => {
+          const product = products.find(p => p.id === item.id)
+          if (product?.colors?.length > 1) {
+            setColorModal({ product, colors: product.colors })
+          } else {
+            // Single color — just add another of same
+            addToCart(product, item.selectedColor || product.color, item.selectedHex || '')
+          }
+        }}
         api={API}
         onSuccess={() => {
           setCart([])
@@ -98,6 +136,31 @@ export default function Catalog() {
       />
 
       {toast && <div className="success-toast">{toast}</div>}
+
+      {/* Color picker modal */}
+      {colorModal && (
+        <div className="color-modal-overlay" onClick={() => setColorModal(null)}>
+          <div className="color-modal" onClick={e => e.stopPropagation()}>
+            <h4>Выберите цвет</h4>
+            <div className="palette">
+              {(colorModal.colors || []).map(c => (
+                <div
+                  key={c.name}
+                  className={`palette-color ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`}
+                  style={c.hex !== 'chameleon' ? { background: c.hex } : {}}
+                  onClick={() => handleColorSelect(c.name, c.hex)}
+                  title={c.name}
+                />
+              ))}
+            </div>
+            <div>
+              <button className="color-modal-cancel" onClick={() => setColorModal(null)}>
+                Отмена
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

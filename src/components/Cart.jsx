@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useLang } from '../i18n'
 
-export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRemove, api, onSuccess }) {
+export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRemove, onAddAnother, api, onSuccess }) {
   const { t } = useLang()
   const [form, setForm] = useState({ name: '', city: '', phone: '', payment: 'cash' })
   const [sending, setSending] = useState(false)
@@ -54,12 +54,12 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
                   <div className="cart-item-name">{item.name}{item.selectedColor ? ` — ${item.selectedColor}` : ''}</div>
                   <div className="cart-item-price">{(item.price * item.qty).toLocaleString('ru-RU')} {t('rub')}</div>
                   <div className="cart-item-qty">
-                    <button onClick={() => onUpdateQty(item.id, -1)}>−</button>
+                    <button onClick={() => onUpdateQty(item.cartKey, -1)}>−</button>
                     <span>{item.qty}</span>
-                    <button onClick={() => onUpdateQty(item.id, 1)}>+</button>
+                    <button onClick={() => onAddAnother ? onAddAnother(item) : onUpdateQty(item.cartKey, 1)}>+</button>
                   </div>
                 </div>
-                <button className="cart-item-remove" onClick={() => onRemove(item.id)}>✕</button>
+                <button className="cart-item-remove" onClick={() => onRemove(item.cartKey)}>✕</button>
               </div>
             ))
           )}
