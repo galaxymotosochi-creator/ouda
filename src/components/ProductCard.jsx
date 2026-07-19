@@ -1,7 +1,7 @@
 import { useLang } from '../i18n'
 
 export default function ProductCard({ product, onAdd, inCart }) {
-  const { t } = useLang()
+  const { t, translateColor } = useLang()
 
   return (
     <div className="product-card">
@@ -14,7 +14,7 @@ export default function ProductCard({ product, onAdd, inCart }) {
       <div className="product-body">
         <div className="product-name">{product.name}</div>
         <div className="product-specs">
-          <span>🎨 {t('color')}: <strong>{product.color}</strong></span>
+          <span>🎨 {t('color')}: <strong>{translateColor(product.color)}</strong></span>
           <span>⚡ {t('power')}: <strong>{product.power}</strong></span>
           <span>🔘 {t('tires')}: <strong>{product.tires}</strong></span>
         </div>
