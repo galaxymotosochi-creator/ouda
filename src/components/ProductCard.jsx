@@ -33,14 +33,14 @@ export default function ProductCard({ product, onAdd, inCart }) {
         <div className="product-name">{product.name}</div>
         <div className="product-specs">
           {colors.length > 0 ? (
-            <span>🎨 {t('color')}:
+            <span>{t('color')}:
               <strong>{translateColor(currentColor?.name || '')}</strong>
             </span>
           ) : (
-            <span>🎨 {t('color')}: <strong>{translateColor(product.color)}</strong></span>
+            <span>{t('color')}: <strong>{translateColor(product.color)}</strong></span>
           )}
-          <span>⚡ {t('power')}: <strong>{product.power}</strong></span>
-          <span>🔘 {t('tires')}: <strong>{product.tires}</strong></span>
+          <span>{t('power')}: <strong>{product.power}</strong></span>
+          <span>{t('tires')}: <strong>{product.tires}</strong></span>
         </div>
 
         {colors.length > 1 && (

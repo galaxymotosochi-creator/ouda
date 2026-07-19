@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLang } from '../i18n'
+import { PRESET_COLORS, getColorHex } from '../colors'
 
 const API = import.meta.env.VITE_API_URL || ''
 const LS_ORDERS = 'ouda_orders'
@@ -185,8 +186,16 @@ export default function Admin() {
                       {newProduct.colors.map((c, i) => (
                         <div key={i} className="color-editor-item">
                           <div className="swatch" style={{background:c.hex}} />
-                          <input placeholder="Название" value={c.name} onChange={e => updateColor(i,'name',e.target.value)} />
-                          <input placeholder="#hex" value={c.hex} onChange={e => updateColor(i,'hex',e.target.value)} style={{maxWidth:90}} />
+                          <select value={c.name} onChange={e => {
+                            const preset = PRESET_COLORS.find(p => p.name === e.target.value)
+                            updateColor(i,'name',e.target.value)
+                            if (preset) updateColor(i,'hex',preset.hex)
+                          }} style={{maxWidth:140}}>
+                            <option value="">Выберите цвет</option>
+                            {PRESET_COLORS.map(p => (
+                              <option key={p.name} value={p.name}>{p.name}</option>
+                            ))}
+                          </select>
                           <input placeholder="Фото" value={c.image} onChange={e => updateColor(i,'image',e.target.value)} style={{maxWidth:120}} />
                           <input placeholder="Цена" type="number" value={c.price} onChange={e => updateColor(i,'price',e.target.value)} style={{maxWidth:80}} />
                           <button className="remove" onClick={() => removeColor(i)}>✕</button>

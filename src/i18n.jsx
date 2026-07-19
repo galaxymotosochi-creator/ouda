@@ -1,4 +1,5 @@
 import { createContext, useContext, useState } from 'react'
+import { PRESET_COLORS, getColorByName } from './colors'
 
 const translations = {
   ru: {
@@ -118,38 +119,17 @@ const translations = {
   },
 }
 
-const colorsMap = {
-  ru: {
-    'Чёрный': 'Чёрный',
-    'Красный': 'Красный',
-    'Белый': 'Белый',
-    'Синий': 'Синий',
-    'Серый': 'Серый',
-    'Зелёный': 'Зелёный',
-    'Жёлтый': 'Жёлтый',
-    'Оранжевый': 'Оранжевый',
-    'Черный': 'Черный',
-  },
-  zh: {
-    'Чёрный': '黑色',
-    'Черный': '黑色',
-    'Красный': '红色',
-    'Белый': '白色',
-    'Синий': '蓝色',
-    'Серый': '灰色',
-    'Зелёный': '绿色',
-    'Жёлтый': '黄色',
-    'Оранжевый': '橙色',
-  },
-}
-
 const LangContext = createContext()
 
 export function LangProvider({ children }) {
   const [lang, setLang] = useState('ru')
 
   const t = (key) => translations[lang]?.[key] || translations.ru[key] || key
-  const translateColor = (colorName) => colorsMap[lang]?.[colorName] || colorName
+  const translateColor = (colorName) => {
+    const preset = getColorByName(colorName)
+    if (!preset) return colorName
+    return lang === 'zh' ? (preset.nameZh || colorName) : preset.name
+  }
 
   return (
     <LangContext.Provider value={{ lang, setLang, t, translateColor }}>
