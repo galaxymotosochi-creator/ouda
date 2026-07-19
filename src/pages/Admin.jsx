@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLang } from '../i18n'
-import { PRESET_COLORS, getColorHex } from '../colors'
+
 
 const API = import.meta.env.VITE_API_URL || ''
 const LS_ORDERS = 'ouda_orders'
@@ -12,15 +12,16 @@ function getLocal(key) { try { return JSON.parse(localStorage.getItem(key) || '[
 function setLocal(key, data) { localStorage.setItem(key, JSON.stringify(data)) }
 
 export default function Admin() {
-  const { t } = useLang()
+  const { t, lang, setLang } = useLang()
   const navigate = useNavigate()
   const [tab, setTab] = useState('orders')
   const [orders, setOrders] = useState([])
   const [products, setProducts] = useState([])
   const [stock, setStock] = useState([])
   const [newProduct, setNewProduct] = useState({
-    name: '', price: '', colors: [], power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', image: ''
+    name: '', price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', image: ''
   })
+  const [stockForm, setStockForm] = useState({ product_id: '', colors: {} })
 
   useEffect(() => {
     if (!sessionStorage.getItem('ouda_admin')) { navigate('/login'); return }
@@ -43,14 +44,20 @@ export default function Admin() {
     setTimeout(loadData, 300)
   }
 
-  const toggleColor = (preset) => {
-    setNewProduct(prev => {
-      const exists = prev.colors.find(c => c.name === preset.name)
-      if (exists) {
-        return { ...prev, colors: prev.colors.filter(c => c.name !== preset.name) }
-      }
-      return { ...prev, colors: [...prev.colors, { name: preset.name, hex: preset.hex }] }
-    })
+  const handleStockProductChange = (productId) => {
+    const product = products.find(p => p.id === Number(productId))
+    const colors = {}
+    if (product?.colors) {
+      product.colors.forEach(c => { colors[c.name] = 0 })
+    }
+    setStockForm({ product_id: Number(productId), colors })
+  }
+
+  const updateStockColor = (colorName, delta) => {
+    setStockForm(prev => ({
+      ...prev,
+      colors: { ...prev.colors, [colorName]: Math.max(0, (prev.colors[colorName] || 0) + delta) }
+    }))
   }
 
   const addProduct = (e) => {
@@ -63,7 +70,7 @@ export default function Admin() {
         list.push(product)
         setLocal(LS_PRODUCTS, list)
       })
-    setNewProduct({ name: '', price: '', colors: [], power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', image: '' })
+    setNewProduct({ name: '', price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', image: '' })
     setTimeout(loadData, 300)
   }
 
@@ -79,13 +86,16 @@ export default function Admin() {
 
   const addStock = (e) => {
     e.preventDefault()
-    const form = new FormData(e.target)
+    const product = products.find(p => p.id === stockForm.product_id)
+    const hasAny = Object.values(stockForm.colors).some(v => v > 0)
+    if (!product || !hasAny) return
+
     const entry = {
       id: Date.now(),
-      product_id: Number(form.get('product_id')),
-      product_name: products.find(p => p.id === Number(form.get('product_id')))?.name || '—',
-      qty: Number(form.get('qty')),
-      date: form.get('date') || new Date().toISOString().slice(0, 10),
+      product_id: stockForm.product_id,
+      product_name: product.name,
+      date: document.getElementById('stock-date')?.value || new Date().toISOString().slice(0, 10),
+      colors: stockForm.colors,
     }
     fetch(`${API}/api/stock`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(entry) })
       .catch(() => {
@@ -93,7 +103,8 @@ export default function Admin() {
         list.push(entry)
         setLocal(LS_STOCK, list)
       })
-    e.target.reset()
+    setStockForm({ product_id: '', colors: {} })
+    document.getElementById('stock-product').value = ''
     setTimeout(loadData, 300)
   }
 
@@ -112,15 +123,21 @@ export default function Admin() {
   return (
     <div className="admin-page">
       <div className="admin-header">
-        <h2>🔧 {t('adminTitle')}</h2>
+        <div style={{display:'flex',alignItems:'center',gap:16}}>
+          <h2>{t('adminTitle')}</h2>
+          <div className="lang-switch">
+            <button className={`lang-btn ${lang === 'ru' ? 'active' : ''}`} onClick={() => setLang('ru')}>RU</button>
+            <button className={`lang-btn ${lang === 'zh' ? 'active' : ''}`} onClick={() => setLang('zh')}>中文</button>
+          </div>
+        </div>
         <button className="admin-logout" onClick={logout}>{t('logout')}</button>
       </div>
       <div className="admin-content">
         <div className="admin-tabs">
           {[
-            { key: 'orders', label: `📋 ${t('orders')} (${orders.length})` },
-            { key: 'products', label: `🏍️ ${t('products')} (${products.length})` },
-            { key: 'stock', label: `📦 ${t('stock')}` },
+            { key: 'orders', label: `${t('orders')} (${orders.length})` },
+            { key: 'products', label: `${t('products')} (${products.length})` },
+            { key: 'stock', label: `${t('stock')}` },
           ].map(tabItem => (
             <button key={tabItem.key} className={`admin-tab ${tab === tabItem.key ? 'active' : ''}`}
               onClick={() => setTab(tabItem.key)}>{tabItem.label}</button>
@@ -167,26 +184,7 @@ export default function Admin() {
                   onChange={e => setNewProduct({...newProduct, name: e.target.value})} required />
                 <input placeholder={`${t('priceLabel')} *`} type="number" value={newProduct.price}
                   onChange={e => setNewProduct({...newProduct, price: e.target.value})} required />
-                <div className="full-width">
-                  <div style={{fontSize:13,color:'var(--text-muted)',marginBottom:8}}>🎨 {t('color')}</div>
-                  <div className="palette">
-                    {PRESET_COLORS.map(p => {
-                      const selected = newProduct.colors.some(c => c.name === p.name)
-                      return (
-                        <div
-                          key={p.name}
-                          className={`palette-color ${selected ? 'selected' : ''} ${p.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`}
-                          style={p.hex !== 'chameleon' ? { background: p.hex } : {}}
-                          onClick={() => toggleColor(p)}
-                          title={p.name}
-                        >
-                          {selected && <span className="palette-check">✓</span>}
-                        </div>
-                      )
-                    })}
-                  </div>
-                  <div style={{fontSize:12,color:'var(--text-muted)',marginTop:6}}>Выбрано: {newProduct.colors.map(c => c.name).join(', ') || '—'}</div>
-                </div>
+
                 <input placeholder={t('power')} value={newProduct.power}
                   onChange={e => setNewProduct({...newProduct, power: e.target.value})} />
                 <input placeholder={t('fuel')} value={newProduct.fuel}
@@ -203,7 +201,7 @@ export default function Admin() {
                   <textarea placeholder={t('descLabel')} value={newProduct.description}
                     onChange={e => setNewProduct({...newProduct, description: e.target.value})} />
                 </div>
-                <button type="submit">➕ {t('addProduct')}</button>
+                <button type="submit">{t('addProduct')}</button>
               </div>
             </form>
             <table className="admin-table">
@@ -225,7 +223,7 @@ export default function Admin() {
                         ))}
                       </div>
                     ) : (p.color || '—')}</td>
-                    <td><button className="admin-btn admin-btn-done" onClick={() => deleteProduct(p.id)} style={{color:'#ef4444'}}>🗑️</button></td>
+                    <td><button className="admin-btn admin-btn-done" onClick={() => deleteProduct(p.id)} style={{color:'#ef4444'}}>{t('delete')}</button></td>
                   </tr>
                 ))}
                 {products.length===0 && <tr><td colSpan={6} style={{textAlign:'center',color:'#666',padding:40}}>{t('noProducts')}</td></tr>}
@@ -239,13 +237,32 @@ export default function Admin() {
             <form className="admin-add-form" onSubmit={addStock}>
               <h3>{t('addStock')}</h3>
               <div className="form-grid">
-                <select name="product_id" required>
+                <select id="stock-product" className="full-width" onChange={e => handleStockProductChange(e.target.value)} defaultValue="">
                   <option value="">{t('selectProduct')}</option>
                   {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
-                <input name="qty" type="number" placeholder={t('qty')} required min="1" />
-                <input name="date" type="date" className="full-width" defaultValue={new Date().toISOString().slice(0,10)} />
-                <button type="submit">📦 {t('addStock')}</button>
+
+                {stockForm.product_id && products.find(p => p.id === stockForm.product_id)?.colors?.length > 0 && (
+                  <div className="full-width stock-colors">
+                    <div style={{fontSize:13,color:'var(--text-muted)',marginBottom:10}}>{t('color')}</div>
+                    {products.find(p => p.id === stockForm.product_id).colors.map(c => {
+                      const qty = stockForm.colors[c.name] || 0
+                      return (
+                        <div key={c.name} className="stock-color-row">
+                          <div className={`stock-color-swatch ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`}
+                            style={c.hex !== 'chameleon' ? { background: c.hex } : {}} />
+                          <span className="stock-color-name">{c.name}</span>
+                          <button type="button" className="stock-qty-btn" onClick={() => updateStockColor(c.name, -1)}>−</button>
+                          <span className="stock-qty">{qty}</span>
+                          <button type="button" className="stock-qty-btn" onClick={() => updateStockColor(c.name, 1)}>+</button>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+
+                <input id="stock-date" name="date" type="date" className="full-width" defaultValue={new Date().toISOString().slice(0,10)} />
+                <button type="submit">{t('addStock')}</button>
               </div>
             </form>
             <div className="stock-list">
@@ -253,7 +270,9 @@ export default function Admin() {
                 <div key={s.id} className="stock-item">
                   <div className="stock-item-info">
                     <strong>{s.product_name}</strong>
-                    <span>×{s.qty}</span>
+                    {s.colors && Object.entries(s.colors).filter(([,v]) => v > 0).map(([color, qty]) => (
+                      <span key={color} className="stock-color-tag">{color}: {qty} шт</span>
+                    ))}
                     <span style={{color:'#666',fontSize:13}}>{s.date}</span>
                   </div>
                 </div>

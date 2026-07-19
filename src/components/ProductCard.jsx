@@ -31,20 +31,11 @@ export default function ProductCard({ product, onAdd, inCart }) {
       <div className="product-body">
         <div className="product-name">{product.name}</div>
 
-        {/* Colors — one line with swatches */}
+        {/* Colors — comma separated */}
         {hasColors && (
           <div className="product-colors">
             <span className="spec-label">{t('color')}:</span>
-            <div className="color-swatches" style={{margin:0,display:'inline-flex'}}>
-              {colors.map((c, i) => (
-                <div
-                  key={i}
-                  className={`color-swatch-display ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`}
-                  style={c.hex !== 'chameleon' ? { background: c.hex } : {}}
-                  title={c.name}
-                />
-              ))}
-            </div>
+            <strong>{colors.map(c => translateColor(c.name)).join(', ')}</strong>
           </div>
         )}
 

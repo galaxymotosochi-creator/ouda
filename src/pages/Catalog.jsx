@@ -142,15 +142,19 @@ export default function Catalog() {
         <div className="color-modal-overlay" onClick={() => setColorModal(null)}>
           <div className="color-modal" onClick={e => e.stopPropagation()}>
             <h4>Выберите цвет</h4>
-            <div className="palette">
+            <div className="color-picker-list">
               {(colorModal.colors || []).map(c => (
                 <div
                   key={c.name}
-                  className={`palette-color ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`}
-                  style={c.hex !== 'chameleon' ? { background: c.hex } : {}}
+                  className="color-picker-item"
                   onClick={() => handleColorSelect(c.name, c.hex)}
-                  title={c.name}
-                />
+                >
+                  <div
+                    className={`color-picker-circle ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`}
+                    style={c.hex !== 'chameleon' ? { background: c.hex } : {}}
+                  />
+                  <span className="color-picker-name">{c.name}</span>
+                </div>
               ))}
             </div>
             <div>
