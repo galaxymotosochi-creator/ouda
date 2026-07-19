@@ -185,7 +185,7 @@ export default function Admin() {
                     <div className="color-editor-list">
                       {newProduct.colors.map((c, i) => (
                         <div key={i} className="color-editor-item">
-                          <div className="swatch" style={{background:c.hex}} />
+                          <div className={`swatch ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`} style={c.hex !== 'chameleon' ? {background:c.hex} : {}} />
                           <select value={c.name} onChange={e => {
                             const preset = PRESET_COLORS.find(p => p.name === e.target.value)
                             updateColor(i,'name',e.target.value)
@@ -230,7 +230,7 @@ export default function Admin() {
                     <td>{p.colors?.length > 0 ? (
                       <div className="color-swatches" style={{margin:0}}>
                         {p.colors.map((c, i) => (
-                          <div key={i} className="color-swatch" style={{background:c.hex,width:16,height:16,cursor:'default'}} title={c.name} />
+                          <div key={i} className={`color-swatch ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`} style={c.hex !== 'chameleon' ? {background:c.hex,width:16,height:16,cursor:'default'} : {width:16,height:16,cursor:'default'}} title={c.name} />
                         ))}
                       </div>
                     ) : (p.color || '—')}</td>

@@ -12,6 +12,7 @@ export const PRESET_COLORS = [
   { name: 'Тёмно-синий', nameZh: '深蓝', hex: '#0d1b3e' },
   { name: 'Хаки', nameZh: '卡其色', hex: '#6b6b3d' },
   { name: 'Бордовый', nameZh: '酒红色', hex: '#6b1a2a' },
+  { name: 'Хамелеон', nameZh: '变色龙', hex: 'chameleon' },
 ]
 
 export function getColorByName(name) {

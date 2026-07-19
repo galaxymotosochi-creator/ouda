@@ -48,8 +48,8 @@ export default function ProductCard({ product, onAdd, inCart }) {
             {colors.map((c, i) => (
               <div
                 key={i}
-                className={`color-swatch ${i === selectedColor ? 'selected' : ''}`}
-                style={{ background: c.hex }}
+                className={`color-swatch ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''} ${i === selectedColor ? 'selected' : ''}`}
+                style={c.hex !== 'chameleon' ? { background: c.hex } : {}}
                 onClick={() => setSelectedColor(i)}
                 title={c.name}
               />
