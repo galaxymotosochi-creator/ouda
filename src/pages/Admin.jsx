@@ -43,26 +43,14 @@ export default function Admin() {
     setTimeout(loadData, 300)
   }
 
-  const addColor = () => {
-    setNewProduct(prev => ({
-      ...prev,
-      colors: [...prev.colors, { name: '', hex: '#111111', image: '', price: '' }]
-    }))
-  }
-
-  const updateColor = (idx, field, value) => {
+  const toggleColor = (preset) => {
     setNewProduct(prev => {
-      const colors = [...prev.colors]
-      colors[idx] = { ...colors[idx], [field]: value }
-      return { ...prev, colors }
+      const exists = prev.colors.find(c => c.name === preset.name)
+      if (exists) {
+        return { ...prev, colors: prev.colors.filter(c => c.name !== preset.name) }
+      }
+      return { ...prev, colors: [...prev.colors, { name: preset.name, hex: preset.hex }] }
     })
-  }
-
-  const removeColor = (idx) => {
-    setNewProduct(prev => ({
-      ...prev,
-      colors: prev.colors.filter((_, i) => i !== idx)
-    }))
   }
 
   const addProduct = (e) => {
@@ -181,29 +169,23 @@ export default function Admin() {
                   onChange={e => setNewProduct({...newProduct, price: e.target.value})} required />
                 <div className="full-width">
                   <div style={{fontSize:13,color:'var(--text-muted)',marginBottom:8}}>🎨 {t('color')}</div>
-                  <div className="color-editor">
-                    <div className="color-editor-list">
-                      {newProduct.colors.map((c, i) => (
-                        <div key={i} className="color-editor-item">
-                          <div className={`swatch ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`} style={c.hex !== 'chameleon' ? {background:c.hex} : {}} />
-                          <select value={c.name} onChange={e => {
-                            const preset = PRESET_COLORS.find(p => p.name === e.target.value)
-                            updateColor(i,'name',e.target.value)
-                            if (preset) updateColor(i,'hex',preset.hex)
-                          }} style={{maxWidth:140}}>
-                            <option value="">Выберите цвет</option>
-                            {PRESET_COLORS.map(p => (
-                              <option key={p.name} value={p.name}>{p.name}</option>
-                            ))}
-                          </select>
-                          <input placeholder="Фото" value={c.image} onChange={e => updateColor(i,'image',e.target.value)} style={{maxWidth:120}} />
-                          <input placeholder="Цена" type="number" value={c.price} onChange={e => updateColor(i,'price',e.target.value)} style={{maxWidth:80}} />
-                          <button className="remove" onClick={() => removeColor(i)}>✕</button>
+                  <div className="palette">
+                    {PRESET_COLORS.map(p => {
+                      const selected = newProduct.colors.some(c => c.name === p.name)
+                      return (
+                        <div
+                          key={p.name}
+                          className={`palette-color ${selected ? 'selected' : ''} ${p.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`}
+                          style={p.hex !== 'chameleon' ? { background: p.hex } : {}}
+                          onClick={() => toggleColor(p)}
+                          title={p.name}
+                        >
+                          {selected && <span className="palette-check">✓</span>}
                         </div>
-                      ))}
-                    </div>
-                    <button type="button" className="add-btn" onClick={addColor}>+ {t('addColor')}</button>
+                      )
+                    })}
                   </div>
+                  <div style={{fontSize:12,color:'var(--text-muted)',marginTop:6}}>Выбрано: {newProduct.colors.map(c => c.name).join(', ') || '—'}</div>
                 </div>
                 <input placeholder={t('power')} value={newProduct.power}
                   onChange={e => setNewProduct({...newProduct, power: e.target.value})} />

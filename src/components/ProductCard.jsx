@@ -7,9 +7,8 @@ export default function ProductCard({ product, onAdd, inCart }) {
   const [selectedColor, setSelectedColor] = useState(0)
 
   const currentColor = colors[selectedColor]
-  const displayImage = currentColor?.image || product.image || '/placeholder.svg'
-  // use color-specific price if set, else base price
-  const displayPrice = currentColor?.price ? Number(currentColor.price) : product.price
+  const displayImage = product.image || '/placeholder.svg'
+  const displayPrice = product.price
 
   const handleAdd = () => {
     onAdd({
