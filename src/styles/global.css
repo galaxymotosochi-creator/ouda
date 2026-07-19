@@ -13,8 +13,8 @@
   --accent: #ff6b00;
   --accent-hover: #e05e00;
   --border: #333;
-  --green: #22c55e;
   --red: #ef4444;
+  --accent-dim: rgba(255,107,0,0.15);
   --radius: 12px;
   --radius-sm: 8px;
 }
@@ -48,6 +48,17 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
 }
 .header-logo { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
 .header-logo span { color: var(--accent); }
+.header-left { display: flex; align-items: center; gap: 16px; }
+.lang-switch {
+  display: flex; gap: 4px;
+}
+.lang-btn {
+  background: none; color: var(--text-muted); padding: 4px 10px;
+  border-radius: 4px; font-size: 13px; font-weight: 600;
+  transition: all 0.2s;
+}
+.lang-btn:hover { color: var(--text); }
+.lang-btn.active { background: var(--accent); color: #fff; }
 .header-cart-btn {
   background: var(--accent); color: #fff; padding: 10px 20px;
   border-radius: var(--radius-sm); font-weight: 600; font-size: 14px;
@@ -240,8 +251,8 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
 .badge-usdt { background: rgba(255,107,0,0.15); color: var(--accent); }
 .admin-actions { display: flex; gap: 6px; }
 .admin-btn { padding: 6px 14px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 600; transition: all 0.2s; }
-.admin-btn-accept { background: rgba(34,197,94,0.15); color: var(--green); }
-.admin-btn-accept:hover { background: var(--green); color: #fff; }
+.admin-btn-accept { background: var(--accent-dim); color: var(--accent); }
+.admin-btn-accept:hover { background: var(--accent); color: #fff; }
 .admin-btn-done { background: rgba(153,153,153,0.15); color: var(--text-muted); }
 .admin-btn-done:hover { background: var(--text-muted); color: var(--bg); }
 

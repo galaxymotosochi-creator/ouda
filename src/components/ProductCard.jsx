@@ -1,4 +1,8 @@
+import { useLang } from '../i18n'
+
 export default function ProductCard({ product, onAdd, inCart }) {
+  const { t } = useLang()
+
   return (
     <div className="product-card">
       <img
@@ -10,18 +14,18 @@ export default function ProductCard({ product, onAdd, inCart }) {
       <div className="product-body">
         <div className="product-name">{product.name}</div>
         <div className="product-specs">
-          <span>🎨 Цвет: <strong>{product.color}</strong></span>
-          <span>⚡ Мощность: <strong>{product.power}</strong></span>
-          <span>🔘 Резина: <strong>{product.tires}</strong></span>
+          <span>🎨 {t('color')}: <strong>{product.color}</strong></span>
+          <span>⚡ {t('power')}: <strong>{product.power}</strong></span>
+          <span>🔘 {t('tires')}: <strong>{product.tires}</strong></span>
         </div>
         <div className="product-price">
-          {product.price.toLocaleString('ru-RU')} ₽
+          {product.price.toLocaleString('ru-RU')} {t('rub')}
         </div>
         <button
           className={`product-add ${inCart ? 'in-cart' : ''}`}
           onClick={() => onAdd(product)}
         >
-          {inCart ? '✓ В корзине' : 'В корзину'}
+          {inCart ? t('inCart') : t('addToCart')}
         </button>
       </div>
     </div>

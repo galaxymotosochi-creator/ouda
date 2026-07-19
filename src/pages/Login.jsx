@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useLang } from '../i18n'
 
 const ADMIN_PASS = 'ouda2026'
 
 export default function Login() {
+  const { t } = useLang()
   const [pass, setPass] = useState('')
   const [error, setError] = useState(false)
   const navigate = useNavigate()
@@ -21,16 +23,11 @@ export default function Login() {
   return (
     <div className="login-page">
       <form className="login-box" onSubmit={handleSubmit}>
-        <h2>Вход в админку</h2>
-        {error && <div className="login-error">Неверный пароль</div>}
-        <input
-          type="password"
-          placeholder="Пароль"
-          value={pass}
-          onChange={e => { setPass(e.target.value); setError(false) }}
-          autoFocus
-        />
-        <button type="submit">Войти</button>
+        <h2>{t('loginTitle')}</h2>
+        {error && <div className="login-error">{t('loginError')}</div>}
+        <input type="password" placeholder="••••••" value={pass}
+          onChange={e => { setPass(e.target.value); setError(false) }} autoFocus />
+        <button type="submit">{t('loginBtn')}</button>
       </form>
     </div>
   )

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useLang } from '../i18n'
 import Header from '../components/Header'
 import Cart from '../components/Cart'
 import ProductCard from '../components/ProductCard'
@@ -6,6 +7,7 @@ import ProductCard from '../components/ProductCard'
 const API = import.meta.env.VITE_API_URL || ''
 
 export default function Catalog() {
+  const { t } = useLang()
   const [products, setProducts] = useState([])
   const [cart, setCart] = useState([])
   const [cartOpen, setCartOpen] = useState(false)
@@ -16,11 +18,10 @@ export default function Catalog() {
       .then(r => r.json())
       .then(setProducts)
       .catch(() => {
-        // fallback demo data
         setProducts([
-          { id: 1, name: 'OUDA Street 50', price: 79900, image: '/scooter1.jpg', color: 'Чёрный', power: '50cc', tires: '10"', description: 'Городской скутер 50cc' },
-          { id: 2, name: 'OUDA Sport 125', price: 129900, image: '/scooter2.jpg', color: 'Красный', power: '125cc', tires: '12"', description: 'Спортивный скутер 125cc' },
-          { id: 3, name: 'OUDA Electric', price: 99900, image: '/scooter3.jpg', color: 'Белый', power: '2000W', tires: '10"', description: 'Электроскутер 2000W' },
+          { id: 1, name: 'OUDA Street 50', price: 79900, image: '/placeholder.svg', color: 'Чёрный', power: '50cc', tires: '10"', description: 'Городской скутер 50cc' },
+          { id: 2, name: 'OUDA Sport 125', price: 129900, image: '/placeholder.svg', color: 'Красный', power: '125cc', tires: '12"', description: 'Спортивный скутер 125cc' },
+          { id: 3, name: 'OUDA Electric', price: 99900, image: '/placeholder.svg', color: 'Белый', power: '2000W', tires: '10"', description: 'Электроскутер 2000W' },
         ])
       })
   }, [])
@@ -59,19 +60,16 @@ export default function Catalog() {
 
   return (
     <>
-      <Header
-        cartCount={totalItems}
-        onCartClick={() => setCartOpen(true)}
-      />
+      <Header cartCount={totalItems} onCartClick={() => setCartOpen(true)} />
 
       <section className="hero">
-        <h1>OUDA <span>Скутеры</span></h1>
-        <p>Стильные и надёжные скутеры для города. Качество, скорость, доступная цена.</p>
-        <a href="#catalog" className="hero-btn">Смотреть каталог</a>
+        <h1>{t('heroTitle')}</h1>
+        <p>{t('heroDesc')}</p>
+        <a href="#catalog" className="hero-btn">{t('heroBtn')}</a>
       </section>
 
       <section className="catalog" id="catalog">
-        <h2>Каталог</h2>
+        <h2>{t('catalogTitle')}</h2>
         <div className="catalog-grid">
           {products.map(product => (
             <ProductCard
@@ -95,7 +93,7 @@ export default function Catalog() {
         onSuccess={() => {
           setCart([])
           setCartOpen(false)
-          showToast('Спасибо! Заказ отправлен, мы свяжемся с вами 🏍️')
+          showToast(t('successMsg'))
         }}
       />
 
