@@ -15,7 +15,8 @@ export default function Catalog() {
   const [toast, setToast] = useState(null)
 
   // Color picker modal state
-  const [colorModal, setColorModal] = useState(null) // { product, callback }
+  const [colorModal, setColorModal] = useState(null) // { product }
+  const [colorQtys, setColorQtys] = useState({}) // { 'Чёрный': 2, 'Белый': 1 }
 
   useEffect(() => {
     fetch(`${API}/api/products`)
@@ -47,20 +48,35 @@ export default function Catalog() {
 
   const handleAddClick = (product, needsColor) => {
     if (needsColor) {
-      // Show color picker
-      setColorModal({
-        product,
-        colors: product.colors,
-      })
+      // Init quantities from available_colors
+      const avail = product.available_colors || {}
+      const init = {}
+      Object.keys(avail).forEach(name => { init[name] = 0 })
+      setColorQtys(init)
+      setColorModal({ product })
     } else {
-      const firstColor = product.colors?.[0]
-      addToCart(product, firstColor?.name || product.color, firstColor?.hex || '')
+      const availColors = Object.keys(product.available_colors || {}).filter(k => product.available_colors[k] > 0)
+      const firstName = availColors[0] || ''
+      addToCart(product, firstName, '')
     }
   }
 
-  const handleColorSelect = (colorName, colorHex) => {
+  const handleColorQty = (name, delta) => {
+    setColorQtys(prev => ({
+      ...prev,
+      [name]: Math.max(0, (prev[name] || 0) + delta)
+    }))
+  }
+
+  const handleAddColorsToCart = () => {
     if (!colorModal) return
-    addToCart(colorModal.product, colorName, colorHex)
+    Object.entries(colorQtys).forEach(([name, qty]) => {
+      if (qty > 0) {
+        for (let i = 0; i < qty; i++) {
+          addToCart(colorModal.product, name, '')
+        }
+      }
+    })
     setColorModal(null)
   }
 
@@ -120,11 +136,14 @@ export default function Catalog() {
         onRemove={removeFromCart}
         onAddAnother={(item) => {
           const product = products.find(p => p.id === item.id)
-          if (product?.colors?.length > 1) {
-            setColorModal({ product, colors: product.colors })
+          const availColors = Object.keys(product?.available_colors || {}).filter(k => (product.available_colors[k] || 0) > 0)
+          if (availColors.length > 1) {
+            const init = {}
+            availColors.forEach(name => { init[name] = 0 })
+            setColorQtys(init)
+            setColorModal({ product })
           } else {
-            // Single color — just add another of same
-            addToCart(product, item.selectedColor || product.color, item.selectedHex || '')
+            addToCart(product, item.selectedColor || (availColors[0] || ''), '')
           }
         }}
         api={API}
@@ -141,23 +160,28 @@ export default function Catalog() {
       {colorModal && (
         <div className="color-modal-overlay" onClick={() => setColorModal(null)}>
           <div className="color-modal" onClick={e => e.stopPropagation()}>
-            <h4>Выберите цвет</h4>
+            <h4>{colorModal.product.name}</h4>
+            <p style={{fontSize:13,color:'#666',marginBottom:16}}>Выберите цвета и количество</p>
             <div className="color-picker-list">
-              {(colorModal.colors || []).map(c => (
-                <div
-                  key={c.name}
-                  className="color-picker-item"
-                  onClick={() => handleColorSelect(c.name, c.hex)}
-                >
-                  <div
-                    className={`color-picker-circle ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`}
-                    style={c.hex !== 'chameleon' ? { background: c.hex } : {}}
-                  />
-                  <span className="color-picker-name">{c.name}</span>
-                </div>
-              ))}
+              {Object.entries(colorQtys).filter(([,qty]) => qty > 0 || true).map(([name, qty]) => {
+                const avail = (colorModal.product.available_colors || {})[name] || 0
+                return (
+                  <div key={name} className="color-picker-item">
+                    <span className="color-picker-name">{name}</span>
+                    <div className="cart-item-qty" style={{marginLeft:'auto'}}>
+                      <button onClick={() => handleColorQty(name, -1)}>−</button>
+                      <span>{qty}</span>
+                      <button onClick={() => handleColorQty(name, 1)}>+</button>
+                    </div>
+                    {avail > 0 && <span style={{fontSize:11,color:'#999',marginLeft:8}}>в нал. {avail}</span>}
+                  </div>
+                )
+              })}
             </div>
-            <div>
+            <div style={{marginTop:16,borderTop:'1px solid var(--border)',paddingTop:16}}>
+              <button className="product-add" onClick={handleAddColorsToCart}>
+                Добавить в корзину
+              </button>
               <button className="color-modal-cancel" onClick={() => setColorModal(null)}>
                 Отмена
               </button>
