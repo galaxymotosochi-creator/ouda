@@ -241,16 +241,157 @@ export default function Admin() {
       <div className="admin-content">
         <div className="admin-tabs">
           {[
+            { key: 'products', label: `${t('products')} (${products.length})` },
+            { key: 'stock', label: `${t('stock')}` },
+            { key: 'inventory', label: 'Остатки' },
             { key: 'orders', label: `${t('orders')} (${orders.length})` },
             { key: 'shipments', label: `Отгрузки (${shipments.length})` },
-            { key: 'products', label: `${t('products')} (${products.length})` },
-            { key: 'inventory', label: 'Остатки' },
-            { key: 'stock', label: `${t('stock')}` },
           ].map(tabItem => (
             <button key={tabItem.key} className={`admin-tab ${tab === tabItem.key ? 'active' : ''}`}
               onClick={() => setTab(tabItem.key)}>{tabItem.label}</button>
           ))}
         </div>
+
+        {/* === PRODUCTS TAB === */}
+        {tab === 'products' && (<>
+          <form className="admin-add-form" onSubmit={addProduct}>
+            <h3>{t('addProduct')}</h3>
+            <div className="form-grid">
+              <input placeholder={`${t('nameLabel')} *`} value={newProduct.name} onChange={e => setNewProduct({...newProduct, name: e.target.value})} required />
+              <input placeholder={`${t('priceLabel')} *`} type="number" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} required />
+              <input placeholder={t('power')} value={newProduct.power} onChange={e => setNewProduct({...newProduct, power: e.target.value})} />
+              <input placeholder={t('fuel')} value={newProduct.fuel} onChange={e => setNewProduct({...newProduct, fuel: e.target.value})} />
+              <input placeholder={t('cooling')} value={newProduct.cooling} onChange={e => setNewProduct({...newProduct, cooling: e.target.value})} />
+              <input placeholder={t('max_speed')} value={newProduct.max_speed} onChange={e => setNewProduct({...newProduct, max_speed: e.target.value})} />
+              <input placeholder={t('wheels')} value={newProduct.wheels} onChange={e => setNewProduct({...newProduct, wheels: e.target.value})} />
+              <input placeholder={t('photoLink')} value={newProduct.image} onChange={e => setNewProduct({...newProduct, image: e.target.value})} />
+              <div className="full-width"><textarea placeholder={t('descLabel')} value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})} /></div>
+              <button type="submit">{t('addProduct')}</button>
+            </div>
+          </form>
+          <table className="admin-table">
+            <thead><tr>
+              <th>{t('nameLabel')}</th><th>{t('priceLabel')}</th><th>{t('power')}</th><th>{t('fuel')}</th><th>{t('wheels')}</th><th>Цвета</th><th></th>
+            </tr></thead>
+            <tbody>
+              {products.map(p => (
+                <tr key={p.id}>
+                  <td><strong>{p.name}</strong></td>
+                  <td>{p.price.toLocaleString('ru-RU')} ₽</td>
+                  <td>{p.power||'—'}</td>
+                  <td>{p.fuel||'—'}</td>
+                  <td>{p.wheels||'—'}</td>
+                  <td>{p.colors?.length > 0 ? (
+                    <div className="color-swatches" style={{margin:0}}>
+                      {p.colors.map((c, i) => (
+                        <div key={i} className={`color-swatch ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`} style={c.hex !== 'chameleon' ? {background:c.hex,width:16,height:16,cursor:'default'} : {width:16,height:16,cursor:'default'}} title={c.name} />
+                      ))}
+                    </div>
+                  ) : (p.color || '—')}</td>
+                  <td><button className="admin-btn admin-btn-done" onClick={() => deleteProduct(p.id)} style={{color:'#ef4444'}}>{t('delete')}</button></td>
+                </tr>
+              ))}
+              {products.length===0 && <tr><td colSpan={6} style={{textAlign:'center',color:'#666',padding:40}}>{t('noProducts')}</td></tr>}
+            </tbody>
+          </table>
+        </>)}
+
+        {/* === STOCK TAB === */}
+        {tab === 'stock' && (<>
+          <form className="admin-add-form" onSubmit={addStock}>
+            <h3>{t('addStock')}</h3>
+            <div className="form-grid">
+              <select id="stock-product" className="full-width" onChange={e => handleStockProductChange(e.target.value)} defaultValue="">
+                <option value="">{t('selectProduct')}</option>
+                {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+              {stockForm.product_id && products.find(p => p.id === stockForm.product_id)?.colors?.length > 0 && (
+                <div className="full-width stock-colors">
+                  <div style={{fontSize:13,color:'var(--text-muted)',marginBottom:10}}>{t('color')}</div>
+                  {products.find(p => p.id === stockForm.product_id).colors.map(c => {
+                    const qty = stockForm.colors[c.name] || 0
+                    return (
+                      <div key={c.name} className="stock-color-row">
+                        <div className={`stock-color-swatch ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`} style={c.hex !== 'chameleon' ? { background: c.hex } : {}} />
+                        <span className="stock-color-name">{c.name}</span>
+                        <button type="button" className="stock-qty-btn" onClick={() => updateStockColor(c.name, -1)}>−</button>
+                        <span className="stock-qty">{qty}</span>
+                        <button type="button" className="stock-qty-btn" onClick={() => updateStockColor(c.name, 1)}>+</button>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+              <input id="stock-date" name="date" type="date" className="full-width" defaultValue={new Date().toISOString().slice(0,10)} />
+              <button type="submit">{t('addStock')}</button>
+            </div>
+          </form>
+          <div className="stock-list">
+            {stock.map(s => (
+              <div key={s.id} className="stock-item">
+                <div className="stock-item-info">
+                  <strong>{s.product_name}</strong>
+                  {s.colors && Object.entries(s.colors).filter(([,v]) => v > 0).map(([color, qty]) => (
+                    <span key={color} className="stock-color-tag">{color}: {qty} шт</span>
+                  ))}
+                  <span style={{color:'#666',fontSize:13}}>{s.date}</span>
+                  <span className={`admin-badge ${s.status==='received'?'badge-received':'badge-transit'}`}>
+                    {s.status==='received' ? 'Получено' : 'В пути до ' + (s.expected_date||'?')}
+                  </span>
+                </div>
+              </div>
+            ))}
+            {stock.length===0 && <p style={{color:'#666',textAlign:'center',padding:40}}>{t('noStock')}</p>}
+          </div>
+        </>)}
+      </div>
+
+      {/* === INVENTORY TAB === */}
+        {tab === 'inventory' && (<>
+          <div style={{marginBottom:16}}>
+            <h3 style={{fontSize:15,fontWeight:600}}>Остатки на складе</h3>
+          </div>
+          {inventory.filter(d => d.totalAvailable > 0 || d.totalReceived > 0).map(d => (
+            <div key={d.product_id} className="inventory-card">
+              <div className="inv-header">
+                <strong>{d.product_name}</strong>
+                <span className="inv-total">Всего: <b>{d.totalAvailable}</b> шт</span>
+              </div>
+              <table className="inv-table">
+                <thead><tr>
+                  <th>Цвет</th><th>Приход</th><th>Отгружено</th><th>Доступно</th><th></th>
+                </tr></thead>
+                <tbody>
+                  {d.colors.filter(c => c.received > 0 || c.available > 0).map(c => (
+                    <tr key={c.color}>
+                      <td>
+                        <div className="inv-color-cell">
+                          <div className={`color-swatch ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`}
+                            style={c.hex !== 'chameleon' ? {background:c.hex,width:16,height:16,cursor:'default'} : {width:16,height:16,cursor:'default'}} />
+                          <span>{c.color}</span>
+                        </div>
+                      </td>
+                      <td>{c.received}</td>
+                      <td>{c.shipped}</td>
+                      <td><strong className={c.available === 0 ? 'inv-zero' : 'inv-ok'}>{c.available}</strong></td>
+                      <td>
+                        {c.available > 0
+                          ? <span className="inv-badge">В наличии</span>
+                          : c.received > 0
+                            ? <span className="inv-badge inv-badge-out">Нет</span>
+                            : <span className="inv-badge inv-badge-none">Не было</span>
+                        }
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ))}
+          {inventory.filter(d => d.totalAvailable > 0 || d.totalReceived > 0).length === 0 && (
+            <p style={{color:'#666',textAlign:'center',padding:40}}>Нет остатков</p>
+          )}
+        </>)}
 
         {/* === ORDERS TAB === */}
         {tab === 'orders' && (<>
@@ -331,148 +472,7 @@ export default function Admin() {
           </table>
         </>)}
 
-        {/* === PRODUCTS TAB === */}
-        {tab === 'products' && (<>
-          <form className="admin-add-form" onSubmit={addProduct}>
-            <h3>{t('addProduct')}</h3>
-            <div className="form-grid">
-              <input placeholder={`${t('nameLabel')} *`} value={newProduct.name} onChange={e => setNewProduct({...newProduct, name: e.target.value})} required />
-              <input placeholder={`${t('priceLabel')} *`} type="number" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} required />
-              <input placeholder={t('power')} value={newProduct.power} onChange={e => setNewProduct({...newProduct, power: e.target.value})} />
-              <input placeholder={t('fuel')} value={newProduct.fuel} onChange={e => setNewProduct({...newProduct, fuel: e.target.value})} />
-              <input placeholder={t('cooling')} value={newProduct.cooling} onChange={e => setNewProduct({...newProduct, cooling: e.target.value})} />
-              <input placeholder={t('max_speed')} value={newProduct.max_speed} onChange={e => setNewProduct({...newProduct, max_speed: e.target.value})} />
-              <input placeholder={t('wheels')} value={newProduct.wheels} onChange={e => setNewProduct({...newProduct, wheels: e.target.value})} />
-              <input placeholder={t('photoLink')} value={newProduct.image} onChange={e => setNewProduct({...newProduct, image: e.target.value})} />
-              <div className="full-width"><textarea placeholder={t('descLabel')} value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})} /></div>
-              <button type="submit">{t('addProduct')}</button>
-            </div>
-          </form>
-          <table className="admin-table">
-            <thead><tr>
-              <th>{t('nameLabel')}</th><th>{t('priceLabel')}</th><th>{t('power')}</th><th>{t('fuel')}</th><th>{t('wheels')}</th><th>Цвета</th><th></th>
-            </tr></thead>
-            <tbody>
-              {products.map(p => (
-                <tr key={p.id}>
-                  <td><strong>{p.name}</strong></td>
-                  <td>{p.price.toLocaleString('ru-RU')} ₽</td>
-                  <td>{p.power||'—'}</td>
-                  <td>{p.fuel||'—'}</td>
-                  <td>{p.wheels||'—'}</td>
-                  <td>{p.colors?.length > 0 ? (
-                    <div className="color-swatches" style={{margin:0}}>
-                      {p.colors.map((c, i) => (
-                        <div key={i} className={`color-swatch ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`} style={c.hex !== 'chameleon' ? {background:c.hex,width:16,height:16,cursor:'default'} : {width:16,height:16,cursor:'default'}} title={c.name} />
-                      ))}
-                    </div>
-                  ) : (p.color || '—')}</td>
-                  <td><button className="admin-btn admin-btn-done" onClick={() => deleteProduct(p.id)} style={{color:'#ef4444'}}>{t('delete')}</button></td>
-                </tr>
-              ))}
-              {products.length===0 && <tr><td colSpan={6} style={{textAlign:'center',color:'#666',padding:40}}>{t('noProducts')}</td></tr>}
-            </tbody>
-          </table>
-        </>)}
-
-        {/* === INVENTORY TAB === */}
-        {tab === 'inventory' && (<>
-          <div style={{marginBottom:16}}>
-            <h3 style={{fontSize:15,fontWeight:600}}>Остатки на складе</h3>
-          </div>
-          {inventory.filter(d => d.totalAvailable > 0 || d.totalReceived > 0).map(d => (
-            <div key={d.product_id} className="inventory-card">
-              <div className="inv-header">
-                <strong>{d.product_name}</strong>
-                <span className="inv-total">Всего: <b>{d.totalAvailable}</b> шт</span>
-              </div>
-              <table className="inv-table">
-                <thead><tr>
-                  <th>Цвет</th><th>Приход</th><th>Отгружено</th><th>Доступно</th><th></th>
-                </tr></thead>
-                <tbody>
-                  {d.colors.filter(c => c.received > 0 || c.available > 0).map(c => (
-                    <tr key={c.color}>
-                      <td>
-                        <div className="inv-color-cell">
-                          <div className={`color-swatch ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`}
-                            style={c.hex !== 'chameleon' ? {background:c.hex,width:16,height:16,cursor:'default'} : {width:16,height:16,cursor:'default'}} />
-                          <span>{c.color}</span>
-                        </div>
-                      </td>
-                      <td>{c.received}</td>
-                      <td>{c.shipped}</td>
-                      <td><strong className={c.available === 0 ? 'inv-zero' : 'inv-ok'}>{c.available}</strong></td>
-                      <td>
-                        {c.available > 0
-                          ? <span className="inv-badge">В наличии</span>
-                          : c.received > 0
-                            ? <span className="inv-badge inv-badge-out">Нет</span>
-                            : <span className="inv-badge inv-badge-none">Не было</span>
-                        }
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ))}
-          {inventory.filter(d => d.totalAvailable > 0 || d.totalReceived > 0).length === 0 && (
-            <p style={{color:'#666',textAlign:'center',padding:40}}>Нет остатков</p>
-          )}
-        </>)}
-
-        {/* === STOCK TAB === */}
-        {tab === 'stock' && (<>
-          <form className="admin-add-form" onSubmit={addStock}>
-            <h3>{t('addStock')}</h3>
-            <div className="form-grid">
-              <select id="stock-product" className="full-width" onChange={e => handleStockProductChange(e.target.value)} defaultValue="">
-                <option value="">{t('selectProduct')}</option>
-                {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-              </select>
-              {stockForm.product_id && products.find(p => p.id === stockForm.product_id)?.colors?.length > 0 && (
-                <div className="full-width stock-colors">
-                  <div style={{fontSize:13,color:'var(--text-muted)',marginBottom:10}}>{t('color')}</div>
-                  {products.find(p => p.id === stockForm.product_id).colors.map(c => {
-                    const qty = stockForm.colors[c.name] || 0
-                    return (
-                      <div key={c.name} className="stock-color-row">
-                        <div className={`stock-color-swatch ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`} style={c.hex !== 'chameleon' ? { background: c.hex } : {}} />
-                        <span className="stock-color-name">{c.name}</span>
-                        <button type="button" className="stock-qty-btn" onClick={() => updateStockColor(c.name, -1)}>−</button>
-                        <span className="stock-qty">{qty}</span>
-                        <button type="button" className="stock-qty-btn" onClick={() => updateStockColor(c.name, 1)}>+</button>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-              <input id="stock-date" name="date" type="date" className="full-width" defaultValue={new Date().toISOString().slice(0,10)} />
-              <button type="submit">{t('addStock')}</button>
-            </div>
-          </form>
-          <div className="stock-list">
-            {stock.map(s => (
-              <div key={s.id} className="stock-item">
-                <div className="stock-item-info">
-                  <strong>{s.product_name}</strong>
-                  {s.colors && Object.entries(s.colors).filter(([,v]) => v > 0).map(([color, qty]) => (
-                    <span key={color} className="stock-color-tag">{color}: {qty} шт</span>
-                  ))}
-                  <span style={{color:'#666',fontSize:13}}>{s.date}</span>
-                  <span className={`admin-badge ${s.status==='received'?'badge-received':'badge-transit'}`}>
-                    {s.status==='received' ? 'Получено' : 'В пути до ' + (s.expected_date||'?')}
-                  </span>
-                </div>
-              </div>
-            ))}
-            {stock.length===0 && <p style={{color:'#666',textAlign:'center',padding:40}}>{t('noStock')}</p>}
-          </div>
-        </>)}
-      </div>
-
-      {/* === CREATE SHIPMENT MODAL === */}
+        {/* === CREATE SHIPMENT MODAL === */}
       {showShipModal && (
         <div className="modal-overlay" onClick={closeShipModal}>
           <div className="modal modal-wide" onClick={e => e.stopPropagation()}>
