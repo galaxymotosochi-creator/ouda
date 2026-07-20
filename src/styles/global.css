@@ -493,8 +493,8 @@ img { max-width: 100%; display: block; }
   transition: border-color 0.2s;
 }
 .stock-color-input:focus { border-color: var(--accent); }
-.stock-color-remove { background: none; color: var(--text-muted); padding: 4px 8px; border-radius: 6px; font-size: 13px; }
-.stock-color-remove:hover { color: var(--red); background: var(--bg-hover); }
+.admin-add-form .stock-color-remove, .stock-color-remove { background: transparent; border: none; color: #bbb; padding: 0 4px; margin: 0; font-size: 15px; cursor: pointer; line-height: 1; }
+.admin-add-form .stock-color-remove:hover, .stock-color-remove:hover { color: var(--red); }
 .admin-btn-add-color {
   background: none; color: var(--text-muted); padding: 8px 14px; border: 1px dashed var(--border);
   border-radius: 10px; font-size: 13px; margin-top: 6px; width: 100%; transition: all 0.2s;
@@ -525,7 +525,7 @@ img { max-width: 100%; display: block; }
   background: var(--bg-card);
 }
 .stock-color-picker .palette-color:hover { border-color: var(--accent); background: var(--bg-hover); }
-.stock-color-picker .palette-color.selected { border-color: var(--accent); box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--accent); background: var(--bg-hover); }
+.stock-color-picker .palette-color.selected { border-color: var(--accent); border-width: 2px; box-shadow: none; background: var(--bg-hover); }
 .stock-color-picker .palette-color .swatch {
   width: 28px; height: 28px; border-radius: 50%;
   border: 1px solid var(--border); overflow: hidden; flex-shrink: 0;
@@ -535,5 +535,5 @@ img { max-width: 100%; display: block; }
 .stock-selected-colors {
   border-top: 1px solid var(--border); padding-top: 12px; margin-top: 4px;
 }
-.stock-selected-colors .stock-color-row { margin-bottom: 8px; }
+.stock-selected-colors .stock-color-row { margin-bottom: 8px; padding: 4px 0; background: none; border: none; border-radius: 0; }
 .stock-selected-colors .stock-color-name { min-width: 80px; font-size: 13px; font-weight: 500; }

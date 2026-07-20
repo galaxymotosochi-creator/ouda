@@ -105,6 +105,7 @@ const translations = {
     phoneLabel: 'Телефон',
     amount: 'Сумма',
     shipmentFromOrder: 'Отгрузка из заказа',
+    inTransit: 'В пути',
     pcs: 'шт',
   },
   zh: {
@@ -203,6 +204,7 @@ const translations = {
     phoneLabel: '电话',
     amount: '金额',
     shipmentFromOrder: '从订单出货',
+    inTransit: '运输中',
     pcs: '件',
   },
 }

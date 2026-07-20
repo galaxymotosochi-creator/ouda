@@ -359,7 +359,7 @@ export default function Admin() {
                         onDragEnd={() => setDragIdx(null)}
                       >
                         <img src={p.url} alt="" />
-                        <button type="button" className="photo-remove" onClick={() => removePhoto(i)}>✕</button>
+                        <button type="button" className="photo-remove" onClick={() => removePhoto(i)}>×</button>
                         <div className="photo-order">{i + 1}</div>
                       </div>
                     ))}
@@ -429,7 +429,7 @@ export default function Admin() {
                             <button type="button" className="stock-qty-btn" onClick={() => updateStockColorQty(name, -1)}>−</button>
                             <span className="stock-qty">{qty}</span>
                             <button type="button" className="stock-qty-btn" onClick={() => updateStockColorQty(name, 1)}>+</button>
-                            <button type="button" className="stock-color-remove" onClick={() => toggleStockColor(name)}>✕</button>
+                            <button type="button" className="stock-color-remove" onClick={() => toggleStockColor(name)}>X</button>
                           </div>
                         )
                       })}
@@ -451,7 +451,7 @@ export default function Admin() {
                   ))}
                   <span style={{color:'#666',fontSize:13}}>{s.date}</span>
                   <span className={`admin-badge ${s.status==='received'?'badge-received':'badge-transit'}`}>
-                    {s.status==='received' ? t('received') : t('shipped') + ' ' + (s.expected_date||'?')}
+                    {s.status==='received' ? t('received') : t('inTransit') + ' ' + (s.expected_date||'?')}
                   </span>
                 </div>
               </div>
@@ -593,7 +593,7 @@ export default function Admin() {
           <div className="modal modal-wide" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h3>{shipOrder ? `${t('shipmentFromOrder')} #${shipOrder.id}` : t('newShipment')}</h3>
-              <button className="modal-close" onClick={closeShipModal}>✕</button>
+              <button className="modal-close" onClick={closeShipModal}>×</button>
             </div>
             <div className="modal-body">
               <h4 style={{marginBottom:12,fontSize:14,color:'#666'}}>Клиент</h4>
@@ -628,7 +628,7 @@ export default function Admin() {
                     </>
                   )}
                   {shipForm.items.length > 1 && (
-                    <button className="ship-remove" onClick={() => removeShipItem(idx)}>✕</button>
+                    <button className="ship-remove" onClick={() => removeShipItem(idx)}>×</button>
                   )}
                 </div>
               ))}
@@ -670,7 +670,7 @@ export default function Admin() {
               <h3>Накладная {invoiceShip.number}</h3>
               <div>
                 <button className="admin-btn admin-btn-print" onClick={() => window.print()}>Печать</button>
-                <button className="modal-close" onClick={() => setInvoiceShip(null)}>✕</button>
+                <button className="modal-close" onClick={() => setInvoiceShip(null)}>×</button>
               </div>
             </div>
             <div className="invoice-body" id="invoice-content">
