@@ -17,7 +17,7 @@ function formatDate(iso) {
 }
 
 export default function Admin() {
-  const { t, lang, setLang } = useLang()
+  const { t, lang, setLang, translateColor } = useLang()
   const navigate = useNavigate()
   const [tab, setTab] = useState('orders')
   const [orders, setOrders] = useState([])
@@ -363,7 +363,7 @@ export default function Admin() {
                   <td>{p.colors?.length > 0 ? (
                     <div className="color-swatches" style={{margin:0}}>
                       {p.colors.map((c, i) => (
-                        <div key={i} className={`color-swatch ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`} style={c.hex !== 'chameleon' ? {background:c.hex,width:16,height:16,cursor:'default'} : {width:16,height:16,cursor:'default'}} title={c.name} />
+                        <div key={i} className={`color-swatch ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`} style={c.hex !== 'chameleon' ? {background:c.hex,width:16,height:16,cursor:'default'} : {width:16,height:16,cursor:'default'}} title={translateColor(c.name)} />
                       ))}
                     </div>
                   ) : (p.color || '—')}</td>
@@ -392,7 +392,7 @@ export default function Admin() {
                     return (
                       <div key={c.name} className="stock-color-row">
                         <div className={`stock-color-swatch ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`} style={c.hex !== 'chameleon' ? { background: c.hex } : {}} />
-                        <span className="stock-color-name">{c.name}</span>
+                        <span className="stock-color-name">{translateColor(c.name)}</span>
                         <button type="button" className="stock-qty-btn" onClick={() => updateStockColor(c.name, -1)}>−</button>
                         <span className="stock-qty">{qty}</span>
                         <button type="button" className="stock-qty-btn" onClick={() => updateStockColor(c.name, 1)}>+</button>
@@ -411,7 +411,7 @@ export default function Admin() {
                 <div className="stock-item-info">
                   <strong>{s.product_name}</strong>
                   {s.colors && Object.entries(s.colors).filter(([,v]) => v > 0).map(([color, qty]) => (
-                    <span key={color} className="stock-color-tag">{color}: {qty} {t("pcs")}</span>
+                    <span key={color} className="stock-color-tag">{translateColor(color)}: {qty} {t("pcs")}</span>
                   ))}
                   <span style={{color:'#666',fontSize:13}}>{s.date}</span>
                   <span className={`admin-badge ${s.status==='received'?'badge-received':'badge-transit'}`}>
@@ -447,7 +447,7 @@ export default function Admin() {
                         <div className="inv-color-cell">
                           <div className={`color-swatch ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`}
                             style={c.hex !== 'chameleon' ? {background:c.hex,width:16,height:16,cursor:'default'} : {width:16,height:16,cursor:'default'}} />
-                          <span>{c.color}</span>
+                          <span>{translateColor(c.color)}</span>
                         </div>
                       </td>
                       <td>{c.received}</td>
@@ -586,7 +586,7 @@ export default function Admin() {
                     <>
                       <select className="ship-select ship-color" value={item.color} onChange={e => updateShipItem(idx, 'color', e.target.value)}>
                         {(products.find(p => p.id === item.product_id)?.colors || []).map(c => (
-                          <option key={c.name} value={c.name}>{c.name}</option>
+                          <option key={c.name} value={c.name}>{translateColor(c.name)}</option>
                         ))}
                       </select>
                       <input className="ship-input ship-qty" type="number" min="0" value={item.qty}
@@ -670,7 +670,7 @@ export default function Admin() {
                     <tr key={i}>
                       <td>{i+1}</td>
                       <td>{item.product_name}</td>
-                      <td>{item.color || '—'}</td>
+                      <td>{translateColor(item.color) || '—'}</td>
                       <td>{item.qty}</td>
                       <td>{(item.price||0).toLocaleString('ru-RU')} ₽</td>
                       <td>{(item.subtotal||0).toLocaleString('ru-RU')} ₽</td>
