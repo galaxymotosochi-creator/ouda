@@ -450,3 +450,10 @@ img { max-width: 100%; display: block; }
   opacity: 0; transition: opacity 0.2s;
 }
 .photo-preview:hover .photo-remove { opacity: 1; }
+
+/* Product description */
+.product-desc {
+  font-size: 13px; color: var(--text-muted); line-height: 1.6;
+  margin-bottom: 14px; padding: 10px 14px; background: var(--bg);
+  border-radius: 10px; border: 1px solid var(--border);
+}

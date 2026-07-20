@@ -48,6 +48,10 @@ export default function ProductCard({ product, onAdd, inCart }) {
           <span className="spec-label">{t('wheels')}:</span> <strong>{product.wheels}</strong>
         </div>
 
+        {product.description && (
+          <div className="product-desc">{product.description}</div>
+        )}
+
         <div className="product-price">
           {product.price.toLocaleString('ru-RU')} {t('rub')}
         </div>
