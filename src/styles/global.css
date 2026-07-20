@@ -80,8 +80,7 @@ img { max-width: 100%; display: block; }
 .hero::before {
   content: '';
   position: absolute; inset: 0;
-  background: rgba(0,0,0,0.4);
-  backdrop-filter: blur(2px);
+  background: rgba(0,0,0,0.15);
   z-index: 0;
 }
 .hero h1 {

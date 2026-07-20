@@ -108,7 +108,7 @@ export default function Catalog() {
     <>
       <Header cartCount={totalItems} onCartClick={() => setCartOpen(true)} />
 
-      <section className="hero" style={{backgroundImage:'url(/hero.jpg)'}}>
+      <section className="hero" style={{backgroundImage:'url(/hero.jpg?v=' + Date.now() + ')'}}>
         <div className="hero-overlay">
           <h1>{t('heroTitle')}</h1>
           <p>{t('heroDesc')}</p>
@@ -127,7 +127,6 @@ export default function Catalog() {
       </section>
 
       <section className="catalog" id="catalog">
-        <h2>{t('catalogTitle')}</h2>
         <div className="catalog-grid">
           {products.map(product => (
             <ProductCard
