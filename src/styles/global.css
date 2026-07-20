@@ -537,3 +537,11 @@ img { max-width: 100%; display: block; }
 }
 .stock-selected-colors .stock-color-row { margin-bottom: 8px; padding: 4px 0; background: none; border: none; border-radius: 0; }
 .stock-selected-colors .stock-color-name { min-width: 80px; font-size: 13px; font-weight: 500; }
+
+/* Stock form status */
+.stock-status-select, .stock-expected-date {
+  padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--bg); color: var(--text); font-size: 14px; outline: none;
+  transition: border-color 0.2s; flex: 1;
+}
+.stock-status-select:focus, .stock-expected-date:focus { border-color: var(--accent); }

@@ -41,7 +41,7 @@ export default function Admin() {
   const [photos, setPhotos] = useState([]) // file previews
   const [uploading, setUploading] = useState(false)
   // Stock form
-  const [stockForm, setStockForm] = useState({ product_id: '', selectedColors: {} })  // { 'Красный': 5, 'Чёрный': 3 }
+  const [stockForm, setStockForm] = useState({ product_id: '', selectedColors: {}, status: 'received', expected_date: '' })  // { 'Красный': 5, 'Чёрный': 3 }
   const [inventory, setInventory] = useState([])
 
   useEffect(() => {
@@ -177,7 +177,7 @@ export default function Admin() {
 
   // === PRODUCT & STOCK ===
   const handleStockProductChange = (productId) => {
-    setStockForm({ product_id: Number(productId), selectedColors: {} })
+    setStockForm({ product_id: Number(productId), selectedColors: {}, status: 'received', expected_date: '' })
   }
 
   const toggleStockColor = (colorName) => {
@@ -286,11 +286,13 @@ export default function Admin() {
     const entry = {
       id: Date.now(), product_id: stockForm.product_id, product_name: product.name,
       date: document.getElementById('stock-date')?.value || new Date().toISOString().slice(0, 10),
+      status: stockForm.status,
+      expected_date: stockForm.expected_date || null,
       colors: colorsObj,
     }
     fetch(`${API}/api/stock`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(entry) })
       .catch(() => { const list = getLocal(LS_STOCK); list.push(entry); setLocal(LS_STOCK, list) })
-    setStockForm({ product_id: '', selectedColors: {} })
+    setStockForm({ product_id: '', selectedColors: {}, status: 'received', expected_date: '' })
     document.getElementById('stock-product').value = ''
     setTimeout(loadData, 300)
   }
@@ -400,6 +402,17 @@ export default function Admin() {
                 {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
               {stockForm.product_id && (
+                <>
+                <div className="full-width" style={{display:'flex',gap:12,marginBottom:12}}>
+                  <select className="stock-status-select" value={stockForm.status} onChange={e => setStockForm(prev => ({...prev, status: e.target.value}))}>
+                    <option value="received">✅ Получено</option>
+                    <option value="transit">🚚 В пути</option>
+                  </select>
+                  {stockForm.status === 'transit' && (
+                    <input type="date" className="stock-expected-date" value={stockForm.expected_date}
+                      onChange={e => setStockForm(prev => ({...prev, expected_date: e.target.value}))} />
+                  )}
+                </div>
                 <div className="full-width stock-color-picker">
                   <div className="palette">
                     {PRESET_COLORS.map(pc => {
@@ -436,6 +449,7 @@ export default function Admin() {
                     </div>
                   )}
                 </div>
+              </>
               )}
               <input id="stock-date" name="date" type="date" className="full-width" defaultValue={new Date().toISOString().slice(0,10)} />
               <button type="submit">{t('addStock')}</button>
