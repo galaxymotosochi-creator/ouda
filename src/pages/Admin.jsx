@@ -189,11 +189,7 @@ export default function Admin() {
   const toggleStockColor = (colorName) => {
     setStockForm(prev => {
       const sc = { ...prev.selectedColors }
-      if (sc[colorName] !== undefined) {
-        delete sc[colorName]
-      } else {
-        sc[colorName] = 0
-      }
+      sc[colorName] = (sc[colorName] || 0) + 1
       return { ...prev, selectedColors: sc }
     })
   }
@@ -447,12 +443,11 @@ export default function Admin() {
                         return (
                           <div key={name} className="stock-color-row">
                             <div className={`color-swatch ${pc?.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`}
-                              style={pc?.hex && pc.hex !== 'chameleon' ? {background:pc.hex,width:16,height:16,cursor:'default'} : {width:16,height:16,cursor:'default'}} />
+                              style={pc?.hex && pc.hex !== 'chameleon' ? {background:pc.hex,width:16,height:16,cursor:'default'} : pc?.hex === 'chameleon' ? {background:'linear-gradient(135deg, #8b5cf6, #6366f1, #3b82f6)',width:16,height:16,cursor:'default'} : {width:16,height:16,cursor:'default'}} />
                             <span className="stock-color-name">{lang === 'zh' && pc?.nameZh ? pc.nameZh : name}</span>
                             <button type="button" className="stock-qty-btn" onClick={() => updateStockColorQty(name, -1)}>−</button>
                             <span className="stock-qty">{qty}</span>
                             <button type="button" className="stock-qty-btn" onClick={() => updateStockColorQty(name, 1)}>+</button>
-                            <button type="button" className="stock-color-remove" onClick={() => toggleStockColor(name)}>X</button>
                           </div>
                         )
                       })}
@@ -478,7 +473,8 @@ export default function Admin() {
                   <div className="stock-card-colors">
                     {Object.entries(s.colors).filter(([,v]) => v > 0).map(([color, qty]) => (
                       <span key={color} className="stock-color-chip">
-                        <span className="stock-chip-swatch" style={{background: getColorHex(color)}} />
+                        <span className={`stock-chip-swatch ${getColorHex(color) === 'chameleon' ? 'stock-chip-chameleon' : ''}`}
+                          style={getColorHex(color) !== 'chameleon' ? {background: getColorHex(color)} : {}} />
                         {translateColor(color)} {qty} {t("pcs")}
                       </span>
                     ))}
@@ -511,8 +507,8 @@ export default function Admin() {
                     <tr key={c.color}>
                       <td>
                         <div className="inv-color-cell">
-                          <div className={`color-swatch ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`}
-                            style={c.hex !== 'chameleon' ? {background:c.hex,width:16,height:16,cursor:'default'} : {width:16,height:16,cursor:'default'}} />
+                          <div className={`color-swatch ${getColorHex(c.color) === 'chameleon' ? 'color-swatch-chameleon' : ''}`}
+                            style={getColorHex(c.color) !== 'chameleon' ? {background:getColorHex(c.color),width:16,height:16,cursor:'default'} : {width:16,height:16,cursor:'default'}} />
                           <span>{translateColor(c.color)}</span>
                         </div>
                       </td>

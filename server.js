@@ -224,9 +224,13 @@ app.listen(PORT, '127.0.0.1', () => console.log('OUDA API on port', PORT))
 app.get('/api/stock/details', (req, res) => {
   const details = products.map(p => {
     const colorDetails = {}
-    // Init all colors
-    ;(p.colors || []).forEach(c => {
-      colorDetails[c.name] = { color: c.name, hex: c.hex, received: 0, shipped: 0, available: 0 }
+    // Build colors from stock entries (not from product template)
+    stock.filter(s => s.product_id === p.id).forEach(s => {
+      Object.entries(s.colors || {}).forEach(([color, qty]) => {
+        if (!colorDetails[color]) {
+          colorDetails[color] = { color, hex: '#888', received: 0, shipped: 0, available: 0 }
+        }
+      })
     })
     // Sum received stock
     stock.filter(s => s.product_id === p.id && s.status === 'received').forEach(s => {

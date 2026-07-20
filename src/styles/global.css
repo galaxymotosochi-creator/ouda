@@ -221,8 +221,8 @@ img { max-width: 100%; display: block; }
 .admin-add-form input:focus, .admin-add-form textarea:focus, .admin-add-form select:focus { border-color: var(--accent); }
 .admin-add-form textarea { min-height: 70px; resize: vertical; }
 .admin-add-form .full-width { grid-column: 1 / -1; }
-.admin-add-form button { grid-column: 1 / -1; padding: 12px; background: var(--accent); color: #fff; border-radius: 50px; font-size: 13px; font-weight: 600; transition: background 0.2s; }
-.admin-add-form button:hover { background: var(--accent-hover); }
+.admin-add-form button { grid-column: 1 / -1; padding: 10px 24px; background: var(--bg-hover); color: var(--text); border-radius: 50px; font-size: 13px; font-weight: 500; transition: all 0.2s; justify-self: end; border: 1px solid #999; width: auto; }
+.admin-add-form button:hover { background: var(--border); }
 .stock-list { display: grid; gap: 12px; }
 .stock-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow); }
 .stock-item-info { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
@@ -627,3 +627,4 @@ img { max-width: 100%; display: block; }
   border: 1px solid rgba(255,255,255,0.2);
   text-shadow: 0 0 20px rgba(255,255,255,0.15);
 }
+.stock-chip-chameleon { background: linear-gradient(135deg, #8b5cf6, #6366f1, #3b82f6) !important; }
