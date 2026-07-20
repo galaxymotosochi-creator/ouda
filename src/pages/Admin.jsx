@@ -39,6 +39,7 @@ export default function Admin() {
   })
   // Stock form
   const [stockForm, setStockForm] = useState({ product_id: '', colors: {} })
+  const [inventory, setInventory] = useState([])
 
   useEffect(() => {
     if (!sessionStorage.getItem('ouda_admin')) { navigate('/login'); return }
@@ -52,6 +53,7 @@ export default function Admin() {
     fetch(`${API}/api/products`).then(r => r.json()).then(setProducts).catch(() => setProducts(getLocal(LS_PRODUCTS)))
     fetch(`${API}/api/stock`).then(r => r.json()).then(setStock).catch(() => setStock(getLocal(LS_STOCK)))
     fetch(`${API}/api/shipments`).then(r => r.json()).then(setShipments).catch(() => setShipments(getLocal(LS_SHIPMENTS)))
+    fetch(`${API}/api/stock/details`).then(r => r.json()).then(setInventory).catch(() => {})
   }
 
   const updateStatus = (id, status) => {
@@ -242,6 +244,7 @@ export default function Admin() {
             { key: 'orders', label: `📋 ${t('orders')} (${orders.length})` },
             { key: 'shipments', label: `🚚 Отгрузки (${shipments.length})` },
             { key: 'products', label: `${t('products')} (${products.length})` },
+            { key: 'inventory', label: '📊 Остатки' },
             { key: 'stock', label: `${t('stock')}` },
           ].map(tabItem => (
             <button key={tabItem.key} className={`admin-tab ${tab === tabItem.key ? 'active' : ''}`}
@@ -370,6 +373,53 @@ export default function Admin() {
               {products.length===0 && <tr><td colSpan={6} style={{textAlign:'center',color:'#666',padding:40}}>{t('noProducts')}</td></tr>}
             </tbody>
           </table>
+        </>)}
+
+        {/* === INVENTORY TAB === */}
+        {tab === 'inventory' && (<>
+          <div style={{marginBottom:16}}>
+            <h3 style={{fontSize:15,fontWeight:600}}>Остатки на складе</h3>
+          </div>
+          {inventory.filter(d => d.totalAvailable > 0 || d.totalReceived > 0).map(d => (
+            <div key={d.product_id} className="inventory-card">
+              <div className="inv-header">
+                <strong>{d.product_name}</strong>
+                <span className="inv-total">Всего: <b>{d.totalAvailable}</b> шт</span>
+              </div>
+              <table className="inv-table">
+                <thead><tr>
+                  <th>Цвет</th><th>Приход</th><th>Отгружено</th><th>Доступно</th><th></th>
+                </tr></thead>
+                <tbody>
+                  {d.colors.filter(c => c.received > 0 || c.available > 0).map(c => (
+                    <tr key={c.color}>
+                      <td>
+                        <div className="inv-color-cell">
+                          <div className={`color-swatch ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`}
+                            style={c.hex !== 'chameleon' ? {background:c.hex,width:16,height:16,cursor:'default'} : {width:16,height:16,cursor:'default'}} />
+                          <span>{c.color}</span>
+                        </div>
+                      </td>
+                      <td>{c.received}</td>
+                      <td>{c.shipped}</td>
+                      <td><strong className={c.available === 0 ? 'inv-zero' : 'inv-ok'}>{c.available}</strong></td>
+                      <td>
+                        {c.available > 0
+                          ? <span className="inv-badge">В наличии</span>
+                          : c.received > 0
+                            ? <span className="inv-badge inv-badge-out">Нет</span>
+                            : <span className="inv-badge inv-badge-none">Не было</span>
+                        }
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ))}
+          {inventory.filter(d => d.totalAvailable > 0 || d.totalReceived > 0).length === 0 && (
+            <p style={{color:'#666',textAlign:'center',padding:40}}>Нет остатков</p>
+          )}
         </>)}
 
         {/* === STOCK TAB === */}
