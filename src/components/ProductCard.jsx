@@ -1,19 +1,22 @@
 import { useState } from 'react'
 import { useLang } from '../i18n'
+import { PRESET_COLORS, getColorHex } from '../colors'
 
 export default function ProductCard({ product, onAdd, inCart }) {
   const { t, translateColor } = useLang()
-  const colors = product.colors || []
-  const hasColors = colors.length > 0
+  const availColors = product.available_colors || {}
+  const colorNames = Object.keys(availColors).filter(name => availColors[name] > 0)
+  const hasColors = colorNames.length > 0
 
   const handleClick = () => {
-    if (hasColors && colors.length > 1) {
+    if (hasColors && colorNames.length > 1) {
       onAdd(product, true)
     } else {
+      const firstName = hasColors ? colorNames[0] : ''
       onAdd({
         ...product,
-        selectedColor: hasColors ? colors[0].name : (product.color || ''),
-        selectedHex: hasColors ? colors[0].hex : '',
+        selectedColor: firstName,
+        selectedHex: getColorHex(firstName),
         image: product.images?.[0] || product.image || '/placeholder.svg',
         price: product.price,
       }, false)
@@ -31,11 +34,11 @@ export default function ProductCard({ product, onAdd, inCart }) {
       <div className="product-body">
         <div className="product-name">{product.name}</div>
 
-        {/* Colors — comma separated */}
+        {/* Colors from stock — comma separated with quantities */}
         {hasColors && (
           <div className="product-colors">
             <span className="spec-label">{t('color')}:</span>
-            <strong>{colors.map(c => translateColor(c.name)).join(', ')}</strong>
+            <strong>{colorNames.map(name => `${translateColor(name)} (${availColors[name]})`).join(', ')}</strong>
           </div>
         )}
 

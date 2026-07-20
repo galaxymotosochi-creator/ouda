@@ -407,7 +407,7 @@ export default function Admin() {
                 <option value="">{t('selectProduct')}</option>
                 {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
-              {stockForm.product_id && (
+              {stockForm.product_id > 0 && (
                 <>
                 <div className="full-width" style={{display:'flex',gap:12,marginBottom:12}}>
                   <select className="stock-status-select" value={stockForm.status} onChange={e => setStockForm(prev => ({...prev, status: e.target.value}))}>
@@ -431,10 +431,10 @@ export default function Admin() {
                       )
                     })}
                   </div>
-                  {Object.keys(stockForm.selectedColors).length > 0 && (
+                  {Object.entries(stockForm.selectedColors).filter(([,qty]) => qty > 0).length > 0 && (
                     <div className="stock-selected-colors">
                       <div style={{fontSize:13,color:'var(--text-muted)',marginBottom:8}}>Выбрано:</div>
-                      {Object.entries(stockForm.selectedColors).map(([name, qty]) => {
+                      {Object.entries(stockForm.selectedColors).filter(([,qty]) => qty > 0).map(([name, qty]) => {
                         const pc = PRESET_COLORS.find(c => c.name === name)
                         return (
                           <div key={name} className="stock-color-row">
@@ -462,6 +462,9 @@ export default function Admin() {
               <div key={s.id} className="stock-card">
                 <div className="stock-card-head">
                   <strong className="stock-card-name">{s.product_name}</strong>
+                  <span className={`admin-badge ${s.status==='received'?'badge-received':'badge-transit'}`}>
+                    {s.status==='received' ? t('received') : t('inTransit')} {formatShortDate(s.date)}
+                  </span>
                 </div>
                 {s.colors && Object.entries(s.colors).filter(([,v]) => v > 0).length > 0 && (
                   <div className="stock-card-colors">
@@ -473,11 +476,6 @@ export default function Admin() {
                     ))}
                   </div>
                 )}
-                <div className="stock-card-footer">
-                  <span className={`admin-badge ${s.status==='received'?'badge-received':'badge-transit'}`}>
-                    {s.status==='received' ? t('received') : t('inTransit')} {formatShortDate(s.date)}
-                  </span>
-                </div>
               </div>
             ))}
             {stock.length===0 && <p style={{color:'#666',textAlign:'center',padding:40}}>{t('noStock')}</p>}

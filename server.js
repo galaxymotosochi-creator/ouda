@@ -101,9 +101,19 @@ function getEnrichedProducts() {
     const totalTransit = transit.reduce((sum, s) => sum + Object.values(s.colors || {}).reduce((a, b) => a + b, 0), 0)
     const earliestTransit = transit.sort((a, b) => new Date(a.expected_date) - new Date(b.expected_date))[0]
     const colorsAvailable = {}
-    ;(p.colors || []).forEach(c => {
-      const key = p.id + ':' + c.name
-      colorsAvailable[c.name] = avail[key] || 0
+    // Build from stock entries (not from product template)
+    const prefix = p.id + ':'
+    Object.entries(avail).forEach(([key, qty]) => {
+      if (key.startsWith(prefix)) {
+        const colorName = key.slice(prefix.length)
+        if (colorName) colorsAvailable[colorName] = qty
+      }
+    })
+    // Also include colors from stock entries (even if received=0, for display)
+    stock.filter(s => s.product_id === p.id).forEach(s => {
+      Object.keys(s.colors || {}).forEach(color => {
+        if (!(color in colorsAvailable)) colorsAvailable[color] = 0
+      })
     })
     return {
       ...p, in_stock: received, expected_qty: totalTransit || null,
