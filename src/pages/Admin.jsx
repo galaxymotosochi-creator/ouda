@@ -43,6 +43,8 @@ export default function Admin() {
   useEffect(() => {
     if (!sessionStorage.getItem('ouda_admin')) { navigate('/login'); return }
     loadData()
+    const timer = setInterval(loadData, 5000)
+    return () => clearInterval(timer)
   }, [])
 
   const loadData = () => {
