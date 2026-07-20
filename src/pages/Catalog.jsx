@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
+import { PRESET_COLORS, getColorHex } from '../colors'
 import { useLang } from '../i18n'
-import { PRESET_COLORS } from '../colors'
 import Header from '../components/Header'
 import Cart from '../components/Cart'
 import ProductCard from '../components/ProductCard'
@@ -62,9 +62,10 @@ export default function Catalog() {
   }
 
   const handleColorQty = (name, delta) => {
+    const maxAvail = (colorModal?.product?.available_colors || {})[name] || 0
     setColorQtys(prev => ({
       ...prev,
-      [name]: Math.max(0, (prev[name] || 0) + delta)
+      [name]: Math.max(0, Math.min(maxAvail, (prev[name] || 0) + delta))
     }))
   }
 
@@ -107,10 +108,22 @@ export default function Catalog() {
     <>
       <Header cartCount={totalItems} onCartClick={() => setCartOpen(true)} />
 
-      <section className="hero">
-        <h1>{t('heroTitle')}</h1>
-        <p>{t('heroDesc')}</p>
-        <a href="#catalog" className="hero-btn">{t('heroBtn')}</a>
+      <section className="hero" style={{backgroundImage:'url(/hero.jpg)'}}>
+        <div className="hero-overlay">
+          <h1>{t('heroTitle')}</h1>
+          <p>{t('heroDesc')}</p>
+          <a href="#catalog" className="hero-btn">{t('heroBtn')}</a>
+          <div className="hero-contacts">
+            <a href="https://wa.me/79628888888" target="_blank" className="glass-btn">
+              <img src="/manager-sapa.jpg" alt="MAX" className="glass-avatar" />
+              <span>MAX — WhatsApp</span>
+            </a>
+            <a href="https://t.me/ouda_scooters" target="_blank" className="glass-btn">
+              <img src="/manager-tg.jpg" alt="Telegram" className="glass-avatar" />
+              <span>Telegram: @ouda_scooters</span>
+            </a>
+          </div>
+        </div>
       </section>
 
       <section className="catalog" id="catalog">
