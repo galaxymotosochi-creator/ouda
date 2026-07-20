@@ -23,7 +23,7 @@ export default function Header({ cartCount, onCartClick }) {
         </div>
       </div>
       <button className="header-cart-btn" onClick={onCartClick}>
-        🛒 {t('cart')}
+        {t('cart')}
         {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
       </button>
     </header>

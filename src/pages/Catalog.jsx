@@ -112,17 +112,17 @@ export default function Catalog() {
         <div className="hero-overlay">
           <h1>{t('heroTitle')}</h1>
           <div className="hero-desc-glass">
-            Скутера оптом и в розницу напрямую от завода-изготовителя. Склад в Москве. Доставка по всей России.
+            {t('heroGlass')}
           </div>
           <a href="#catalog" className="hero-btn">{t('heroBtn')}</a>
           <div className="hero-contacts">
             <a href="https://wa.me/79628888888" target="_blank" className="glass-btn">
               <img src="/manager-sapa.jpg" alt="MAX" className="glass-avatar" />
-              <span>MAX — WhatsApp</span>
+              <span>MAX</span>
             </a>
             <a href="https://t.me/ouda_scooters" target="_blank" className="glass-btn">
               <img src="/manager-tg.jpg" alt="Telegram" className="glass-avatar" />
-              <span>Telegram: @ouda_scooters</span>
+              <span>Telegram</span>
             </a>
           </div>
         </div>

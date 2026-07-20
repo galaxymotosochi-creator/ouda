@@ -7,9 +7,10 @@ const translations = {
     logo: 'OUDA',
     cart: 'Корзина',
     // Hero
-    heroTitle: 'OUDA Скутеры',
+    heroTitle: 'OUDA',
     heroDesc: 'Стильные и надёжные скутеры для города. Качество, скорость, доступная цена.',
     heroBtn: 'Смотреть каталог',
+    heroGlass: 'Скутера оптом и в розницу напрямую от завода-изготовителя. Склад в Москве. Доставка по всей России.',
     // Catalog
     catalogTitle: 'Каталог',
     addToCart: 'В корзину',
@@ -113,9 +114,10 @@ const translations = {
   zh: {
     logo: 'OUDA',
     cart: '购物车',
-    heroTitle: 'OUDA 摩托车',
+    heroTitle: 'OUDA',
     heroDesc: '时尚可靠的城市摩托车。品质、速度、实惠的价格。',
     heroBtn: '查看目录',
+    heroGlass: '批发和零售踏板车，直接从制造商工厂。莫斯科仓库。全俄配送。',
     catalogTitle: '产品目录',
     addToCart: '加入购物车',
     inCart: '✓ 已在购物车',
@@ -216,9 +218,17 @@ const translations = {
 const LangContext = createContext()
 
 export function LangProvider({ children }) {
-  const [lang, setLang] = useState('ru')
+  const [lang, setLangState] = useState(() => {
+    return localStorage.getItem('ouda_lang') || 'ru'
+  })
+
+  const setLang = (l) => {
+    localStorage.setItem('ouda_lang', l)
+    setLangState(l)
+  }
 
   const t = (key) => translations[lang]?.[key] || translations.ru[key] || key
+  const langText = (ru, zh) => lang === 'zh' && zh ? zh : (ru || '')
   const translateColor = (colorName) => {
     const preset = getColorByName(colorName)
     if (!preset) return colorName
@@ -226,7 +236,7 @@ export function LangProvider({ children }) {
   }
 
   return (
-    <LangContext.Provider value={{ lang, setLang, t, translateColor }}>
+    <LangContext.Provider value={{ lang, setLang, t, langText, translateColor }}>
       {children}
     </LangContext.Provider>
   )
