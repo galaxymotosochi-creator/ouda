@@ -241,10 +241,10 @@ export default function Admin() {
       <div className="admin-content">
         <div className="admin-tabs">
           {[
-            { key: 'orders', label: `📋 ${t('orders')} (${orders.length})` },
-            { key: 'shipments', label: `🚚 Отгрузки (${shipments.length})` },
+            { key: 'orders', label: `${t('orders')} (${orders.length})` },
+            { key: 'shipments', label: `Отгрузки (${shipments.length})` },
             { key: 'products', label: `${t('products')} (${products.length})` },
-            { key: 'inventory', label: '📊 Остатки' },
+            { key: 'inventory', label: 'Остатки' },
             { key: 'stock', label: `${t('stock')}` },
           ].map(tabItem => (
             <button key={tabItem.key} className={`admin-tab ${tab === tabItem.key ? 'active' : ''}`}
@@ -275,7 +275,7 @@ export default function Admin() {
                     <div className="admin-actions">
                       {o.status==='new' && <button className="admin-btn admin-btn-accept" onClick={() => updateStatus(o.id,'accepted')}>{t('accept')}</button>}
                       {o.status!=='done' && <button className="admin-btn admin-btn-done" onClick={() => updateStatus(o.id,'done')}>{t('done')}</button>}
-                      <button className="admin-btn admin-btn-ship" onClick={() => openShipFromOrder(o)}>🚚 Отгрузить</button>
+                      <button className="admin-btn admin-btn-ship" onClick={() => openShipFromOrder(o)}>Отгрузить</button>
                     </div>
                   </td>
                 </tr>
@@ -288,7 +288,7 @@ export default function Admin() {
         {/* === SHIPMENTS TAB === */}
         {tab === 'shipments' && (<>
           <div style={{marginBottom:16,display:'flex',gap:12,alignItems:'center'}}>
-            <button className="admin-btn-primary" onClick={openShipManual}>➕ Новая отгрузка</button>
+            <button className="admin-btn-primary" onClick={openShipManual}>Новая отгрузка</button>
           </div>
           <table className="admin-table">
             <thead><tr>
@@ -315,13 +315,13 @@ export default function Admin() {
                   <td>
                     <div className="admin-actions">
                       {s.status === 'оформлено' && <>
-                        <button className="admin-btn admin-btn-accept" onClick={() => updateShipment(s.id,{status:'отгружено'})}>📦 Отгрузить</button>
+                        <button className="admin-btn admin-btn-accept" onClick={() => updateShipment(s.id,{status:'отгружено'})}>Отгрузить</button>
                         <button className="admin-btn admin-btn-danger" onClick={() => updateShipment(s.id,{status:'отменено'})}>✕ Отмена</button>
                       </>}
                       {s.status === 'отгружено' && <>
-                        <button className="admin-btn admin-btn-done" onClick={() => updateShipment(s.id,{status:'доставлено'})}>✅ Доставлено</button>
+                        <button className="admin-btn admin-btn-done" onClick={() => updateShipment(s.id,{status:'доставлено'})}>Доставлено</button>
                       </>}
-                      <button className="admin-btn admin-btn-invoice" onClick={() => setInvoiceShip(s)}>📄 Накладная</button>
+                      <button className="admin-btn admin-btn-invoice" onClick={() => setInvoiceShip(s)}>Накладная</button>
                     </div>
                   </td>
                 </tr>
@@ -462,7 +462,7 @@ export default function Admin() {
                   ))}
                   <span style={{color:'#666',fontSize:13}}>{s.date}</span>
                   <span className={`admin-badge ${s.status==='received'?'badge-received':'badge-transit'}`}>
-                    {s.status==='received' ? '✅ Получено' : '🚚 В пути до ' + (s.expected_date||'?')}
+                    {s.status==='received' ? 'Получено' : 'В пути до ' + (s.expected_date||'?')}
                   </span>
                 </div>
               </div>
@@ -477,7 +477,7 @@ export default function Admin() {
         <div className="modal-overlay" onClick={closeShipModal}>
           <div className="modal modal-wide" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>{shipOrder ? `🚚 Отгрузка из заказа #${shipOrder.id}` : '🚚 Новая отгрузка'}</h3>
+              <h3>{shipOrder ? `Отгрузка из заказа #${shipOrder.id}` : 'Новая отгрузка'}</h3>
               <button className="modal-close" onClick={closeShipModal}>✕</button>
             </div>
             <div className="modal-body">
@@ -543,7 +543,7 @@ export default function Admin() {
 
               <div className="modal-actions">
                 <button className="admin-btn admin-btn-cancel" onClick={closeShipModal}>Отмена</button>
-                <button className="admin-btn-primary" onClick={createShipment}>✅ Создать отгрузку</button>
+                <button className="admin-btn-primary" onClick={createShipment}>Создать отгрузку</button>
               </div>
             </div>
           </div>
@@ -555,9 +555,9 @@ export default function Admin() {
         <div className="modal-overlay" onClick={() => setInvoiceShip(null)}>
           <div className="modal modal-wide invoice-modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>📄 Накладная {invoiceShip.number}</h3>
+              <h3>Накладная {invoiceShip.number}</h3>
               <div>
-                <button className="admin-btn admin-btn-print" onClick={() => window.print()}>🖨 Печать</button>
+                <button className="admin-btn admin-btn-print" onClick={() => window.print()}>Печать</button>
                 <button className="modal-close" onClick={() => setInvoiceShip(null)}>✕</button>
               </div>
             </div>
@@ -618,7 +618,7 @@ export default function Admin() {
                   </div>
                 )}
                 {invoiceShip.status === 'доставлено' && (
-                  <div className="invoice-status-badge">✅ Доставлено</div>
+                  <div className="invoice-status-badge">Доставлено</div>
                 )}
               </div>
 
