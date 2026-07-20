@@ -460,11 +460,8 @@ export default function Admin() {
           <div className="stock-list">
             {stock.map(s => (
               <div key={s.id} className="stock-card">
-                <div className="stock-card-top">
+                <div className="stock-card-head">
                   <strong className="stock-card-name">{s.product_name}</strong>
-                  <span className={`admin-badge ${s.status==='received'?'badge-received':'badge-transit'}`}>
-                    {s.status==='received' ? t('received') : t('inTransit')}
-                  </span>
                 </div>
                 {s.colors && Object.entries(s.colors).filter(([,v]) => v > 0).length > 0 && (
                   <div className="stock-card-colors">
@@ -476,8 +473,10 @@ export default function Admin() {
                     ))}
                   </div>
                 )}
-                <div className="stock-card-bottom">
-                  <span className="stock-card-date">{formatShortDate(s.date)}</span>
+                <div className="stock-card-footer">
+                  <span className={`admin-badge ${s.status==='received'?'badge-received':'badge-transit'}`}>
+                    {s.status==='received' ? t('received') : t('inTransit')} {formatShortDate(s.date)}
+                  </span>
                 </div>
               </div>
             ))}

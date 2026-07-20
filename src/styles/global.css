@@ -551,7 +551,7 @@ img { max-width: 100%; display: block; }
   background: var(--bg-card); border-radius: var(--radius); box-shadow: var(--shadow);
   padding: 16px 20px; margin-bottom: 12px; border: 1px solid var(--border);
 }
-.stock-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.stock-card-head { margin-bottom: 10px; }
 .stock-card-name { font-size: 15px; font-weight: 600; }
 .stock-card-colors { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
 .stock-color-chip {
@@ -564,5 +564,4 @@ img { max-width: 100%; display: block; }
   width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0;
   border: 1px solid rgba(0,0,0,0.1);
 }
-.stock-card-bottom { display: flex; justify-content: flex-end; }
-.stock-card-date { font-size: 13px; color: var(--text-muted); }
+.stock-card-footer { display: flex; justify-content: flex-end; margin-top: 10px; }
