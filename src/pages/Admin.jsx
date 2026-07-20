@@ -70,7 +70,7 @@ export default function Admin() {
 
   // === SHIPMENT HELPERS ===
   const statusShipLabel = (s) => {
-    const map = { 'оформлено': 'Оформлено', 'отгружено': 'Отгружено', 'доставлено': 'Доставлено', 'отменено': 'Отменено' }
+    const map = { 'оформлено': t('confirmed'), 'отгружено': t('shipped'), 'доставлено': t('delivered'), 'отменено': t('cancelled') }
     return map[s] || s
   }
   const statusShipClass = (s) => {
@@ -195,7 +195,7 @@ export default function Admin() {
   const handlePhotos = (e, files) => {
     const fileList = files || Array.from(e?.target?.files || [])
     const total = photos.length + fileList.length
-    if (total > 7) { alert('Максимум 7 фото'); return }
+    if (total > 7) { alert(t('maxPhotos')); return }
     const newPhotos = fileList.map(f => ({ file: f, url: URL.createObjectURL(f) }))
     setPhotos(prev => [...prev, ...newPhotos])
     if (e?.target) e.target.value = ''
@@ -296,9 +296,9 @@ export default function Admin() {
           {[
             { key: 'products', label: `${t('products')} (${products.length})` },
             { key: 'stock', label: `${t('stock')}` },
-            { key: 'inventory', label: 'Остатки' },
+            { key: 'inventory', label: t('inventory') },
             { key: 'orders', label: `${t('orders')} (${orders.length})` },
-            { key: 'shipments', label: `Отгрузки (${shipments.length})` },
+            { key: 'shipments', label: `${t('shipments')} (${shipments.length})` },
           ].map(tabItem => (
             <button key={tabItem.key} className={`admin-tab ${tab === tabItem.key ? 'active' : ''}`}
               onClick={() => setTab(tabItem.key)}>{tabItem.label}</button>
@@ -322,7 +322,7 @@ export default function Admin() {
                 onDrop={handleDropFiles}
               >
                 <label className="photo-upload-label">
-                  {uploading ? 'Загрузка...' : 'Загрузить фото (до 7 шт)'}
+                  {uploading ? t('uploading') : t('uploadPhotos')}
                   <input type="file" accept="image/*" multiple onChange={handlePhotos} disabled={uploading} hidden />
                 </label>
                 {photos.length > 0 && (
@@ -415,7 +415,7 @@ export default function Admin() {
                   ))}
                   <span style={{color:'#666',fontSize:13}}>{s.date}</span>
                   <span className={`admin-badge ${s.status==='received'?'badge-received':'badge-transit'}`}>
-                    {s.status==='received' ? 'Получено' : 'В пути до ' + (s.expected_date||'?')}
+                    {s.status==='received' ? t('received') : t('shipped') + ' ' + (s.expected_date||'?')}
                   </span>
                 </div>
               </div>
@@ -438,7 +438,7 @@ export default function Admin() {
               </div>
               <table className="inv-table">
                 <thead><tr>
-                  <th>Цвет</th><th>Приход</th><th>Отгружено</th><th>Доступно</th><th></th>
+                  <th>{t('color')}</th><th>{t('received')}</th><th>{t('shippedOut')}</th><th>{t('available')}</th><th></th>
                 </tr></thead>
                 <tbody>
                   {d.colors.filter(c => c.received > 0 || c.available > 0).map(c => (
@@ -512,8 +512,8 @@ export default function Admin() {
           </div>
           <table className="admin-table">
             <thead><tr>
-              <th>№</th><th>Дата</th><th>Клиент</th><th>Телефон</th><th>Товары</th>
-              <th>Сумма</th><th>Оплата</th><th>Статус</th><th></th>
+              <th>№</th><th>{t('date')}</th><th>{t('client')}</th><th>{t('phoneLabel')}</th><th>{t('product')}</th>
+              <th>{t('amount')}</th><th>{t('payment')}</th><th>{t('status')}</th><th></th>
             </tr></thead>
             <tbody>
               {shipments.map(s => (
@@ -556,7 +556,7 @@ export default function Admin() {
         <div className="modal-overlay" onClick={closeShipModal}>
           <div className="modal modal-wide" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>{shipOrder ? `Отгрузка из заказа #${shipOrder.id}` : 'Новая отгрузка'}</h3>
+              <h3>{shipOrder ? `${t('shipmentFromOrder')} #${shipOrder.id}` : t('newShipment')}</h3>
               <button className="modal-close" onClick={closeShipModal}>✕</button>
             </div>
             <div className="modal-body">
@@ -662,7 +662,7 @@ export default function Admin() {
               <table className="invoice-table">
                 <thead>
                   <tr>
-                    <th>№</th><th>Товар</th><th>Цвет</th><th>Кол-во</th><th>Цена</th><th>Сумма</th>
+                    <th>№</th><th>{t('product')}</th><th>{t('color')}</th><th>{t('qty')}</th><th>{t('unitPrice')}</th><th>{t('sum')}</th>
                   </tr>
                 </thead>
                 <tbody>
