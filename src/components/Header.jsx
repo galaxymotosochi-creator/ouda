@@ -6,7 +6,7 @@ export default function Header({ cartCount, onCartClick }) {
   return (
     <header className="header">
       <div className="header-left">
-        <div className="header-logo">OUDA<span>.</span></div>
+        <div className="header-logo">OUDA</div>
         <div className="lang-switch">
           <button
             className={`lang-btn ${lang === 'ru' ? 'active' : ''}`}

@@ -111,7 +111,9 @@ export default function Catalog() {
       <section className="hero" style={{backgroundImage:'url(/hero.jpg?v=' + Date.now() + ')'}}>
         <div className="hero-overlay">
           <h1>{t('heroTitle')}</h1>
-          <p>{t('heroDesc')}</p>
+          <div className="hero-desc-glass">
+            Скутера оптом и в розницу напрямую от завода-изготовителя. Склад в Москве. Доставка по всей России.
+          </div>
           <a href="#catalog" className="hero-btn">{t('heroBtn')}</a>
           <div className="hero-contacts">
             <a href="https://wa.me/79628888888" target="_blank" className="glass-btn">
