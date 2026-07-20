@@ -545,3 +545,24 @@ img { max-width: 100%; display: block; }
   transition: border-color 0.2s; flex: 1;
 }
 .stock-status-select:focus, .stock-expected-date:focus { border-color: var(--accent); }
+
+/* Stock list cards */
+.stock-card {
+  background: var(--bg-card); border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 16px 20px; margin-bottom: 12px; border: 1px solid var(--border);
+}
+.stock-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.stock-card-name { font-size: 15px; font-weight: 600; }
+.stock-card-colors { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.stock-color-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 12px 4px 8px; border-radius: 20px;
+  background: var(--bg); border: 1px solid var(--border);
+  font-size: 13px; color: var(--text);
+}
+.stock-chip-swatch {
+  width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+.stock-card-bottom { display: flex; justify-content: flex-end; }
+.stock-card-date { font-size: 13px; color: var(--text-muted); }

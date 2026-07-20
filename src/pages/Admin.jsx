@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLang } from '../i18n'
-import { PRESET_COLORS } from '../colors'
+import { PRESET_COLORS, getColorHex } from '../colors'
 
 const API = import.meta.env.VITE_API_URL || ''
 const LS_ORDERS = 'ouda_orders'
@@ -15,6 +15,12 @@ function setLocal(key, data) { localStorage.setItem(key, JSON.stringify(data)) }
 function formatDate(iso) {
   if (!iso) return '—'
   return new Date(iso).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+}
+
+function formatShortDate(dateStr) {
+  if (!dateStr) return '—'
+  const d = new Date(dateStr)
+  return d.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit' })
 }
 
 export default function Admin() {
@@ -405,8 +411,8 @@ export default function Admin() {
                 <>
                 <div className="full-width" style={{display:'flex',gap:12,marginBottom:12}}>
                   <select className="stock-status-select" value={stockForm.status} onChange={e => setStockForm(prev => ({...prev, status: e.target.value}))}>
-                    <option value="received">Получено</option>
-                    <option value="transit">В пути</option>
+                    <option value="received">{t('inStockStatus')}</option>
+                    <option value="transit">{t('inTransitStatus')}</option>
                   </select>
                 </div>
                 <div className="full-width stock-color-picker">
@@ -453,16 +459,25 @@ export default function Admin() {
           </form>
           <div className="stock-list">
             {stock.map(s => (
-              <div key={s.id} className="stock-item">
-                <div className="stock-item-info">
-                  <strong>{s.product_name}</strong>
-                  {s.colors && Object.entries(s.colors).filter(([,v]) => v > 0).map(([color, qty]) => (
-                    <span key={color} className="stock-color-tag">{translateColor(color)}: {qty} {t("pcs")}</span>
-                  ))}
-                  <span style={{color:'#666',fontSize:13}}>{s.date}</span>
+              <div key={s.id} className="stock-card">
+                <div className="stock-card-top">
+                  <strong className="stock-card-name">{s.product_name}</strong>
                   <span className={`admin-badge ${s.status==='received'?'badge-received':'badge-transit'}`}>
-                    {s.status==='received' ? t('received') : t('inTransit') + ' ' + (s.expected_date||'?')}
+                    {s.status==='received' ? t('received') : t('inTransit')}
                   </span>
+                </div>
+                {s.colors && Object.entries(s.colors).filter(([,v]) => v > 0).length > 0 && (
+                  <div className="stock-card-colors">
+                    {Object.entries(s.colors).filter(([,v]) => v > 0).map(([color, qty]) => (
+                      <span key={color} className="stock-color-chip">
+                        <span className="stock-chip-swatch" style={{background: getColorHex(color)}} />
+                        {translateColor(color)} {qty} {t("pcs")}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <div className="stock-card-bottom">
+                  <span className="stock-card-date">{formatShortDate(s.date)}</span>
                 </div>
               </div>
             ))}

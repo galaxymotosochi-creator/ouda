@@ -106,6 +106,8 @@ const translations = {
     amount: 'Сумма',
     shipmentFromOrder: 'Отгрузка из заказа',
     inTransit: 'В пути',
+    inStockStatus: 'Получено',
+    inTransitStatus: 'В пути',
     pcs: 'шт',
   },
   zh: {
@@ -205,6 +207,8 @@ const translations = {
     amount: '金额',
     shipmentFromOrder: '从订单出货',
     inTransit: '运输中',
+    inStockStatus: '已入库',
+    inTransitStatus: '运输中',
     pcs: '件',
   },
 }
