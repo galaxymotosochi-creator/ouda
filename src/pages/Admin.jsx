@@ -35,8 +35,10 @@ export default function Admin() {
 
   // New product form
   const [newProduct, setNewProduct] = useState({
-    name: '', price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', image: ''
+    name: '', price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', images: []
   })
+  const [photos, setPhotos] = useState([]) // file previews
+  const [uploading, setUploading] = useState(false)
   // Stock form
   const [stockForm, setStockForm] = useState({ product_id: '', colors: {} })
   const [inventory, setInventory] = useState([])
@@ -187,13 +189,43 @@ export default function Admin() {
     }))
   }
 
-  const addProduct = (e) => {
+  const handlePhotos = (e) => {
+    const files = Array.from(e.target.files || [])
+    const total = photos.length + files.length
+    if (total > 7) { alert('Максимум 7 фото'); return }
+    // Create preview URLs
+    const newPhotos = files.map(f => ({ file: f, url: URL.createObjectURL(f) }))
+    setPhotos(prev => [...prev, ...newPhotos])
+    e.target.value = ''
+  }
+
+  const removePhoto = (idx) => {
+    setPhotos(prev => { URL.revokeObjectURL(prev[idx].url); return prev.filter((_, i) => i !== idx) })
+  }
+
+  const addProduct = async (e) => {
     e.preventDefault()
     const basePrice = Number(newProduct.price) || 0
-    const product = { ...newProduct, price: basePrice, id: Date.now() }
+
+    // Upload photos first
+    let images = []
+    if (photos.length > 0) {
+      setUploading(true)
+      const formData = new FormData()
+      photos.forEach(p => formData.append('photos', p.file))
+      try {
+        const resp = await fetch(`${API}/api/upload`, { method: 'POST', body: formData })
+        const data = await resp.json()
+        images = data.urls || []
+      } catch (e) { console.error('Upload failed', e) }
+      setUploading(false)
+    }
+
+    const product = { ...newProduct, price: basePrice, images, image: images[0] || '', id: Date.now() }
     fetch(`${API}/api/products`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(product) })
       .catch(() => { const list = getLocal(LS_PRODUCTS); list.push(product); setLocal(LS_PRODUCTS, list) })
-    setNewProduct({ name: '', price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', image: '' })
+    setNewProduct({ name: '', price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', images: [] })
+    setPhotos([])
     setTimeout(loadData, 300)
   }
 
@@ -264,7 +296,22 @@ export default function Admin() {
               <input placeholder={t('cooling')} value={newProduct.cooling} onChange={e => setNewProduct({...newProduct, cooling: e.target.value})} />
               <input placeholder={t('max_speed')} value={newProduct.max_speed} onChange={e => setNewProduct({...newProduct, max_speed: e.target.value})} />
               <input placeholder={t('wheels')} value={newProduct.wheels} onChange={e => setNewProduct({...newProduct, wheels: e.target.value})} />
-              <input placeholder={t('photoLink')} value={newProduct.image} onChange={e => setNewProduct({...newProduct, image: e.target.value})} />
+              <div className="full-width photo-upload-area">
+                <label className="photo-upload-label">
+                  {uploading ? 'Загрузка...' : '📷 Загрузить фото (до 7 шт)'}
+                  <input type="file" accept="image/*" multiple onChange={handlePhotos} disabled={uploading} hidden />
+                </label>
+                {photos.length > 0 && (
+                  <div className="photo-previews">
+                    {photos.map((p, i) => (
+                      <div key={i} className="photo-preview">
+                        <img src={p.url} alt="" />
+                        <button type="button" className="photo-remove" onClick={() => removePhoto(i)}>✕</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
               <div className="full-width"><textarea placeholder={t('descLabel')} value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})} /></div>
               <button type="submit">{t('addProduct')}</button>
             </div>

@@ -2,10 +2,25 @@ const express = require('express')
 const cors = require('cors')
 const fs = require('fs')
 const path = require('path')
+const multer = require('multer')
+const sharp = require('sharp')
 const app = express()
 
 app.use(cors())
 app.use(express.json())
+
+const UPLOAD_DIR = '/opt/ouda-site/uploads'
+if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true })
+
+const storage = multer.memoryStorage()
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB max
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) cb(null, true)
+    else cb(new Error('Only images allowed'), false)
+  }
+})
 
 // === File persistence ===
 const DATA_DIR = '/opt/ouda-api/data'
@@ -167,7 +182,72 @@ app.patch('/api/shipments/:id', (req, res) => {
   res.json(s)
 })
 
+// Upload images
+app.post('/api/upload', upload.array('photos', 7), async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) return res.status(400).json({ error: 'No files uploaded' })
+    const urls = []
+    for (const file of req.files) {
+      const ext = path.extname(file.originalname) || '.jpg'
+      const filename = Date.now() + '-' + Math.random().toString(36).slice(2, 8) + ext
+      const outputPath = path.join(UPLOAD_DIR, filename)
+      // Compress with sharp: max 1200px, quality 80
+      await sharp(file.buffer)
+        .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
+        .jpeg({ quality: 80 })
+        .toFile(outputPath)
+      urls.push('/uploads/' + filename)
+    }
+    res.json({ urls })
+  } catch (e) {
+    console.error('Upload error:', e)
+    res.status(500).json({ error: e.message })
+  }
+})
+
 app.get('/api/stock/available', (req, res) => res.json(computeAvailableStock()))
 
 const PORT = process.env.PORT || 3002
 app.listen(PORT, '127.0.0.1', () => console.log('OUDA API on port', PORT))
+
+// === Stock Details (остатки) ===
+app.get('/api/stock/details', (req, res) => {
+  const details = products.map(p => {
+    const colorDetails = {}
+    // Init all colors
+    ;(p.colors || []).forEach(c => {
+      colorDetails[c.name] = { color: c.name, hex: c.hex, received: 0, shipped: 0, available: 0 }
+    })
+    // Sum received stock
+    stock.filter(s => s.product_id === p.id && s.status === 'received').forEach(s => {
+      Object.entries(s.colors || {}).forEach(([color, qty]) => {
+        if (colorDetails[color]) colorDetails[color].received += qty
+      })
+    })
+    // Sum shipped (non-cancelled)
+    shipments.filter(s => s.status !== 'отменено').forEach(s => {
+      (s.items || []).forEach(item => {
+        if (item.product_id === p.id && colorDetails[item.color]) {
+          colorDetails[item.color].shipped += item.qty
+        }
+      })
+    })
+    // Compute available
+    Object.values(colorDetails).forEach(cd => cd.available = cd.received - cd.shipped)
+
+    const colors = Object.values(colorDetails)
+    const totalReceived = colors.reduce((s, c) => s + c.received, 0)
+    const totalShipped = colors.reduce((s, c) => s + c.shipped, 0)
+    const totalAvailable = colors.reduce((s, c) => s + c.available, 0)
+
+    return {
+      product_id: p.id,
+      product_name: p.name,
+      colors,
+      totalReceived,
+      totalShipped,
+      totalAvailable,
+    }
+  })
+  res.json(details)
+})

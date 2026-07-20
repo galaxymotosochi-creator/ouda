@@ -14,7 +14,7 @@ export default function ProductCard({ product, onAdd, inCart }) {
         ...product,
         selectedColor: hasColors ? colors[0].name : (product.color || ''),
         selectedHex: hasColors ? colors[0].hex : '',
-        image: product.image || '/placeholder.svg',
+        image: product.images?.[0] || product.image || '/placeholder.svg',
         price: product.price,
       }, false)
     }
@@ -24,7 +24,7 @@ export default function ProductCard({ product, onAdd, inCart }) {
     <div className="product-card">
       <img
         className="product-img"
-        src={product.image || '/placeholder.svg'}
+        src={product.images?.[0] || product.image || '/placeholder.svg'}
         alt={product.name}
         onError={(e) => { e.target.src = '/placeholder.svg' }}
       />
