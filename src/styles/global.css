@@ -197,7 +197,7 @@ img { max-width: 100%; display: block; }
 .admin-tab { background: none; color: var(--text-muted); padding: 8px 18px; border-radius: 10px; font-size: 13px; font-weight: 500; transition: all 0.2s; }
 .admin-tab:hover { color: var(--text); background: var(--bg-hover); }
 .admin-tab.active { color: #fff; background: var(--accent); }
-.admin-table { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--bg-card); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+.admin-table { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--bg-card); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--border); margin-bottom: 24px; }
 .admin-table th { text-align: left; padding: 14px 16px; color: var(--text-muted); font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
 .admin-table td { padding: 14px 16px; border-bottom: 1px solid var(--border); }
 .admin-table tr:last-child td { border-bottom: none; }
