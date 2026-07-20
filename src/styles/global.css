@@ -484,3 +484,19 @@ img { max-width: 100%; display: block; }
   opacity: 0; transition: opacity 0.2s; border: none; cursor: pointer;
 }
 .photo-preview:hover .photo-remove { opacity: 1; }
+
+/* Stock form — color input */
+.stock-color-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.stock-color-input {
+  flex: 1; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--bg); color: var(--text); font-size: 14px; outline: none;
+  transition: border-color 0.2s;
+}
+.stock-color-input:focus { border-color: var(--accent); }
+.stock-color-remove { background: none; color: var(--text-muted); padding: 4px 8px; border-radius: 6px; font-size: 13px; }
+.stock-color-remove:hover { color: var(--red); background: var(--bg-hover); }
+.admin-btn-add-color {
+  background: none; color: var(--text-muted); padding: 8px 14px; border: 1px dashed var(--border);
+  border-radius: 10px; font-size: 13px; margin-top: 6px; width: 100%; transition: all 0.2s;
+}
+.admin-btn-add-color:hover { border-color: var(--accent); color: var(--accent); }

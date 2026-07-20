@@ -40,7 +40,7 @@ export default function Admin() {
   const [photos, setPhotos] = useState([]) // file previews
   const [uploading, setUploading] = useState(false)
   // Stock form
-  const [stockForm, setStockForm] = useState({ product_id: '', colors: {} })
+  const [stockForm, setStockForm] = useState({ product_id: '', colors: [] })  // colors: [{ name: '', qty: 0 }]
   const [inventory, setInventory] = useState([])
 
   useEffect(() => {
@@ -176,17 +176,23 @@ export default function Admin() {
 
   // === PRODUCT & STOCK ===
   const handleStockProductChange = (productId) => {
-    const product = products.find(p => p.id === Number(productId))
-    const colors = {}
-    if (product?.colors) product.colors.forEach(c => { colors[c.name] = 0 })
-    setStockForm({ product_id: Number(productId), colors, qtyNoColor: 0 })
+    setStockForm({ product_id: Number(productId), colors: [{ name: '', qty: 0 }] })
   }
 
-  const updateStockColor = (colorName, delta) => {
-    setStockForm(prev => ({
-      ...prev,
-      colors: { ...prev.colors, [colorName]: Math.max(0, (prev.colors[colorName] || 0) + delta) }
-    }))
+  const updateStockColor = (idx, field, value) => {
+    setStockForm(prev => {
+      const colors = [...prev.colors]
+      colors[idx] = { ...colors[idx], [field]: field === 'qty' ? Math.max(0, Number(value) || 0) : value }
+      return { ...prev, colors }
+    })
+  }
+
+  const addStockColorRow = () => {
+    setStockForm(prev => ({ ...prev, colors: [...prev.colors, { name: '', qty: 0 }] }))
+  }
+
+  const removeStockColor = (idx) => {
+    setStockForm(prev => ({ ...prev, colors: prev.colors.filter((_, i) => i !== idx) }))
   }
 
   // Drag state for photo reorder
@@ -260,25 +266,20 @@ export default function Admin() {
     e.preventDefault()
     const product = products.find(p => p.id === stockForm.product_id)
     if (!product) { alert('Выберите товар'); return }
-    // Build colors: if product has colors use them, otherwise use default key
-    let colors
-    if (product.colors?.length > 0) {
-      colors = stockForm.colors
-      const hasAny = Object.values(colors).some(v => v > 0)
-      if (!hasAny) { alert('Укажите количество хотя бы для одного цвета'); return }
-    } else {
-      const qty = stockForm.qtyNoColor || 0
-      if (qty === 0) { alert('Укажите количество'); return }
-      colors = { '': qty }
-    }
+    // Build colors object: { colorName: qty, ... }
+    const colorsObj = {}
+    stockForm.colors.forEach(c => {
+      if (c.name.trim() && c.qty > 0) colorsObj[c.name.trim()] = c.qty
+    })
+    if (Object.keys(colorsObj).length === 0) { alert('Добавьте хотя бы один цвет с количеством'); return }
     const entry = {
       id: Date.now(), product_id: stockForm.product_id, product_name: product.name,
       date: document.getElementById('stock-date')?.value || new Date().toISOString().slice(0, 10),
-      colors: stockForm.colors,
+      colors: colorsObj,
     }
     fetch(`${API}/api/stock`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(entry) })
       .catch(() => { const list = getLocal(LS_STOCK); list.push(entry); setLocal(LS_STOCK, list) })
-    setStockForm({ product_id: '', colors: {}, qtyNoColor: 0 })
+    setStockForm({ product_id: '', colors: [{ name: '', qty: 0 }] })
     document.getElementById('stock-product').value = ''
     setTimeout(loadData, 300)
   }
@@ -360,7 +361,7 @@ export default function Admin() {
           </form>
           <table className="admin-table">
             <thead><tr>
-              <th>{t('nameLabel')}</th><th>{t('priceLabel')}</th><th>{t('power')}</th><th>{t('fuel')}</th><th>{t('wheels')}</th><th>{t('colors')}</th><th></th>
+              <th>{t('nameLabel')}</th><th>{t('priceLabel')}</th><th>{t('power')}</th><th>{t('fuel')}</th><th>{t('wheels')}</th><th></th>
             </tr></thead>
             <tbody>
               {products.map(p => (
@@ -370,13 +371,6 @@ export default function Admin() {
                   <td>{p.power||'—'}</td>
                   <td>{p.fuel||'—'}</td>
                   <td>{p.wheels||'—'}</td>
-                  <td>{p.colors?.length > 0 ? (
-                    <div className="color-swatches" style={{margin:0}}>
-                      {p.colors.map((c, i) => (
-                        <div key={i} className={`color-swatch ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`} style={c.hex !== 'chameleon' ? {background:c.hex,width:16,height:16,cursor:'default'} : {width:16,height:16,cursor:'default'}} title={translateColor(c.name)} />
-                      ))}
-                    </div>
-                  ) : (p.color || '—')}</td>
                   <td><button className="admin-btn admin-btn-done" onClick={() => deleteProduct(p.id)} style={{color:'#ef4444'}}>{t('delete')}</button></td>
                 </tr>
               ))}
@@ -394,42 +388,24 @@ export default function Admin() {
                 <option value="">{t('selectProduct')}</option>
                 {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
-              {stockForm.product_id && (() => {
-                const prod = products.find(p => p.id === stockForm.product_id)
-                if (!prod) return null
-                if (prod.colors?.length > 0) {
-                  return (
-                    <div className="full-width stock-colors">
-                      <div style={{fontSize:13,color:'var(--text-muted)',marginBottom:10}}>{t('color')}</div>
-                      {prod.colors.map(c => {
-                        const qty = stockForm.colors[c.name] || 0
-                        return (
-                          <div key={c.name} className="stock-color-row">
-                            <div className={`stock-color-swatch ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`} style={c.hex !== 'chameleon' ? { background: c.hex } : {}} />
-                            <span className="stock-color-name">{translateColor(c.name)}</span>
-                            <button type="button" className="stock-qty-btn" onClick={() => updateStockColor(c.name, -1)}>−</button>
-                            <span className="stock-qty">{qty}</span>
-                            <button type="button" className="stock-qty-btn" onClick={() => updateStockColor(c.name, 1)}>+</button>
-                          </div>
-                        )
-                      })}
+              {stockForm.product_id && (
+                <div className="full-width stock-colors">
+                  <div style={{fontSize:13,color:'var(--text-muted)',marginBottom:10}}>Цвета и количество</div>
+                  {stockForm.colors.map((c, idx) => (
+                    <div key={idx} className="stock-color-row">
+                      <input className="stock-color-input" type="text" placeholder="Название цвета" value={c.name}
+                        onChange={e => updateStockColor(idx, 'name', e.target.value)} />
+                      <button type="button" className="stock-qty-btn" onClick={() => updateStockColor(idx, 'qty', c.qty - 1)}>−</button>
+                      <span className="stock-qty">{c.qty}</span>
+                      <button type="button" className="stock-qty-btn" onClick={() => updateStockColor(idx, 'qty', c.qty + 1)}>+</button>
+                      {stockForm.colors.length > 1 && (
+                        <button type="button" className="stock-color-remove" onClick={() => removeStockColor(idx)}>✕</button>
+                      )}
                     </div>
-                  )
-                } else {
-                  const qty = stockForm.qtyNoColor || 0
-                  return (
-                    <div className="full-width stock-colors">
-                      <div style={{fontSize:13,color:'var(--text-muted)',marginBottom:10}}>Количество</div>
-                      <div className="stock-color-row">
-                        <span className="stock-color-name">Общее кол-во</span>
-                        <button type="button" className="stock-qty-btn" onClick={() => setStockForm(prev => ({...prev, qtyNoColor: Math.max(0, (prev.qtyNoColor||0) - 1)}))}>−</button>
-                        <span className="stock-qty">{qty}</span>
-                        <button type="button" className="stock-qty-btn" onClick={() => setStockForm(prev => ({...prev, qtyNoColor: (prev.qtyNoColor||0) + 1}))}>+</button>
-                      </div>
-                    </div>
-                  )
-                }
-              })()}
+                  ))}
+                  <button type="button" className="admin-btn admin-btn-add-color" onClick={addStockColorRow}>+ Добавить цвет</button>
+                </div>
+              )}
               <input id="stock-date" name="date" type="date" className="full-width" defaultValue={new Date().toISOString().slice(0,10)} />
               <button type="submit">{t('addStock')}</button>
             </div>
@@ -613,11 +589,8 @@ export default function Admin() {
                   </select>
                   {item.product_id > 0 && (
                     <>
-                      <select className="ship-select ship-color" value={item.color} onChange={e => updateShipItem(idx, 'color', e.target.value)}>
-                        {(products.find(p => p.id === item.product_id)?.colors || []).map(c => (
-                          <option key={c.name} value={c.name}>{translateColor(c.name)}</option>
-                        ))}
-                      </select>
+                      <input className="ship-select ship-color" type="text" placeholder="Цвет" value={item.color}
+                        onChange={e => updateShipItem(idx, 'color', e.target.value)} />
                       <input className="ship-input ship-qty" type="number" min="0" value={item.qty}
                         onChange={e => updateShipItem(idx, 'qty', Number(e.target.value))} />
                       <span className="ship-subtotal">{(item.subtotal||0).toLocaleString('ru-RU')} ₽</span>
