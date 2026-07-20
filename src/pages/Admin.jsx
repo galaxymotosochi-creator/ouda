@@ -189,18 +189,39 @@ export default function Admin() {
     }))
   }
 
-  const handlePhotos = (e) => {
-    const files = Array.from(e.target.files || [])
-    const total = photos.length + files.length
+  // Drag state for photo reorder
+  const [dragIdx, setDragIdx] = useState(null)
+
+  const handlePhotos = (e, files) => {
+    const fileList = files || Array.from(e?.target?.files || [])
+    const total = photos.length + fileList.length
     if (total > 7) { alert('Максимум 7 фото'); return }
-    // Create preview URLs
-    const newPhotos = files.map(f => ({ file: f, url: URL.createObjectURL(f) }))
+    const newPhotos = fileList.map(f => ({ file: f, url: URL.createObjectURL(f) }))
     setPhotos(prev => [...prev, ...newPhotos])
-    e.target.value = ''
+    if (e?.target) e.target.value = ''
   }
 
   const removePhoto = (idx) => {
     setPhotos(prev => { URL.revokeObjectURL(prev[idx].url); return prev.filter((_, i) => i !== idx) })
+  }
+
+  const handleDragStart = (idx) => { setDragIdx(idx) }
+  const handleDragOver = (e) => { e.preventDefault() }
+  const handleDrop = (idx) => {
+    if (dragIdx === null || dragIdx === idx) { setDragIdx(null); return }
+    setPhotos(prev => {
+      const next = [...prev]
+      const [moved] = next.splice(dragIdx, 1)
+      next.splice(idx, 0, moved)
+      return next
+    })
+    setDragIdx(null)
+  }
+
+  const handleDropFiles = (e) => {
+    e.preventDefault()
+    const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'))
+    if (files.length > 0) handlePhotos(null, files)
   }
 
   const addProduct = async (e) => {
@@ -296,17 +317,28 @@ export default function Admin() {
               <input placeholder={t('cooling')} value={newProduct.cooling} onChange={e => setNewProduct({...newProduct, cooling: e.target.value})} />
               <input placeholder={t('max_speed')} value={newProduct.max_speed} onChange={e => setNewProduct({...newProduct, max_speed: e.target.value})} />
               <input placeholder={t('wheels')} value={newProduct.wheels} onChange={e => setNewProduct({...newProduct, wheels: e.target.value})} />
-              <div className="full-width photo-upload-area">
+              <div className="full-width photo-upload-area"
+                onDragOver={handleDragOver}
+                onDrop={handleDropFiles}
+              >
                 <label className="photo-upload-label">
-                  {uploading ? 'Загрузка...' : '📷 Загрузить фото (до 7 шт)'}
+                  {uploading ? 'Загрузка...' : 'Загрузить фото (до 7 шт)'}
                   <input type="file" accept="image/*" multiple onChange={handlePhotos} disabled={uploading} hidden />
                 </label>
                 {photos.length > 0 && (
                   <div className="photo-previews">
                     {photos.map((p, i) => (
-                      <div key={i} className="photo-preview">
+                      <div key={i}
+                        className={`photo-preview ${dragIdx === i ? 'dragging' : ''}`}
+                        draggable
+                        onDragStart={() => handleDragStart(i)}
+                        onDragOver={handleDragOver}
+                        onDrop={() => handleDrop(i)}
+                        onDragEnd={() => setDragIdx(null)}
+                      >
                         <img src={p.url} alt="" />
                         <button type="button" className="photo-remove" onClick={() => removePhoto(i)}>✕</button>
+                        <div className="photo-order">{i + 1}</div>
                       </div>
                     ))}
                   </div>

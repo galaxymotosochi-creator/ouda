@@ -428,32 +428,59 @@ img { max-width: 100%; display: block; }
 .inv-badge-out { background: #fef2f2; color: #991b1b; }
 .inv-badge-none { background: var(--bg-hover); color: var(--text-muted); }
 
-/* === Photo Upload === */
-.photo-upload-area { margin-top: 8px; }
-.photo-upload-label {
-  display: inline-flex; padding: 12px 24px; background: var(--bg-hover);
-  border: 2px dashed var(--border); border-radius: 12px; cursor: pointer;
-  font-size: 13px; color: var(--text-muted); transition: all 0.2s;
-  justify-content: center; width: 100%;
-}
-.photo-upload-label:hover { border-color: var(--accent); color: var(--accent); }
-.photo-previews { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
-.photo-preview {
-  position: relative; width: 80px; height: 80px; border-radius: 10px;
-  overflow: hidden; border: 1px solid var(--border);
-}
-.photo-preview img { width: 100%; height: 100%; object-fit: cover; }
-.photo-remove {
-  position: absolute; top: 2px; right: 2px; width: 20px; height: 20px;
-  border-radius: 50%; background: rgba(0,0,0,0.6); color: #fff;
-  font-size: 10px; display: flex; align-items: center; justify-content: center;
-  opacity: 0; transition: opacity 0.2s;
-}
-.photo-preview:hover .photo-remove { opacity: 1; }
-
 /* Product description */
 .product-desc {
   font-size: 13px; color: var(--text-muted); line-height: 1.6;
   margin-bottom: 14px; padding: 10px 14px; background: var(--bg);
   border-radius: 10px; border: 1px solid var(--border);
 }
+
+/* Photo upload — drag & drop */
+.photo-upload-area {
+  margin-top: 8px;
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.photo-upload-area[draggable="true"],
+.photo-upload-area[ondragover] {
+  border-color: var(--border);
+}
+.photo-upload-area:hover,
+.photo-upload-area.drag-over {
+  border-color: var(--accent);
+  background: var(--bg-hover);
+}
+.photo-upload-label {
+  display: flex; padding: 12px; cursor: pointer; font-size: 13px;
+  color: var(--text-muted); justify-content: center; align-items: center;
+  transition: color 0.2s;
+}
+.photo-upload-label:hover { color: var(--accent); }
+.photo-previews {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  margin-top: 12px; min-height: 40px;
+}
+.photo-preview {
+  position: relative; width: 90px; height: 90px; border-radius: 10px;
+  overflow: hidden; border: 2px solid var(--border); cursor: grab;
+  transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+}
+.photo-preview:hover { box-shadow: var(--shadow); }
+.photo-preview:active { cursor: grabbing; }
+.photo-preview.dragging { opacity: 0.4; transform: scale(0.9); }
+.photo-preview img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.photo-order {
+  position: absolute; bottom: 2px; right: 2px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--accent); color: #fff; font-size: 10px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.photo-remove {
+  position: absolute; top: 2px; right: 2px; width: 22px; height: 22px;
+  border-radius: 50%; background: rgba(0,0,0,0.6); color: #fff;
+  font-size: 11px; display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.2s; border: none; cursor: pointer;
+}
+.photo-preview:hover .photo-remove { opacity: 1; }
