@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLang } from '../i18n'
+import { PRESET_COLORS } from '../colors'
 
 const API = import.meta.env.VITE_API_URL || ''
 const LS_ORDERS = 'ouda_orders'
@@ -393,8 +394,18 @@ export default function Admin() {
                   <div style={{fontSize:13,color:'var(--text-muted)',marginBottom:10}}>Цвета и количество</div>
                   {stockForm.colors.map((c, idx) => (
                     <div key={idx} className="stock-color-row">
-                      <input className="stock-color-input" type="text" placeholder="Название цвета" value={c.name}
-                        onChange={e => updateStockColor(idx, 'name', e.target.value)} />
+                      <div className="stock-color-palette-wrap">
+                        <div className="stock-color-palette">
+                          {PRESET_COLORS.map(pc => (
+                            <div key={pc.hex}
+                              className={`color-swatch ${pc.hex === 'chameleon' ? 'color-swatch-chameleon' : ''} ${c.name === pc.name ? 'selected' : ''}`}
+                              style={pc.hex !== 'chameleon' ? {background:pc.hex} : {}}
+                              onClick={() => updateStockColor(idx, 'name', pc.name)}
+                              title={lang === 'zh' ? (pc.nameZh || pc.name) : pc.name}
+                            />
+                          ))}
+                        </div>
+                      </div>
                       <button type="button" className="stock-qty-btn" onClick={() => updateStockColor(idx, 'qty', c.qty - 1)}>−</button>
                       <span className="stock-qty">{c.qty}</span>
                       <button type="button" className="stock-qty-btn" onClick={() => updateStockColor(idx, 'qty', c.qty + 1)}>+</button>

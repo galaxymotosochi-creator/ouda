@@ -500,3 +500,17 @@ img { max-width: 100%; display: block; }
   border-radius: 10px; font-size: 13px; margin-top: 6px; width: 100%; transition: all 0.2s;
 }
 .admin-btn-add-color:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Stock form — color palette picker */
+.stock-color-palette-wrap { flex: 1; }
+.stock-color-palette {
+  display: flex; flex-wrap: wrap; gap: 6px; padding: 8px;
+  background: var(--bg); border-radius: 10px; border: 1px solid var(--border);
+}
+.stock-color-palette .color-swatch { width: 22px; height: 22px; cursor: pointer; border-width: 2px; }
+.stock-color-palette .color-swatch.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--accent);
+  transform: scale(1.15);
+}
+.stock-color-palette .color-swatch:hover { transform: scale(1.1); }
