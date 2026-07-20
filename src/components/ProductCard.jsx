@@ -3,7 +3,7 @@ import { useLang } from '../i18n'
 import { PRESET_COLORS, getColorHex } from '../colors'
 
 export default function ProductCard({ product, onAdd, inCart }) {
-  const { t, translateColor } = useLang()
+  const { t, lang, translateColor } = useLang()
   const availColors = product.available_colors || {}
   const colorNames = Object.keys(availColors).filter(name => availColors[name] > 0)
   const hasColors = colorNames.length > 0
@@ -32,7 +32,7 @@ export default function ProductCard({ product, onAdd, inCart }) {
         onError={(e) => { e.target.src = '/placeholder.svg' }}
       />
       <div className="product-body">
-        <div className="product-name">{product.name}</div>
+        <div className="product-name">{lang === 'zh' ? (product.name_zh || product.name) : (product.name_ru || product.name)}</div>
 
         {/* Colors from stock — comma separated with quantities */}
         {hasColors && (

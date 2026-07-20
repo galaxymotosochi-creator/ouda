@@ -42,7 +42,7 @@ export default function Admin() {
 
   // New product form
   const [newProduct, setNewProduct] = useState({
-    name: '', price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', images: []
+    name_ru: '', name_zh: '', price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', images: []
   })
   const [photos, setPhotos] = useState([]) // file previews
   const [uploading, setUploading] = useState(false)
@@ -265,10 +265,10 @@ export default function Admin() {
       setUploading(false)
     }
 
-    const product = { ...newProduct, price: basePrice, images, image: images[0] || '', id: Date.now() }
+    const product = { ...newProduct, price: basePrice, name: lang === 'zh' ? (newProduct.name_zh || newProduct.name_ru) : (newProduct.name_ru || newProduct.name_zh), images, image: images[0] || '', id: Date.now() }
     fetch(`${API}/api/products`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(product) })
       .catch(() => { const list = getLocal(LS_PRODUCTS); list.push(product); setLocal(LS_PRODUCTS, list) })
-    setNewProduct({ name: '', price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', images: [] })
+    setNewProduct({ name_ru: '', name_zh: '', price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', images: [] })
     setPhotos([])
     setTimeout(loadData, 300)
   }
@@ -340,7 +340,14 @@ export default function Admin() {
           <form className="admin-add-form" onSubmit={addProduct}>
             <h3>{t('addProduct')}</h3>
             <div className="form-grid">
-              <input placeholder={lang === 'zh' ? '名称 *' : 'Название *'} value={newProduct.name} onChange={e => setNewProduct({...newProduct, name: e.target.value})} required />
+              <input placeholder={lang === 'zh' ? '名称 *' : 'Название *'} value={lang === 'zh' ? (newProduct.name_zh || newProduct.name_ru) : (newProduct.name_ru || newProduct.name_zh)} onChange={e => {
+                const val = e.target.value
+                if (lang === 'zh') {
+                  setNewProduct(prev => ({...prev, name_zh: val}))
+                } else {
+                  setNewProduct(prev => ({...prev, name_ru: val}))
+                }
+              }} required />
               <input placeholder={`${t('priceLabel')} *`} type="number" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} required />
               <input placeholder={`${t('priceLabel')} *`} type="number" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} required />
               <input placeholder={t('power')} value={newProduct.power} onChange={e => setNewProduct({...newProduct, power: e.target.value})} />
@@ -386,7 +393,7 @@ export default function Admin() {
             <tbody>
               {products.map(p => (
                 <tr key={p.id}>
-                  <td><strong>{p.name}</strong></td>
+                  <td><strong>{lang === 'zh' ? (p.name_zh || p.name) : (p.name_ru || p.name)}</strong></td>
                   <td>{p.price.toLocaleString('ru-RU')} ₽</td>
                   <td>{p.power||'—'}</td>
                   <td>{p.fuel||'—'}</td>
@@ -406,7 +413,7 @@ export default function Admin() {
             <div className="form-grid">
               <select id="stock-product" className="full-width" onChange={e => handleStockProductChange(e.target.value)} defaultValue="">
                 <option value="">{t('selectProduct')}</option>
-                {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                {products.map(p => <option key={p.id} value={p.id}>{lang === 'zh' ? (p.name_zh || p.name) : (p.name_ru || p.name)}</option>)}
               </select>
               {stockForm.product_id > 0 && (
                 <>
@@ -638,7 +645,7 @@ export default function Admin() {
                       const usedInOther = shipForm.items.some((it, i) => i !== idx && it.product_id === p.id)
                       return true // allow same product multiple times (different colors)
                     }).map(p => (
-                      <option key={p.id} value={p.id}>{p.name} — {p.price.toLocaleString('ru-RU')} ₽</option>
+                      <option key={p.id} value={p.id}>{lang === 'zh' ? (p.name_zh || p.name) : (p.name_ru || p.name)} — {p.price.toLocaleString('ru-RU')} ₽</option>
                     ))}
                   </select>
                   {item.product_id > 0 && (
