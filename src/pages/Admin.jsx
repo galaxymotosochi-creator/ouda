@@ -41,7 +41,7 @@ export default function Admin() {
   const [photos, setPhotos] = useState([]) // file previews
   const [uploading, setUploading] = useState(false)
   // Stock form
-  const [stockForm, setStockForm] = useState({ product_id: '', selectedColors: {}, status: 'received', expected_date: '' })  // { 'Красный': 5, 'Чёрный': 3 }
+  const [stockForm, setStockForm] = useState({ product_id: '', selectedColors: {}, status: 'received' })  // { 'Красный': 5, 'Чёрный': 3 }
   const [inventory, setInventory] = useState([])
 
   useEffect(() => {
@@ -177,7 +177,7 @@ export default function Admin() {
 
   // === PRODUCT & STOCK ===
   const handleStockProductChange = (productId) => {
-    setStockForm({ product_id: Number(productId), selectedColors: {}, status: 'received', expected_date: '' })
+    setStockForm({ product_id: Number(productId), selectedColors: {}, status: 'received' })
   }
 
   const toggleStockColor = (colorName) => {
@@ -287,12 +287,12 @@ export default function Admin() {
       id: Date.now(), product_id: stockForm.product_id, product_name: product.name,
       date: document.getElementById('stock-date')?.value || new Date().toISOString().slice(0, 10),
       status: stockForm.status,
-      expected_date: stockForm.expected_date || null,
+      expected_date: null,
       colors: colorsObj,
     }
     fetch(`${API}/api/stock`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(entry) })
       .catch(() => { const list = getLocal(LS_STOCK); list.push(entry); setLocal(LS_STOCK, list) })
-    setStockForm({ product_id: '', selectedColors: {}, status: 'received', expected_date: '' })
+    setStockForm({ product_id: '', selectedColors: {}, status: 'received' })
     document.getElementById('stock-product').value = ''
     setTimeout(loadData, 300)
   }
@@ -405,13 +405,9 @@ export default function Admin() {
                 <>
                 <div className="full-width" style={{display:'flex',gap:12,marginBottom:12}}>
                   <select className="stock-status-select" value={stockForm.status} onChange={e => setStockForm(prev => ({...prev, status: e.target.value}))}>
-                    <option value="received">✅ Получено</option>
-                    <option value="transit">🚚 В пути</option>
+                    <option value="received">Получено</option>
+                    <option value="transit">В пути</option>
                   </select>
-                  {stockForm.status === 'transit' && (
-                    <input type="date" className="stock-expected-date" value={stockForm.expected_date}
-                      onChange={e => setStockForm(prev => ({...prev, expected_date: e.target.value}))} />
-                  )}
                 </div>
                 <div className="full-width stock-color-picker">
                   <div className="palette">
