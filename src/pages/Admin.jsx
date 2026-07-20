@@ -2,14 +2,19 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLang } from '../i18n'
 
-
 const API = import.meta.env.VITE_API_URL || ''
 const LS_ORDERS = 'ouda_orders'
 const LS_PRODUCTS = 'ouda_products'
 const LS_STOCK = 'ouda_stock'
+const LS_SHIPMENTS = 'ouda_shipments'
 
 function getLocal(key) { try { return JSON.parse(localStorage.getItem(key) || '[]') } catch { return [] } }
 function setLocal(key, data) { localStorage.setItem(key, JSON.stringify(data)) }
+
+function formatDate(iso) {
+  if (!iso) return '—'
+  return new Date(iso).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+}
 
 export default function Admin() {
   const { t, lang, setLang } = useLang()
@@ -18,9 +23,21 @@ export default function Admin() {
   const [orders, setOrders] = useState([])
   const [products, setProducts] = useState([])
   const [stock, setStock] = useState([])
+  const [shipments, setShipments] = useState([])
+
+  // Create shipment modal
+  const [showShipModal, setShowShipModal] = useState(false)
+  const [shipOrder, setShipOrder] = useState(null)
+  const [shipForm, setShipForm] = useState({ client: { name: '', phone: '', city: '' }, items: [], prepaid: 0, paid: 0 })
+
+  // Invoice modal
+  const [invoiceShip, setInvoiceShip] = useState(null)
+
+  // New product form
   const [newProduct, setNewProduct] = useState({
     name: '', price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', image: ''
   })
+  // Stock form
   const [stockForm, setStockForm] = useState({ product_id: '', colors: {} })
 
   useEffect(() => {
@@ -32,6 +49,7 @@ export default function Admin() {
     fetch(`${API}/api/orders`).then(r => r.json()).then(setOrders).catch(() => setOrders(getLocal(LS_ORDERS)))
     fetch(`${API}/api/products`).then(r => r.json()).then(setProducts).catch(() => setProducts(getLocal(LS_PRODUCTS)))
     fetch(`${API}/api/stock`).then(r => r.json()).then(setStock).catch(() => setStock(getLocal(LS_STOCK)))
+    fetch(`${API}/api/shipments`).then(r => r.json()).then(setShipments).catch(() => setShipments(getLocal(LS_SHIPMENTS)))
   }
 
   const updateStatus = (id, status) => {
@@ -44,12 +62,117 @@ export default function Admin() {
     setTimeout(loadData, 300)
   }
 
+  // === SHIPMENT HELPERS ===
+  const statusShipLabel = (s) => {
+    const map = { 'оформлено': 'Оформлено', 'отгружено': 'Отгружено', 'доставлено': 'Доставлено', 'отменено': 'Отменено' }
+    return map[s] || s
+  }
+  const statusShipClass = (s) => {
+    const map = { 'оформлено': 'ship-status-new', 'отгружено': 'ship-status-shipped', 'доставлено': 'ship-status-delivered', 'отменено': 'ship-status-cancelled' }
+    return map[s] || ''
+  }
+
+  const openShipFromOrder = (order) => {
+    const items = (order.items || []).map(item => ({
+      product_id: item.product_id,
+      product_name: item.name,
+      color: item.color || '',
+      price: item.price || 0,
+      qty: 0,
+      subtotal: 0,
+    }))
+    setShipOrder(order)
+    setShipForm({
+      client: { name: order.name, phone: order.phone, city: order.city || '' },
+      items, prepaid: 0, paid: 0,
+    })
+    setShowShipModal(true)
+  }
+
+  const openShipManual = () => {
+    setShipOrder(null)
+    setShipForm({ client: { name: '', phone: '', city: '' }, items: [{ product_id: 0, product_name: '', color: '', price: 0, qty: 0, subtotal: 0 }], prepaid: 0, paid: 0 })
+    setShowShipModal(true)
+  }
+
+  const closeShipModal = () => { setShowShipModal(false); setShipOrder(null) }
+
+  const updateShipItem = (idx, field, value) => {
+    setShipForm(prev => {
+      const items = [...prev.items]
+      items[idx] = { ...items[idx], [field]: value }
+      items[idx].subtotal = (items[idx].price || 0) * (items[idx].qty || 0)
+      return { ...prev, items }
+    })
+  }
+
+  const addShipItem = () => {
+    setShipForm(prev => ({
+      ...prev,
+      items: [...prev.items, { product_id: 0, product_name: '', color: '', price: 0, qty: 0, subtotal: 0 }]
+    }))
+  }
+
+  const removeShipItem = (idx) => {
+    setShipForm(prev => ({ ...prev, items: prev.items.filter((_, i) => i !== idx) }))
+  }
+
+  const onProductSelect = (idx, productId) => {
+    const pid = Number(productId)
+    const prod = products.find(p => p.id === pid)
+    if (!prod) return
+    setShipForm(prev => {
+      const items = [...prev.items]
+      items[idx] = {
+        ...items[idx], product_id: pid, product_name: prod.name,
+        price: prod.price, color: prod.colors?.[0]?.name || '',
+        qty: 1, subtotal: prod.price,
+      }
+      return { ...prev, items }
+    })
+  }
+
+  const shipTotal = () => shipForm.items.reduce((s, i) => s + i.subtotal, 0)
+
+  const createShipment = () => {
+    const items = shipForm.items.filter(i => i.qty > 0 && i.product_id > 0)
+    if (items.length === 0) return
+    const payload = {
+      order_id: shipOrder?.id || null,
+      client: shipForm.client,
+      items,
+      total: items.reduce((s, i) => s + i.subtotal, 0),
+      prepaid: Number(shipForm.prepaid) || 0,
+      paid: Number(shipForm.paid) || 0,
+    }
+    fetch(`${API}/api/shipments`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
+    }).catch(() => {
+      const list = getLocal(LS_SHIPMENTS)
+      list.push({ id: Date.now(), number: 'OUDA-' + String(list.length + 1).padStart(3, '0'), ...payload, status: 'оформлено', created_at: new Date().toISOString() })
+      setLocal(LS_SHIPMENTS, list)
+    })
+    setShowShipModal(false)
+    setShipOrder(null)
+    setTimeout(loadData, 300)
+  }
+
+  const updateShipment = (id, data) => {
+    fetch(`${API}/api/shipments/${id}`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data),
+    }).catch(() => {
+      const list = getLocal(LS_SHIPMENTS).map(s => s.id === id ? { ...s, ...data } : s)
+      setLocal(LS_SHIPMENTS, list)
+      setShipments(list)
+    })
+    setTimeout(loadData, 300)
+  }
+
+  // === PRODUCT & STOCK ===
   const handleStockProductChange = (productId) => {
     const product = products.find(p => p.id === Number(productId))
     const colors = {}
-    if (product?.colors) {
-      product.colors.forEach(c => { colors[c.name] = 0 })
-    }
+    if (product?.colors) product.colors.forEach(c => { colors[c.name] = 0 })
     setStockForm({ product_id: Number(productId), colors })
   }
 
@@ -62,25 +185,17 @@ export default function Admin() {
 
   const addProduct = (e) => {
     e.preventDefault()
-    const basePrice = Number(newProduct.price) || (newProduct.colors[0]?.price ? Number(newProduct.colors[0].price) : 0)
+    const basePrice = Number(newProduct.price) || 0
     const product = { ...newProduct, price: basePrice, id: Date.now() }
     fetch(`${API}/api/products`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(product) })
-      .catch(() => {
-        const list = getLocal(LS_PRODUCTS)
-        list.push(product)
-        setLocal(LS_PRODUCTS, list)
-      })
+      .catch(() => { const list = getLocal(LS_PRODUCTS); list.push(product); setLocal(LS_PRODUCTS, list) })
     setNewProduct({ name: '', price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', image: '' })
     setTimeout(loadData, 300)
   }
 
   const deleteProduct = (id) => {
     fetch(`${API}/api/products/${id}`, { method: 'DELETE' })
-      .catch(() => {
-        const list = getLocal(LS_PRODUCTS).filter(p => p.id !== id)
-        setLocal(LS_PRODUCTS, list)
-        setProducts(list)
-      })
+      .catch(() => { const list = getLocal(LS_PRODUCTS).filter(p => p.id !== id); setLocal(LS_PRODUCTS, list); setProducts(list) })
     setTimeout(loadData, 300)
   }
 
@@ -89,33 +204,20 @@ export default function Admin() {
     const product = products.find(p => p.id === stockForm.product_id)
     const hasAny = Object.values(stockForm.colors).some(v => v > 0)
     if (!product || !hasAny) return
-
     const entry = {
-      id: Date.now(),
-      product_id: stockForm.product_id,
-      product_name: product.name,
+      id: Date.now(), product_id: stockForm.product_id, product_name: product.name,
       date: document.getElementById('stock-date')?.value || new Date().toISOString().slice(0, 10),
       colors: stockForm.colors,
     }
     fetch(`${API}/api/stock`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(entry) })
-      .catch(() => {
-        const list = getLocal(LS_STOCK)
-        list.push(entry)
-        setLocal(LS_STOCK, list)
-      })
+      .catch(() => { const list = getLocal(LS_STOCK); list.push(entry); setLocal(LS_STOCK, list) })
     setStockForm({ product_id: '', colors: {} })
     document.getElementById('stock-product').value = ''
     setTimeout(loadData, 300)
   }
 
-  const statusLabel = (s) => {
-    const map = { new: t('new'), accepted: t('accepted'), done: t('completed') }
-    return map[s] || s
-  }
-  const statusClass = (s) => {
-    const map = { new: 'status-new', accepted: 'status-accepted', done: 'status-done' }
-    return map[s] || ''
-  }
+  const statusLabel = (s) => { const map = { new: t('new'), accepted: t('accepted'), done: t('completed') }; return map[s] || s }
+  const statusClass = (s) => { const map = { new: 'status-new', accepted: 'status-accepted', done: 'status-done' }; return map[s] || '' }
   const logout = () => { sessionStorage.removeItem('ouda_admin'); navigate('/login') }
 
   if (!sessionStorage.getItem('ouda_admin')) return null
@@ -135,7 +237,8 @@ export default function Admin() {
       <div className="admin-content">
         <div className="admin-tabs">
           {[
-            { key: 'orders', label: `${t('orders')} (${orders.length})` },
+            { key: 'orders', label: `📋 ${t('orders')} (${orders.length})` },
+            { key: 'shipments', label: `🚚 Отгрузки (${shipments.length})` },
             { key: 'products', label: `${t('products')} (${products.length})` },
             { key: 'stock', label: `${t('stock')}` },
           ].map(tabItem => (
@@ -144,7 +247,8 @@ export default function Admin() {
           ))}
         </div>
 
-        {tab === 'orders' && (
+        {/* === ORDERS TAB === */}
+        {tab === 'orders' && (<>
           <table className="admin-table">
             <thead><tr>
               <th>№</th><th>{t('date')}</th><th>{t('name')}</th><th>{t('city')}</th><th>{t('phone')}</th>
@@ -154,18 +258,19 @@ export default function Admin() {
               {orders.map((o, i) => (
                 <tr key={o.id}>
                   <td>{i+1}</td>
-                  <td style={{fontSize:13,color:'#999'}}>{new Date(o.created_at).toLocaleString('ru-RU')}</td>
+                  <td style={{fontSize:13,color:'#999'}}>{formatDate(o.created_at)}</td>
                   <td><strong>{o.name}</strong></td>
                   <td>{o.city||'—'}</td>
                   <td>{o.phone}</td>
                   <td style={{fontSize:13}}>{o.items?.map(item => `${item.name} ×${item.qty}`).join(', ')||'—'}</td>
                   <td><strong>{(o.total||0).toLocaleString('ru-RU')} ₽</strong></td>
-                  <td><span className={`admin-badge badge-${o.payment||'cash'}`}>{o.payment==='usdt'?'USDT':t('cash')}</span></td>
+                  <td><span className="admin-badge">{o.payment==='usdt'?'USDT':t('cash')}</span></td>
                   <td><span className={`status ${statusClass(o.status)}`}>{statusLabel(o.status)}</span></td>
                   <td>
                     <div className="admin-actions">
                       {o.status==='new' && <button className="admin-btn admin-btn-accept" onClick={() => updateStatus(o.id,'accepted')}>{t('accept')}</button>}
                       {o.status!=='done' && <button className="admin-btn admin-btn-done" onClick={() => updateStatus(o.id,'done')}>{t('done')}</button>}
+                      <button className="admin-btn admin-btn-ship" onClick={() => openShipFromOrder(o)}>🚚 Отгрузить</button>
                     </div>
                   </td>
                 </tr>
@@ -173,115 +278,306 @@ export default function Admin() {
               {orders.length===0 && <tr><td colSpan={10} style={{textAlign:'center',color:'#666',padding:40}}>{t('noOrders')}</td></tr>}
             </tbody>
           </table>
-        )}
+        </>)}
 
-        {tab === 'products' && (
-          <>
-            <form className="admin-add-form" onSubmit={addProduct}>
-              <h3>{t('addProduct')}</h3>
-              <div className="form-grid">
-                <input placeholder={`${t('nameLabel')} *`} value={newProduct.name}
-                  onChange={e => setNewProduct({...newProduct, name: e.target.value})} required />
-                <input placeholder={`${t('priceLabel')} *`} type="number" value={newProduct.price}
-                  onChange={e => setNewProduct({...newProduct, price: e.target.value})} required />
+        {/* === SHIPMENTS TAB === */}
+        {tab === 'shipments' && (<>
+          <div style={{marginBottom:16,display:'flex',gap:12,alignItems:'center'}}>
+            <button className="admin-btn-primary" onClick={openShipManual}>➕ Новая отгрузка</button>
+          </div>
+          <table className="admin-table">
+            <thead><tr>
+              <th>№</th><th>Дата</th><th>Клиент</th><th>Телефон</th><th>Товары</th>
+              <th>Сумма</th><th>Оплата</th><th>Статус</th><th></th>
+            </tr></thead>
+            <tbody>
+              {shipments.map(s => (
+                <tr key={s.id}>
+                  <td><strong>{s.number}</strong></td>
+                  <td style={{fontSize:13,color:'#999'}}>{formatDate(s.created_at)}</td>
+                  <td>{s.client?.name || '—'}</td>
+                  <td>{s.client?.phone || '—'}</td>
+                  <td style={{fontSize:13}}>
+                    {(s.items || []).map(item => `${item.product_name}${item.color ? ' ('+item.color+')' : ''} ×${item.qty}`).join(', ')}
+                  </td>
+                  <td><strong>{(s.total||0).toLocaleString('ru-RU')} ₽</strong></td>
+                  <td style={{fontSize:13}}>
+                    {s.prepaid > 0 && <div>Предоплата: {(s.prepaid||0).toLocaleString('ru-RU')} ₽</div>}
+                    {s.paid > 0 && <div>Оплачено: {(s.paid||0).toLocaleString('ru-RU')} ₽</div>}
+                    {!s.prepaid && !s.paid && <span style={{color:'#999'}}>—</span>}
+                  </td>
+                  <td><span className={`status ${statusShipClass(s.status)}`}>{statusShipLabel(s.status)}</span></td>
+                  <td>
+                    <div className="admin-actions">
+                      {s.status === 'оформлено' && <>
+                        <button className="admin-btn admin-btn-accept" onClick={() => updateShipment(s.id,{status:'отгружено'})}>📦 Отгрузить</button>
+                        <button className="admin-btn admin-btn-danger" onClick={() => updateShipment(s.id,{status:'отменено'})}>✕ Отмена</button>
+                      </>}
+                      {s.status === 'отгружено' && <>
+                        <button className="admin-btn admin-btn-done" onClick={() => updateShipment(s.id,{status:'доставлено'})}>✅ Доставлено</button>
+                      </>}
+                      <button className="admin-btn admin-btn-invoice" onClick={() => setInvoiceShip(s)}>📄 Накладная</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {shipments.length===0 && <tr><td colSpan={9} style={{textAlign:'center',color:'#666',padding:40}}>Нет отгрузок</td></tr>}
+            </tbody>
+          </table>
+        </>)}
 
-                <input placeholder={t('power')} value={newProduct.power}
-                  onChange={e => setNewProduct({...newProduct, power: e.target.value})} />
-                <input placeholder={t('fuel')} value={newProduct.fuel}
-                  onChange={e => setNewProduct({...newProduct, fuel: e.target.value})} />
-                <input placeholder={t('cooling')} value={newProduct.cooling}
-                  onChange={e => setNewProduct({...newProduct, cooling: e.target.value})} />
-                <input placeholder={t('max_speed')} value={newProduct.max_speed}
-                  onChange={e => setNewProduct({...newProduct, max_speed: e.target.value})} />
-                <input placeholder={t('wheels')} value={newProduct.wheels}
-                  onChange={e => setNewProduct({...newProduct, wheels: e.target.value})} />
-                <input placeholder={t('photoLink')} value={newProduct.image}
-                  onChange={e => setNewProduct({...newProduct, image: e.target.value})} />
-                <div className="full-width">
-                  <textarea placeholder={t('descLabel')} value={newProduct.description}
-                    onChange={e => setNewProduct({...newProduct, description: e.target.value})} />
-                </div>
-                <button type="submit">{t('addProduct')}</button>
-              </div>
-            </form>
-            <table className="admin-table">
-              <thead><tr>
-                <th>{t('nameLabel')}</th><th>{t('priceLabel')}</th><th>{t('power')}</th><th>{t('fuel')}</th><th>{t('wheels')}</th><th>Цвета</th><th></th>
-              </tr></thead>
-              <tbody>
-                {products.map(p => (
-                  <tr key={p.id}>
-                    <td><strong>{p.name}</strong></td>
-                    <td>{p.price.toLocaleString('ru-RU')} ₽</td>
-                    <td>{p.power||'—'}</td>
-                    <td>{p.fuel||'—'}</td>
-                    <td>{p.wheels||'—'}</td>
-                    <td>{p.colors?.length > 0 ? (
-                      <div className="color-swatches" style={{margin:0}}>
-                        {p.colors.map((c, i) => (
-                          <div key={i} className={`color-swatch ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`} style={c.hex !== 'chameleon' ? {background:c.hex,width:16,height:16,cursor:'default'} : {width:16,height:16,cursor:'default'}} title={c.name} />
-                        ))}
+        {/* === PRODUCTS TAB === */}
+        {tab === 'products' && (<>
+          <form className="admin-add-form" onSubmit={addProduct}>
+            <h3>{t('addProduct')}</h3>
+            <div className="form-grid">
+              <input placeholder={`${t('nameLabel')} *`} value={newProduct.name} onChange={e => setNewProduct({...newProduct, name: e.target.value})} required />
+              <input placeholder={`${t('priceLabel')} *`} type="number" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} required />
+              <input placeholder={t('power')} value={newProduct.power} onChange={e => setNewProduct({...newProduct, power: e.target.value})} />
+              <input placeholder={t('fuel')} value={newProduct.fuel} onChange={e => setNewProduct({...newProduct, fuel: e.target.value})} />
+              <input placeholder={t('cooling')} value={newProduct.cooling} onChange={e => setNewProduct({...newProduct, cooling: e.target.value})} />
+              <input placeholder={t('max_speed')} value={newProduct.max_speed} onChange={e => setNewProduct({...newProduct, max_speed: e.target.value})} />
+              <input placeholder={t('wheels')} value={newProduct.wheels} onChange={e => setNewProduct({...newProduct, wheels: e.target.value})} />
+              <input placeholder={t('photoLink')} value={newProduct.image} onChange={e => setNewProduct({...newProduct, image: e.target.value})} />
+              <div className="full-width"><textarea placeholder={t('descLabel')} value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})} /></div>
+              <button type="submit">{t('addProduct')}</button>
+            </div>
+          </form>
+          <table className="admin-table">
+            <thead><tr>
+              <th>{t('nameLabel')}</th><th>{t('priceLabel')}</th><th>{t('power')}</th><th>{t('fuel')}</th><th>{t('wheels')}</th><th>Цвета</th><th></th>
+            </tr></thead>
+            <tbody>
+              {products.map(p => (
+                <tr key={p.id}>
+                  <td><strong>{p.name}</strong></td>
+                  <td>{p.price.toLocaleString('ru-RU')} ₽</td>
+                  <td>{p.power||'—'}</td>
+                  <td>{p.fuel||'—'}</td>
+                  <td>{p.wheels||'—'}</td>
+                  <td>{p.colors?.length > 0 ? (
+                    <div className="color-swatches" style={{margin:0}}>
+                      {p.colors.map((c, i) => (
+                        <div key={i} className={`color-swatch ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`} style={c.hex !== 'chameleon' ? {background:c.hex,width:16,height:16,cursor:'default'} : {width:16,height:16,cursor:'default'}} title={c.name} />
+                      ))}
+                    </div>
+                  ) : (p.color || '—')}</td>
+                  <td><button className="admin-btn admin-btn-done" onClick={() => deleteProduct(p.id)} style={{color:'#ef4444'}}>{t('delete')}</button></td>
+                </tr>
+              ))}
+              {products.length===0 && <tr><td colSpan={6} style={{textAlign:'center',color:'#666',padding:40}}>{t('noProducts')}</td></tr>}
+            </tbody>
+          </table>
+        </>)}
+
+        {/* === STOCK TAB === */}
+        {tab === 'stock' && (<>
+          <form className="admin-add-form" onSubmit={addStock}>
+            <h3>{t('addStock')}</h3>
+            <div className="form-grid">
+              <select id="stock-product" className="full-width" onChange={e => handleStockProductChange(e.target.value)} defaultValue="">
+                <option value="">{t('selectProduct')}</option>
+                {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+              {stockForm.product_id && products.find(p => p.id === stockForm.product_id)?.colors?.length > 0 && (
+                <div className="full-width stock-colors">
+                  <div style={{fontSize:13,color:'var(--text-muted)',marginBottom:10}}>{t('color')}</div>
+                  {products.find(p => p.id === stockForm.product_id).colors.map(c => {
+                    const qty = stockForm.colors[c.name] || 0
+                    return (
+                      <div key={c.name} className="stock-color-row">
+                        <div className={`stock-color-swatch ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`} style={c.hex !== 'chameleon' ? { background: c.hex } : {}} />
+                        <span className="stock-color-name">{c.name}</span>
+                        <button type="button" className="stock-qty-btn" onClick={() => updateStockColor(c.name, -1)}>−</button>
+                        <span className="stock-qty">{qty}</span>
+                        <button type="button" className="stock-qty-btn" onClick={() => updateStockColor(c.name, 1)}>+</button>
                       </div>
-                    ) : (p.color || '—')}</td>
-                    <td><button className="admin-btn admin-btn-done" onClick={() => deleteProduct(p.id)} style={{color:'#ef4444'}}>{t('delete')}</button></td>
-                  </tr>
-                ))}
-                {products.length===0 && <tr><td colSpan={6} style={{textAlign:'center',color:'#666',padding:40}}>{t('noProducts')}</td></tr>}
-              </tbody>
-            </table>
-          </>
-        )}
-
-        {tab === 'stock' && (
-          <>
-            <form className="admin-add-form" onSubmit={addStock}>
-              <h3>{t('addStock')}</h3>
-              <div className="form-grid">
-                <select id="stock-product" className="full-width" onChange={e => handleStockProductChange(e.target.value)} defaultValue="">
-                  <option value="">{t('selectProduct')}</option>
-                  {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                </select>
-
-                {stockForm.product_id && products.find(p => p.id === stockForm.product_id)?.colors?.length > 0 && (
-                  <div className="full-width stock-colors">
-                    <div style={{fontSize:13,color:'var(--text-muted)',marginBottom:10}}>{t('color')}</div>
-                    {products.find(p => p.id === stockForm.product_id).colors.map(c => {
-                      const qty = stockForm.colors[c.name] || 0
-                      return (
-                        <div key={c.name} className="stock-color-row">
-                          <div className={`stock-color-swatch ${c.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`}
-                            style={c.hex !== 'chameleon' ? { background: c.hex } : {}} />
-                          <span className="stock-color-name">{c.name}</span>
-                          <button type="button" className="stock-qty-btn" onClick={() => updateStockColor(c.name, -1)}>−</button>
-                          <span className="stock-qty">{qty}</span>
-                          <button type="button" className="stock-qty-btn" onClick={() => updateStockColor(c.name, 1)}>+</button>
-                        </div>
-                      )
-                    })}
-                  </div>
-                )}
-
-                <input id="stock-date" name="date" type="date" className="full-width" defaultValue={new Date().toISOString().slice(0,10)} />
-                <button type="submit">{t('addStock')}</button>
+                    )
+                  })}
+                </div>
+              )}
+              <input id="stock-date" name="date" type="date" className="full-width" defaultValue={new Date().toISOString().slice(0,10)} />
+              <button type="submit">{t('addStock')}</button>
+            </div>
+          </form>
+          <div className="stock-list">
+            {stock.map(s => (
+              <div key={s.id} className="stock-item">
+                <div className="stock-item-info">
+                  <strong>{s.product_name}</strong>
+                  {s.colors && Object.entries(s.colors).filter(([,v]) => v > 0).map(([color, qty]) => (
+                    <span key={color} className="stock-color-tag">{color}: {qty} шт</span>
+                  ))}
+                  <span style={{color:'#666',fontSize:13}}>{s.date}</span>
+                  <span className={`admin-badge ${s.status==='received'?'badge-received':'badge-transit'}`}>
+                    {s.status==='received' ? '✅ Получено' : '🚚 В пути до ' + (s.expected_date||'?')}
+                  </span>
+                </div>
               </div>
-            </form>
-            <div className="stock-list">
-              {stock.map(s => (
-                <div key={s.id} className="stock-item">
-                  <div className="stock-item-info">
-                    <strong>{s.product_name}</strong>
-                    {s.colors && Object.entries(s.colors).filter(([,v]) => v > 0).map(([color, qty]) => (
-                      <span key={color} className="stock-color-tag">{color}: {qty} шт</span>
+            ))}
+            {stock.length===0 && <p style={{color:'#666',textAlign:'center',padding:40}}>{t('noStock')}</p>}
+          </div>
+        </>)}
+      </div>
+
+      {/* === CREATE SHIPMENT MODAL === */}
+      {showShipModal && (
+        <div className="modal-overlay" onClick={closeShipModal}>
+          <div className="modal modal-wide" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>{shipOrder ? `🚚 Отгрузка из заказа #${shipOrder.id}` : '🚚 Новая отгрузка'}</h3>
+              <button className="modal-close" onClick={closeShipModal}>✕</button>
+            </div>
+            <div className="modal-body">
+              <h4 style={{marginBottom:12,fontSize:14,color:'#666'}}>Клиент</h4>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:20}}>
+                <input className="ship-input" placeholder="Имя *" value={shipForm.client.name}
+                  onChange={e => setShipForm(prev => ({...prev, client: {...prev.client, name: e.target.value}}))} />
+                <input className="ship-input" placeholder="Телефон *" value={shipForm.client.phone}
+                  onChange={e => setShipForm(prev => ({...prev, client: {...prev.client, phone: e.target.value}}))} />
+                <input className="ship-input full-w" placeholder="Город" value={shipForm.client.city}
+                  onChange={e => setShipForm(prev => ({...prev, client: {...prev.client, city: e.target.value}}))} />
+              </div>
+
+              <h4 style={{marginBottom:12,fontSize:14,color:'#666'}}>Товары</h4>
+              {shipForm.items.map((item, idx) => (
+                <div key={idx} className="ship-item-row">
+                  <select className="ship-select" value={item.product_id} onChange={e => onProductSelect(idx, e.target.value)}>
+                    <option value="0">— Выберите товар —</option>
+                    {products.filter(p => {
+                      const usedInOther = shipForm.items.some((it, i) => i !== idx && it.product_id === p.id)
+                      return true // allow same product multiple times (different colors)
+                    }).map(p => (
+                      <option key={p.id} value={p.id}>{p.name} — {p.price.toLocaleString('ru-RU')} ₽</option>
                     ))}
-                    <span style={{color:'#666',fontSize:13}}>{s.date}</span>
-                  </div>
+                  </select>
+                  {item.product_id > 0 && (
+                    <>
+                      <select className="ship-select ship-color" value={item.color} onChange={e => updateShipItem(idx, 'color', e.target.value)}>
+                        {(products.find(p => p.id === item.product_id)?.colors || []).map(c => (
+                          <option key={c.name} value={c.name}>{c.name}</option>
+                        ))}
+                      </select>
+                      <input className="ship-input ship-qty" type="number" min="0" value={item.qty}
+                        onChange={e => updateShipItem(idx, 'qty', Number(e.target.value))} />
+                      <span className="ship-subtotal">{(item.subtotal||0).toLocaleString('ru-RU')} ₽</span>
+                    </>
+                  )}
+                  {shipForm.items.length > 1 && (
+                    <button className="ship-remove" onClick={() => removeShipItem(idx)}>✕</button>
+                  )}
                 </div>
               ))}
-              {stock.length===0 && <p style={{color:'#666',textAlign:'center',padding:40}}>{t('noStock')}</p>}
+              <button className="admin-btn admin-btn-add-item" onClick={addShipItem}>+ Добавить товар</button>
+
+              <h4 style={{marginTop:20,marginBottom:10,fontSize:14,color:'#666'}}>Оплата</h4>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+                <div>
+                  <label style={{fontSize:12,color:'#999'}}>Предоплата (₽)</label>
+                  <input className="ship-input" type="number" min="0" value={shipForm.prepaid}
+                    onChange={e => setShipForm(prev => ({...prev, prepaid: e.target.value}))} />
+                </div>
+                <div>
+                  <label style={{fontSize:12,color:'#999'}}>Полная оплата (₽)</label>
+                  <input className="ship-input" type="number" min="0" value={shipForm.paid}
+                    onChange={e => setShipForm(prev => ({...prev, paid: e.target.value}))} />
+                </div>
+              </div>
+
+              <div className="ship-total">
+                <span>Итого:</span>
+                <span>{shipTotal().toLocaleString('ru-RU')} ₽</span>
+              </div>
+
+              <div className="modal-actions">
+                <button className="admin-btn admin-btn-cancel" onClick={closeShipModal}>Отмена</button>
+                <button className="admin-btn-primary" onClick={createShipment}>✅ Создать отгрузку</button>
+              </div>
             </div>
-          </>
-        )}
-      </div>
+          </div>
+        </div>
+      )}
+
+      {/* === INVOICE MODAL === */}
+      {invoiceShip && (
+        <div className="modal-overlay" onClick={() => setInvoiceShip(null)}>
+          <div className="modal modal-wide invoice-modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>📄 Накладная {invoiceShip.number}</h3>
+              <div>
+                <button className="admin-btn admin-btn-print" onClick={() => window.print()}>🖨 Печать</button>
+                <button className="modal-close" onClick={() => setInvoiceShip(null)}>✕</button>
+              </div>
+            </div>
+            <div className="invoice-body" id="invoice-content">
+              <div className="invoice-header">
+                <div className="invoice-brand">
+                  <h1>OUDA</h1>
+                  <p>Скутеры оптом и в розницу</p>
+                </div>
+                <div className="invoice-meta">
+                  <div className="invoice-number">{invoiceShip.number}</div>
+                  <div className="invoice-date">от {new Date(invoiceShip.created_at).toLocaleDateString('ru-RU')}</div>
+                </div>
+              </div>
+
+              <div className="invoice-client">
+                <h4>Грузополучатель:</h4>
+                <p><strong>{invoiceShip.client?.name || '—'}</strong></p>
+                <p>Телефон: {invoiceShip.client?.phone || '—'}</p>
+                <p>Город: {invoiceShip.client?.city || '—'}</p>
+              </div>
+
+              <table className="invoice-table">
+                <thead>
+                  <tr>
+                    <th>№</th><th>Товар</th><th>Цвет</th><th>Кол-во</th><th>Цена</th><th>Сумма</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(invoiceShip.items || []).map((item, i) => (
+                    <tr key={i}>
+                      <td>{i+1}</td>
+                      <td>{item.product_name}</td>
+                      <td>{item.color || '—'}</td>
+                      <td>{item.qty}</td>
+                      <td>{(item.price||0).toLocaleString('ru-RU')} ₽</td>
+                      <td>{(item.subtotal||0).toLocaleString('ru-RU')} ₽</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              <div className="invoice-summary">
+                <div className="invoice-total">
+                  <span>Итого к оплате:</span>
+                  <span className="invoice-total-amount">{(invoiceShip.total||0).toLocaleString('ru-RU')} ₽</span>
+                </div>
+                {invoiceShip.prepaid > 0 && (
+                  <div className="invoice-paid">
+                    <span>Предоплата:</span>
+                    <span>{(invoiceShip.prepaid||0).toLocaleString('ru-RU')} ₽</span>
+                  </div>
+                )}
+                {invoiceShip.paid > 0 && (
+                  <div className="invoice-paid">
+                    <span>Оплачено:</span>
+                    <span>{(invoiceShip.paid||0).toLocaleString('ru-RU')} ₽</span>
+                  </div>
+                )}
+                {invoiceShip.status === 'доставлено' && (
+                  <div className="invoice-status-badge">✅ Доставлено</div>
+                )}
+              </div>
+
+              <div className="invoice-footer">
+                <p>OUDA — интернет-магазин скутеров</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }
