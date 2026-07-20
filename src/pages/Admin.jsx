@@ -41,7 +41,7 @@ export default function Admin() {
   const [photos, setPhotos] = useState([]) // file previews
   const [uploading, setUploading] = useState(false)
   // Stock form
-  const [stockForm, setStockForm] = useState({ product_id: '', colors: [] })  // colors: [{ name: '', qty: 0 }]
+  const [stockForm, setStockForm] = useState({ product_id: '', selectedColors: {} })  // { 'Красный': 5, 'Чёрный': 3 }
   const [inventory, setInventory] = useState([])
 
   useEffect(() => {
@@ -177,23 +177,33 @@ export default function Admin() {
 
   // === PRODUCT & STOCK ===
   const handleStockProductChange = (productId) => {
-    setStockForm({ product_id: Number(productId), colors: [{ name: '', qty: 0 }] })
+    setStockForm({ product_id: Number(productId), selectedColors: {} })
   }
 
-  const updateStockColor = (idx, field, value) => {
+  const toggleStockColor = (colorName) => {
     setStockForm(prev => {
-      const colors = [...prev.colors]
-      colors[idx] = { ...colors[idx], [field]: field === 'qty' ? Math.max(0, Number(value) || 0) : value }
-      return { ...prev, colors }
+      const sc = { ...prev.selectedColors }
+      if (sc[colorName] !== undefined) {
+        delete sc[colorName]
+      } else {
+        sc[colorName] = 0
+      }
+      return { ...prev, selectedColors: sc }
     })
   }
 
-  const addStockColorRow = () => {
-    setStockForm(prev => ({ ...prev, colors: [...prev.colors, { name: '', qty: 0 }] }))
-  }
-
-  const removeStockColor = (idx) => {
-    setStockForm(prev => ({ ...prev, colors: prev.colors.filter((_, i) => i !== idx) }))
+  const updateStockColorQty = (colorName, delta) => {
+    setStockForm(prev => {
+      const sc = { ...prev.selectedColors }
+      if (sc[colorName] === undefined) return prev
+      const newQty = Math.max(0, sc[colorName] + delta)
+      if (newQty === 0) {
+        delete sc[colorName]
+      } else {
+        sc[colorName] = newQty
+      }
+      return { ...prev, selectedColors: sc }
+    })
   }
 
   // Drag state for photo reorder
@@ -269,8 +279,8 @@ export default function Admin() {
     if (!product) { alert('Выберите товар'); return }
     // Build colors object: { colorName: qty, ... }
     const colorsObj = {}
-    stockForm.colors.forEach(c => {
-      if (c.name.trim() && c.qty > 0) colorsObj[c.name.trim()] = c.qty
+    Object.entries(stockForm.selectedColors).forEach(([name, qty]) => {
+      if (qty > 0) colorsObj[name] = qty
     })
     if (Object.keys(colorsObj).length === 0) { alert('Добавьте хотя бы один цвет с количеством'); return }
     const entry = {
@@ -280,7 +290,7 @@ export default function Admin() {
     }
     fetch(`${API}/api/stock`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(entry) })
       .catch(() => { const list = getLocal(LS_STOCK); list.push(entry); setLocal(LS_STOCK, list) })
-    setStockForm({ product_id: '', colors: [{ name: '', qty: 0 }] })
+    setStockForm({ product_id: '', selectedColors: {} })
     document.getElementById('stock-product').value = ''
     setTimeout(loadData, 300)
   }
@@ -390,31 +400,41 @@ export default function Admin() {
                 {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
               {stockForm.product_id && (
-                <div className="full-width stock-colors">
-                  <div style={{fontSize:13,color:'var(--text-muted)',marginBottom:10}}>Цвета и количество</div>
-                  {stockForm.colors.map((c, idx) => (
-                    <div key={idx} className="stock-color-row">
-                      <div className="stock-color-palette-wrap">
-                        <div className="stock-color-palette">
-                          {PRESET_COLORS.map(pc => (
-                            <div key={pc.hex}
-                              className={`color-swatch ${pc.hex === 'chameleon' ? 'color-swatch-chameleon' : ''} ${c.name === pc.name ? 'selected' : ''}`}
-                              style={pc.hex !== 'chameleon' ? {background:pc.hex} : {}}
-                              onClick={() => updateStockColor(idx, 'name', pc.name)}
-                              title={lang === 'zh' ? (pc.nameZh || pc.name) : pc.name}
-                            />
-                          ))}
+                <div className="full-width stock-color-picker">
+                  <div className="palette">
+                    {PRESET_COLORS.map(pc => {
+                      const selected = stockForm.selectedColors[pc.name] !== undefined
+                      return (
+                        <div key={pc.hex}
+                          className={`palette-color ${selected ? 'selected' : ''}`}
+                          onClick={() => toggleStockColor(pc.name)}
+                        >
+                          <div className={`swatch ${pc.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`}
+                            style={pc.hex !== 'chameleon' ? { background: pc.hex } : {}} />
+                          <span className="palette-label">{lang === 'zh' ? (pc.nameZh || pc.name) : pc.name}</span>
                         </div>
-                      </div>
-                      <button type="button" className="stock-qty-btn" onClick={() => updateStockColor(idx, 'qty', c.qty - 1)}>−</button>
-                      <span className="stock-qty">{c.qty}</span>
-                      <button type="button" className="stock-qty-btn" onClick={() => updateStockColor(idx, 'qty', c.qty + 1)}>+</button>
-                      {stockForm.colors.length > 1 && (
-                        <button type="button" className="stock-color-remove" onClick={() => removeStockColor(idx)}>✕</button>
-                      )}
+                      )
+                    })}
+                  </div>
+                  {Object.keys(stockForm.selectedColors).length > 0 && (
+                    <div className="stock-selected-colors">
+                      <div style={{fontSize:13,color:'var(--text-muted)',marginBottom:8}}>Выбрано:</div>
+                      {Object.entries(stockForm.selectedColors).map(([name, qty]) => {
+                        const pc = PRESET_COLORS.find(c => c.name === name)
+                        return (
+                          <div key={name} className="stock-color-row">
+                            <div className={`color-swatch ${pc?.hex === 'chameleon' ? 'color-swatch-chameleon' : ''}`}
+                              style={pc?.hex && pc.hex !== 'chameleon' ? {background:pc.hex,width:16,height:16,cursor:'default'} : {width:16,height:16,cursor:'default'}} />
+                            <span className="stock-color-name">{lang === 'zh' && pc?.nameZh ? pc.nameZh : name}</span>
+                            <button type="button" className="stock-qty-btn" onClick={() => updateStockColorQty(name, -1)}>−</button>
+                            <span className="stock-qty">{qty}</span>
+                            <button type="button" className="stock-qty-btn" onClick={() => updateStockColorQty(name, 1)}>+</button>
+                            <button type="button" className="stock-color-remove" onClick={() => toggleStockColor(name)}>✕</button>
+                          </div>
+                        )
+                      })}
                     </div>
-                  ))}
-                  <button type="button" className="admin-btn admin-btn-add-color" onClick={addStockColorRow}>+ Добавить цвет</button>
+                  )}
                 </div>
               )}
               <input id="stock-date" name="date" type="date" className="full-width" defaultValue={new Date().toISOString().slice(0,10)} />
