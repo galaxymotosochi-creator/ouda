@@ -35,7 +35,7 @@ export default function Admin() {
   // Create shipment modal
   const [showShipModal, setShowShipModal] = useState(false)
   const [shipOrder, setShipOrder] = useState(null)
-  const [shipForm, setShipForm] = useState({ client: { name: '', phone: '', city: '' }, items: [], prepaid: 0, paid: 0 })
+  const [shipForm, setShipForm] = useState({ client: { name: '', phone: '', city: '', transport: '' }, items: [], prepaid: 0, paid: 0 })
 
   // Invoice modal
   const [invoiceShip, setInvoiceShip] = useState(null)
@@ -96,7 +96,7 @@ export default function Admin() {
     }))
     setShipOrder(order)
     setShipForm({
-      client: { name: order.name, phone: order.phone, city: order.city || '' },
+      client: { name: order.name, phone: order.phone, city: order.city || '', transport: '' },
       items, prepaid: 0, paid: 0,
     })
     setShowShipModal(true)
@@ -104,7 +104,7 @@ export default function Admin() {
 
   const openShipManual = () => {
     setShipOrder(null)
-    setShipForm({ client: { name: '', phone: '', city: '' }, items: [{ product_id: 0, product_name: '', color: '', price: 0, qty: 0, subtotal: 0 }], prepaid: 0, paid: 0 })
+    setShipForm({ client: { name: '', phone: '', city: '', transport: '' }, items: [{ product_id: 0, product_name: '', color: '', price: 0, qty: 0, subtotal: 0 }], prepaid: 0, paid: 0 })
     setShowShipModal(true)
   }
 
@@ -572,7 +572,7 @@ export default function Admin() {
         {/* === SHIPMENTS TAB === */}
         {tab === 'shipments' && (<>
           <div style={{marginBottom:16,display:'flex',gap:12,alignItems:'center'}}>
-            <button className="admin-btn-primary" onClick={openShipManual}>Новая отгрузка</button>
+            <button style={{padding:'10px 24px',fontSize:13,fontWeight:500,background:'var(--bg-hover)',color:'var(--text)',border:'1px solid #999',borderRadius:50,cursor:'pointer',float:'right',marginBottom:16}} onClick={openShipManual}>Новая отгрузка</button>
           </div>
           <table className="admin-table">
             <thead><tr>
@@ -625,13 +625,15 @@ export default function Admin() {
             </div>
             <div className="modal-body">
               <h4 style={{marginBottom:12,fontSize:14,color:'#666'}}>Клиент</h4>
-              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:20}}>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:16}}>
                 <input className="ship-input" placeholder="Имя *" value={shipForm.client.name}
                   onChange={e => setShipForm(prev => ({...prev, client: {...prev.client, name: e.target.value}}))} />
                 <input className="ship-input" placeholder={t('phone')} value={shipForm.client.phone}
                   onChange={e => setShipForm(prev => ({...prev, client: {...prev.client, phone: e.target.value}}))} />
-                <input className="ship-input full-w" placeholder="Город" value={shipForm.client.city}
+                <input className="ship-input" placeholder="Город" value={shipForm.client.city}
                   onChange={e => setShipForm(prev => ({...prev, client: {...prev.client, city: e.target.value}}))} />
+                <input className="ship-input" placeholder="Транспортная компания" value={shipForm.client.transport}
+                  onChange={e => setShipForm(prev => ({...prev, client: {...prev.client, transport: e.target.value}}))} />
               </div>
 
               <h4 style={{marginBottom:12,fontSize:14,color:'#666'}}>{t('product')}</h4>
@@ -648,8 +650,12 @@ export default function Admin() {
                   </select>
                   {item.product_id > 0 && (
                     <>
-                      <input className="ship-select ship-color" type="text" placeholder="Цвет" value={item.color}
-                        onChange={e => updateShipItem(idx, 'color', e.target.value)} />
+                      <select className="ship-select ship-color" value={item.color} onChange={e => updateShipItem(idx, 'color', e.target.value)}>
+                        <option value="">Цвет</option>
+                        {(products.find(p => p.id === item.product_id)?.available_colors ? Object.entries(products.find(p => p.id === item.product_id).available_colors).filter(([,qty]) => qty > 0).map(([color, qty]) => (
+                          <option key={color} value={color}>{color} ({qty})</option>
+                        )) : [])}
+                      </select>
                       <input className="ship-input ship-qty" type="number" min="0" value={item.qty}
                         onChange={e => updateShipItem(idx, 'qty', Number(e.target.value))} />
                       <span className="ship-subtotal">{(item.subtotal||0).toLocaleString('ru-RU')} ₽</span>
@@ -718,6 +724,7 @@ export default function Admin() {
                 <p><strong>{invoiceShip.client?.name || '—'}</strong></p>
                 <p>{t('phoneLabel')}: {invoiceShip.client?.phone || '—'}</p>
                 <p>Город: {invoiceShip.client?.city || '—'}</p>
+                {invoiceShip.client?.transport && <p>Транспортная компания: {invoiceShip.client.transport}</p>}
               </div>
 
               <table className="invoice-table">

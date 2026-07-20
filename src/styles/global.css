@@ -208,7 +208,7 @@ img { max-width: 100%; display: block; }
 .admin-badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 12px; background: var(--bg-hover); color: var(--text-muted); }
 .admin-actions { display: flex; gap: 6px; }
 .admin-btn { padding: 6px 14px; border-radius: 50px; font-size: 12px; font-weight: 500; transition: all 0.2s; }
-.admin-btn-accept { background: var(--bg-hover); color: var(--text); }
+.admin-btn-accept { background: var(--bg-hover); color: var(--text); border: 1px solid #999; }
 .admin-btn-accept:hover { background: var(--accent); color: #fff; }
 .admin-btn-done { background: var(--bg-hover); color: var(--text-muted); }
 .admin-btn-done:hover { background: var(--accent); color: #fff; }
