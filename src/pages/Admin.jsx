@@ -42,7 +42,7 @@ export default function Admin() {
 
   // New product form
   const [newProduct, setNewProduct] = useState({
-    name: '', name_zh: '', price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', description_zh: '', images: []
+    name: '', price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', images: []
   })
   const [photos, setPhotos] = useState([]) // file previews
   const [uploading, setUploading] = useState(false)
@@ -268,7 +268,7 @@ export default function Admin() {
     const product = { ...newProduct, price: basePrice, images, image: images[0] || '', id: Date.now() }
     fetch(`${API}/api/products`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(product) })
       .catch(() => { const list = getLocal(LS_PRODUCTS); list.push(product); setLocal(LS_PRODUCTS, list) })
-    setNewProduct({ name: '', name_zh: '', price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', description_zh: '', images: [] })
+    setNewProduct({ name: '', price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', images: [] })
     setPhotos([])
     setTimeout(loadData, 300)
   }
@@ -340,8 +340,8 @@ export default function Admin() {
           <form className="admin-add-form" onSubmit={addProduct}>
             <h3>{t('addProduct')}</h3>
             <div className="form-grid">
-              <input placeholder={'Название (RU) *'} value={newProduct.name} onChange={e => setNewProduct({...newProduct, name: e.target.value})} required />
-              <input placeholder={'Название (中文) *'} value={newProduct.name_zh} onChange={e => setNewProduct({...newProduct, name_zh: e.target.value})} required />
+              <input placeholder={lang === 'zh' ? '名称 *' : 'Название *'} value={newProduct.name} onChange={e => setNewProduct({...newProduct, name: e.target.value})} required />
+              <input placeholder={`${t('priceLabel')} *`} type="number" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} required />
               <input placeholder={`${t('priceLabel')} *`} type="number" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} required />
               <input placeholder={t('power')} value={newProduct.power} onChange={e => setNewProduct({...newProduct, power: e.target.value})} />
               <input placeholder={t('fuel')} value={newProduct.fuel} onChange={e => setNewProduct({...newProduct, fuel: e.target.value})} />
@@ -375,10 +375,7 @@ export default function Admin() {
                   </div>
                 )}
               </div>
-              <div className="full-width" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
-                <textarea placeholder='Описание (RU)' value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})} />
-                <textarea placeholder='Описание (中文)' value={newProduct.description_zh} onChange={e => setNewProduct({...newProduct, description_zh: e.target.value})} />
-              </div>
+              <div className="full-width"><textarea placeholder={lang === 'zh' ? '描述' : 'Описание'} value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})} /></div>
               <button type="submit">{t('addProduct')}</button>
             </div>
           </form>
