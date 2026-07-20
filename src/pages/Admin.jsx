@@ -350,7 +350,7 @@ export default function Admin() {
           </form>
           <table className="admin-table">
             <thead><tr>
-              <th>{t('nameLabel')}</th><th>{t('priceLabel')}</th><th>{t('power')}</th><th>{t('fuel')}</th><th>{t('wheels')}</th><th>Цвета</th><th></th>
+              <th>{t('nameLabel')}</th><th>{t('priceLabel')}</th><th>{t('power')}</th><th>{t('fuel')}</th><th>{t('wheels')}</th><th>{t('colors')}</th><th></th>
             </tr></thead>
             <tbody>
               {products.map(p => (
@@ -411,7 +411,7 @@ export default function Admin() {
                 <div className="stock-item-info">
                   <strong>{s.product_name}</strong>
                   {s.colors && Object.entries(s.colors).filter(([,v]) => v > 0).map(([color, qty]) => (
-                    <span key={color} className="stock-color-tag">{color}: {qty} шт</span>
+                    <span key={color} className="stock-color-tag">{color}: {qty} {t("pcs")}</span>
                   ))}
                   <span style={{color:'#666',fontSize:13}}>{s.date}</span>
                   <span className={`admin-badge ${s.status==='received'?'badge-received':'badge-transit'}`}>
@@ -434,7 +434,7 @@ export default function Admin() {
             <div key={d.product_id} className="inventory-card">
               <div className="inv-header">
                 <strong>{d.product_name}</strong>
-                <span className="inv-total">Всего: <b>{d.totalAvailable}</b> шт</span>
+                <span className="inv-total">{t('totalItems')}: <b>{d.totalAvailable}</b> шт</span>
               </div>
               <table className="inv-table">
                 <thead><tr>
@@ -455,10 +455,10 @@ export default function Admin() {
                       <td><strong className={c.available === 0 ? 'inv-zero' : 'inv-ok'}>{c.available}</strong></td>
                       <td>
                         {c.available > 0
-                          ? <span className="inv-badge">В наличии</span>
+                          ? <span className="inv-badge">{t('inStock')}</span>
                           : c.received > 0
-                            ? <span className="inv-badge inv-badge-out">Нет</span>
-                            : <span className="inv-badge inv-badge-none">Не было</span>
+                            ? <span className="inv-badge inv-badge-out">{t('none')}</span>
+                            : <span className="inv-badge inv-badge-none">{t('neverHad')}</span>
                         }
                       </td>
                     </tr>
@@ -468,7 +468,7 @@ export default function Admin() {
             </div>
           ))}
           {inventory.filter(d => d.totalAvailable > 0 || d.totalReceived > 0).length === 0 && (
-            <p style={{color:'#666',textAlign:'center',padding:40}}>Нет остатков</p>
+            <p style={{color:'#666',textAlign:'center',padding:40}}>{t('noInventory')}</p>
           )}
         </>)}
 
@@ -527,8 +527,8 @@ export default function Admin() {
                   </td>
                   <td><strong>{(s.total||0).toLocaleString('ru-RU')} ₽</strong></td>
                   <td style={{fontSize:13}}>
-                    {s.prepaid > 0 && <div>Предоплата: {(s.prepaid||0).toLocaleString('ru-RU')} ₽</div>}
-                    {s.paid > 0 && <div>Оплачено: {(s.paid||0).toLocaleString('ru-RU')} ₽</div>}
+                    {s.prepaid > 0 && <div>{t('prepaid')}: {(s.prepaid||0).toLocaleString('ru-RU')} ₽</div>}
+                    {s.paid > 0 && <div>{t('fullPayment')}: {(s.paid||0).toLocaleString('ru-RU')} ₽</div>}
                     {!s.prepaid && !s.paid && <span style={{color:'#999'}}>—</span>}
                   </td>
                   <td><span className={`status ${statusShipClass(s.status)}`}>{statusShipLabel(s.status)}</span></td>
@@ -546,7 +546,7 @@ export default function Admin() {
                   </td>
                 </tr>
               ))}
-              {shipments.length===0 && <tr><td colSpan={9} style={{textAlign:'center',color:'#666',padding:40}}>Нет отгрузок</td></tr>}
+              {shipments.length===0 && <tr><td colSpan={9} style={{textAlign:'center',color:'#666',padding:40}}>{t('noShipments')}</td></tr>}
             </tbody>
           </table>
         </>)}
@@ -564,17 +564,17 @@ export default function Admin() {
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:20}}>
                 <input className="ship-input" placeholder="Имя *" value={shipForm.client.name}
                   onChange={e => setShipForm(prev => ({...prev, client: {...prev.client, name: e.target.value}}))} />
-                <input className="ship-input" placeholder="Телефон *" value={shipForm.client.phone}
+                <input className="ship-input" placeholder={t('phone')} value={shipForm.client.phone}
                   onChange={e => setShipForm(prev => ({...prev, client: {...prev.client, phone: e.target.value}}))} />
                 <input className="ship-input full-w" placeholder="Город" value={shipForm.client.city}
                   onChange={e => setShipForm(prev => ({...prev, client: {...prev.client, city: e.target.value}}))} />
               </div>
 
-              <h4 style={{marginBottom:12,fontSize:14,color:'#666'}}>Товары</h4>
+              <h4 style={{marginBottom:12,fontSize:14,color:'#666'}}>{t('product')}</h4>
               {shipForm.items.map((item, idx) => (
                 <div key={idx} className="ship-item-row">
                   <select className="ship-select" value={item.product_id} onChange={e => onProductSelect(idx, e.target.value)}>
-                    <option value="0">— Выберите товар —</option>
+                    <option value="0">{t('selectProductPlaceholder')}</option>
                     {products.filter(p => {
                       const usedInOther = shipForm.items.some((it, i) => i !== idx && it.product_id === p.id)
                       return true // allow same product multiple times (different colors)
@@ -599,24 +599,24 @@ export default function Admin() {
                   )}
                 </div>
               ))}
-              <button className="admin-btn admin-btn-add-item" onClick={addShipItem}>+ Добавить товар</button>
+              <button className="admin-btn admin-btn-add-item" onClick={addShipItem}>+ {t('addProduct')}</button>
 
               <h4 style={{marginTop:20,marginBottom:10,fontSize:14,color:'#666'}}>Оплата</h4>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
                 <div>
-                  <label style={{fontSize:12,color:'#999'}}>Предоплата (₽)</label>
+                  <label style={{fontSize:12,color:'#999'}}>{t('prepaidAmount')}</label>
                   <input className="ship-input" type="number" min="0" value={shipForm.prepaid}
                     onChange={e => setShipForm(prev => ({...prev, prepaid: e.target.value}))} />
                 </div>
                 <div>
-                  <label style={{fontSize:12,color:'#999'}}>Полная оплата (₽)</label>
+                  <label style={{fontSize:12,color:'#999'}}>{t('paidAmount')}</label>
                   <input className="ship-input" type="number" min="0" value={shipForm.paid}
                     onChange={e => setShipForm(prev => ({...prev, paid: e.target.value}))} />
                 </div>
               </div>
 
               <div className="ship-total">
-                <span>Итого:</span>
+                <span>{t('total')}</span>
                 <span>{shipTotal().toLocaleString('ru-RU')} ₽</span>
               </div>
 
@@ -653,9 +653,9 @@ export default function Admin() {
               </div>
 
               <div className="invoice-client">
-                <h4>Грузополучатель:</h4>
+                <h4>{t('consignee')}:</h4>
                 <p><strong>{invoiceShip.client?.name || '—'}</strong></p>
-                <p>Телефон: {invoiceShip.client?.phone || '—'}</p>
+                <p>{t('phoneLabel')}: {invoiceShip.client?.phone || '—'}</p>
                 <p>Город: {invoiceShip.client?.city || '—'}</p>
               </div>
 
@@ -681,18 +681,18 @@ export default function Admin() {
 
               <div className="invoice-summary">
                 <div className="invoice-total">
-                  <span>Итого к оплате:</span>
+                  <span>{t('totalDue')}:</span>
                   <span className="invoice-total-amount">{(invoiceShip.total||0).toLocaleString('ru-RU')} ₽</span>
                 </div>
                 {invoiceShip.prepaid > 0 && (
                   <div className="invoice-paid">
-                    <span>Предоплата:</span>
+                    <span>{t('prepaid')}:</span>
                     <span>{(invoiceShip.prepaid||0).toLocaleString('ru-RU')} ₽</span>
                   </div>
                 )}
                 {invoiceShip.paid > 0 && (
                   <div className="invoice-paid">
-                    <span>Оплачено:</span>
+                    <span>{t('fullPayment')}:</span>
                     <span>{(invoiceShip.paid||0).toLocaleString('ru-RU')} ₽</span>
                   </div>
                 )}

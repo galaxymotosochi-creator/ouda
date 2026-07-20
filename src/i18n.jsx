@@ -105,6 +105,7 @@ const translations = {
     phoneLabel: 'Телефон',
     amount: 'Сумма',
     shipmentFromOrder: 'Отгрузка из заказа',
+    pcs: 'шт',
   },
   zh: {
     logo: 'OUDA',
@@ -202,6 +203,7 @@ const translations = {
     phoneLabel: '电话',
     amount: '金额',
     shipmentFromOrder: '从订单出货',
+    pcs: '件',
   },
 }
 
