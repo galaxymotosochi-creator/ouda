@@ -536,7 +536,7 @@ export default function Admin() {
 
         {/* === ORDERS TAB === */}
         {tab === 'orders' && (<>
-          <div className="admin-add-form">
+          <div style={{margin:'0 24px 24px',overflow:'hidden',borderRadius:'var(--radius)',border:'1px solid var(--border)',background:'var(--bg-card)'}}>
           <table className="admin-table">
             <thead><tr>
               <th>№</th><th>{t('date')}</th><th>{t('name')}</th><th>{t('city')}</th><th>{t('phone')}</th>
@@ -571,10 +571,10 @@ export default function Admin() {
 
         {/* === SHIPMENTS TAB === */}
         {tab === 'shipments' && (<>
-          <div className="admin-add-form">
-          <div style={{marginBottom:16,display:'flex',gap:12,alignItems:'center'}}>
-            <button style={{padding:'10px 24px',fontSize:13,fontWeight:500,background:'var(--bg-hover)',color:'var(--text)',border:'1px solid #999',borderRadius:50,cursor:'pointer',float:'right',marginBottom:16}} onClick={openShipManual}>Новая отгрузка</button>
+          <div style={{margin:'0 24px'}}>
+            <button style={{padding:'10px 24px',fontSize:13,fontWeight:500,background:'var(--bg-hover)',color:'var(--text)',border:'1px solid #999',borderRadius:50,cursor:'pointer',float:'right',margin:0}} onClick={openShipManual}>Новая отгрузка</button>
           </div>
+          <div style={{margin:'0 24px 24px',overflow:'hidden',borderRadius:'var(--radius)',border:'1px solid var(--border)',background:'var(--bg-card)'}}>
           <table className="admin-table">
             <thead><tr>
               <th>№</th><th>{t('date')}</th><th>{t('client')}</th><th>{t('phoneLabel')}</th><th>{t('product')}</th>
