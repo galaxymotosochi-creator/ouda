@@ -56,7 +56,8 @@ export default function ProductCard({ product, onAdd, inCart }) {
         )}
 
         <div className="product-price">
-          {product.price.toLocaleString('ru-RU')} {t('rub')}
+          <div>Розничная: {product.price.toLocaleString('ru-RU')} {t('rub')}</div>
+          {product.wholesale_price ? <div style={{fontSize:13,color:'#999'}}>Оптовая: {Number(product.wholesale_price).toLocaleString('ru-RU')} {t('rub')}</div> : null}
         </div>
         <div style={{textAlign:'right'}}>
         <button
