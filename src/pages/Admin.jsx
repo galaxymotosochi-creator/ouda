@@ -674,14 +674,14 @@ export default function Admin() {
         {/* === EDIT PRODUCT MODAL === */}
       {editingProduct && (
         <div className="modal-overlay" onClick={closeEditProduct}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
+          <div className="modal modal-wide" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>{t('editProduct') || 'Редактировать товар'}</h3>
+              <h3>Редактировать товар</h3>
               <button className="modal-close" onClick={closeEditProduct}>×</button>
             </div>
+            <div className="admin-add-form" style={{border:'none',boxShadow:'none',margin:0}}>
             <form onSubmit={updateProduct}>
-            <div className="modal-body">
-              <div className="form-grid">
+            <div className="form-grid">
                 <input placeholder="Название (RU) *" value={editForm.name_ru} onChange={e => setEditForm({...editForm, name_ru: e.target.value})} required />
                 <input placeholder="Название (中文)" value={editForm.name_zh} onChange={e => setEditForm({...editForm, name_zh: e.target.value})} />
                 <input placeholder="Розничная цена *" type="number" value={editForm.price} onChange={e => setEditForm({...editForm, price: e.target.value})} required />
@@ -692,12 +692,12 @@ export default function Admin() {
                 <input placeholder={t('max_speed')} value={editForm.max_speed} onChange={e => setEditForm({...editForm, max_speed: e.target.value})} />
                 <div className="full-width"><textarea placeholder={lang === 'zh' ? '描述' : 'Описание'} value={editForm.description} onChange={e => setEditForm({...editForm, description: e.target.value})} /></div>
               </div>
-            </div>
-            <div className="modal-actions">
+            <div className="modal-actions" style={{paddingTop:16}}>
               <button type="button" className="admin-btn admin-btn-cancel" onClick={closeEditProduct}>Отмена</button>
               <button type="submit" className="admin-btn-primary">Сохранить</button>
             </div>
             </form>
+            </div>
           </div>
         </div>
       )}
