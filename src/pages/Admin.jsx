@@ -42,7 +42,7 @@ export default function Admin() {
 
   // New product form
   const [newProduct, setNewProduct] = useState({
-    name_ru: '', name_zh: '', price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', images: []
+    name_ru: '', name_zh: '', price: '', wholesale_price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', images: []
   })
   const [photos, setPhotos] = useState([]) // file previews
   const [uploading, setUploading] = useState(false)
@@ -246,6 +246,7 @@ export default function Admin() {
   const addProduct = async (e) => {
     e.preventDefault()
     const basePrice = Number(newProduct.price) || 0
+    const wholesalePrice = Number(newProduct.wholesale_price) || 0
 
     // Upload photos first
     let images = []
@@ -261,10 +262,10 @@ export default function Admin() {
       setUploading(false)
     }
 
-    const product = { ...newProduct, price: basePrice, name: lang === 'zh' ? (newProduct.name_zh || newProduct.name_ru) : (newProduct.name_ru || newProduct.name_zh), images, image: images[0] || '', id: Date.now() }
+    const product = { ...newProduct, price: basePrice, wholesale_price: wholesalePrice, name: lang === 'zh' ? (newProduct.name_zh || newProduct.name_ru) : (newProduct.name_ru || newProduct.name_zh), images, image: images[0] || '', id: Date.now() }
     fetch(`${API}/api/products`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(product) })
       .catch(() => { const list = getLocal(LS_PRODUCTS); list.push(product); setLocal(LS_PRODUCTS, list) })
-    setNewProduct({ name_ru: '', name_zh: '', price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', images: [] })
+    setNewProduct({ name_ru: '', name_zh: '', price: '', wholesale_price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', images: [] })
     setPhotos([])
     setTimeout(loadData, 300)
   }
@@ -344,8 +345,8 @@ export default function Admin() {
                   setNewProduct(prev => ({...prev, name_ru: val}))
                 }
               }} required />
-              <input placeholder={`${t('priceLabel')} *`} type="number" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} required />
-              <input placeholder={`${t('priceLabel')} *`} type="number" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} required />
+              <input placeholder="Розничная цена *" type="number" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} required />
+              <input placeholder="Оптовая цена *" type="number" value={newProduct.wholesale_price} onChange={e => setNewProduct({...newProduct, wholesale_price: e.target.value})} required />
               <input placeholder={t('power')} value={newProduct.power} onChange={e => setNewProduct({...newProduct, power: e.target.value})} />
               <input placeholder={t('fuel')} value={newProduct.fuel} onChange={e => setNewProduct({...newProduct, fuel: e.target.value})} />
               <input placeholder={t('cooling')} value={newProduct.cooling} onChange={e => setNewProduct({...newProduct, cooling: e.target.value})} />
@@ -384,20 +385,21 @@ export default function Admin() {
           </form>
           <table className="admin-table">
             <thead><tr>
-              <th>{t('nameLabel')}</th><th>{t('priceLabel')}</th><th>{t('power')}</th><th>{t('fuel')}</th><th>{t('wheels')}</th><th></th>
+              <th>{t('nameLabel')}</th><th>Розница</th><th>Опт</th><th>{t('power')}</th><th>{t('fuel')}</th><th>{t('wheels')}</th><th></th>
             </tr></thead>
             <tbody>
               {products.map(p => (
                 <tr key={p.id}>
                   <td><strong>{lang === 'zh' ? (p.name_zh || p.name) : (p.name_ru || p.name)}</strong></td>
                   <td>{p.price.toLocaleString('ru-RU')} ₽</td>
+                  <td>{(p.wholesale_price || p.price).toLocaleString('ru-RU')} ₽</td>
                   <td>{p.power||'—'}</td>
                   <td>{p.fuel||'—'}</td>
                   <td>{p.wheels||'—'}</td>
                   <td><button className="admin-btn admin-btn-done" onClick={() => deleteProduct(p.id)} style={{color:'#ef4444'}}>{t('delete')}</button></td>
                 </tr>
               ))}
-              {products.length===0 && <tr><td colSpan={6} style={{textAlign:'center',color:'#666',padding:40}}>{t('noProducts')}</td></tr>}
+              {products.length===0 && <tr><td colSpan={7} style={{textAlign:'center',color:'#666',padding:40}}>{t('noProducts')}</td></tr>}
             </tbody>
           </table>
         </>)}
