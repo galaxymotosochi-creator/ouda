@@ -112,42 +112,46 @@ export default function Admin() {
     if (files.length > 0) handleEditPhotos(null, files)
   }
 
-  const updateProduct = async (e) => {
-    e.preventDefault()
+  const updateProduct = () => {
     if (!editingProduct) return
-
-    // Upload new photos
-    let uploadedUrls = []
-    const newFiles = editPhotos.filter(p => p.file)
-    if (newFiles.length > 0) {
-      setUploadingEdit(true)
-      const formData = new FormData()
-      newFiles.forEach(p => formData.append('photos', p.file))
-      try {
-        const resp = await fetch(`${API}/api/upload`, { method: 'POST', body: formData })
-        const data = await resp.json()
-        uploadedUrls = data.urls || []
-      } catch (e) { console.error('Upload failed', e) }
-      setUploadingEdit(false)
-    }
-
-    // Build final image list in the same order as editPhotos
-    let newIdx = 0
-    const allImages = editPhotos.map(p => {
-      if (p.file) {
-        return uploadedUrls[newIdx++] || ''
-      }
-      return p.url
-    }).filter(Boolean)
 
     const updated = {
       ...editForm,
       price: Number(editForm.price) || 0,
       wholesale_price: Number(editForm.wholesale_price) || 0,
-      images: allImages,
-      image: allImages[0] || '',
       name: lang === 'zh' ? (editForm.name_zh || editForm.name_ru) : (editForm.name_ru || editForm.name_zh),
     }
+
+    // Handle photos in new order
+    const newFiles = editPhotos.filter(p => p.file)
+    if (newFiles.length > 0) {
+      setUploadingEdit(true)
+      const formData = new FormData()
+      newFiles.forEach(p => formData.append('photos', p.file))
+      const doSave = (uploadedUrls) => {
+        let newIdx = 0
+        const allImages = editPhotos.map(p => {
+          if (p.file) return uploadedUrls[newIdx++] || ''
+          return p.url
+        }).filter(Boolean)
+        updated.images = allImages
+        updated.image = allImages[0] || ''
+        saveProduct(updated)
+      }
+      fetch(`${API}/api/upload`, { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(data => doSave(data.urls || []))
+        .catch(() => doSave([]))
+        .finally(() => setUploadingEdit(false))
+    } else {
+      const allImages = editPhotos.map(p => p.url).filter(Boolean)
+      updated.images = allImages
+      updated.image = allImages[0] || ''
+      saveProduct(updated)
+    }
+  }
+
+  const saveProduct = (updated) => {
     fetch(`${API}/api/products/${editingProduct.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
