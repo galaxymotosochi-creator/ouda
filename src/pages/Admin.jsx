@@ -85,6 +85,15 @@ export default function Admin() {
     setEditPhotos(prev => { URL.revokeObjectURL(prev[idx].url); return prev.filter((_, i) => i !== idx) })
   }
 
+  const moveEditPhoto = (from, to) => {
+    if (to < 0 || to >= editPhotos.length) return
+    setEditPhotos(prev => {
+      const next = [...prev]
+      const [moved] = next.splice(from, 1)
+      next.splice(to, 0, moved)
+      return next
+    })
+  }
   const handleEditDragStart = (idx, e) => {
     e.dataTransfer.setData('text/plain', String(idx))
     e.currentTarget.classList.add('dragging')
@@ -94,12 +103,7 @@ export default function Admin() {
     e.preventDefault()
     const from = parseInt(e.dataTransfer.getData('text/plain'))
     if (isNaN(from) || from === idx) return
-    setEditPhotos(prev => {
-      const next = [...prev]
-      const [moved] = next.splice(from, 1)
-      next.splice(idx, 0, moved)
-      return next
-    })
+    moveEditPhoto(from, idx)
   }
 
   const handleEditDropFiles = (e) => {
@@ -488,6 +492,10 @@ export default function Admin() {
                         <img src={p.url} alt="" />
                         <button type="button" className="photo-remove" onClick={() => removePhoto(i)}>×</button>
                         <div className="photo-order">{i + 1}</div>
+                        <div style={{position:'absolute',bottom:4,left:4,display:'flex',gap:2}}>
+                          {i > 0 && <button type="button" style={{background:'rgba(0,0,0,0.5)',color:'#fff',border:'none',borderRadius:4,padding:'2px 6px',fontSize:11,cursor:'pointer',lineHeight:1}} onClick={() => movePhoto(i, i-1)}>‹</button>}
+                          {i < photos.length - 1 && <button type="button" style={{background:'rgba(0,0,0,0.5)',color:'#fff',border:'none',borderRadius:4,padding:'2px 6px',fontSize:11,cursor:'pointer',lineHeight:1}} onClick={() => movePhoto(i, i+1)}>›</button>}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -785,6 +793,10 @@ export default function Admin() {
                           <img src={p.url} alt="" />
                           <button type="button" className="photo-remove" onClick={() => removeEditPhoto(i)}>×</button>
                           <div className="photo-order">{i + 1}</div>
+                          <div style={{position:'absolute',bottom:4,left:4,display:'flex',gap:2}}>
+                            {i > 0 && <button type="button" style={{background:'rgba(0,0,0,0.5)',color:'#fff',border:'none',borderRadius:4,padding:'2px 6px',fontSize:11,cursor:'pointer',lineHeight:1}} onClick={() => moveEditPhoto(i, i-1)}>‹</button>}
+                            {i < editPhotos.length - 1 && <button type="button" style={{background:'rgba(0,0,0,0.5)',color:'#fff',border:'none',borderRadius:4,padding:'2px 6px',fontSize:11,cursor:'pointer',lineHeight:1}} onClick={() => moveEditPhoto(i, i+1)}>›</button>}
+                          </div>
                         </div>
                       ))}
                     </div>
