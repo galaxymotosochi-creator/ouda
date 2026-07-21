@@ -49,6 +49,9 @@ export default function Admin() {
   // Edit product modal
   const [editingProduct, setEditingProduct] = useState(null)
   const [editForm, setEditForm] = useState({ name_ru: '', name_zh: '', price: '', wholesale_price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '' })
+  const [editPhotos, setEditPhotos] = useState([])
+  const [uploadingEdit, setUploadingEdit] = useState(false)
+  const [editDragIdx, setEditDragIdx] = useState(null)
 
   const openEditProduct = (p) => {
     setEditForm({
@@ -63,18 +66,74 @@ export default function Admin() {
       wheels: p.wheels || '',
       description: p.description || '',
     })
+    const existing = (p.images || []).map(url => ({ file: null, url }))
+    setEditPhotos(existing)
     setEditingProduct(p)
   }
 
-  const closeEditProduct = () => { setEditingProduct(null) }
+  const closeEditProduct = () => { setEditingProduct(null); setEditPhotos([]); setEditDragIdx(null) }
+
+  const handleEditPhotos = (e, files) => {
+    const fileList = files || Array.from(e?.target?.files || [])
+    const total = editPhotos.length + fileList.length
+    if (total > 7) { alert(t('maxPhotos')); return }
+    const newPhotos = fileList.map(f => ({ file: f, url: URL.createObjectURL(f) }))
+    setEditPhotos(prev => [...prev, ...newPhotos])
+    if (e?.target) e.target.value = ''
+  }
+
+  const removeEditPhoto = (idx) => {
+    setEditPhotos(prev => { URL.revokeObjectURL(prev[idx].url); return prev.filter((_, i) => i !== idx) })
+  }
+
+  const handleEditDragStart = (idx) => { setEditDragIdx(idx) }
+  const handleEditDragOver = (e) => { e.preventDefault() }
+  const handleEditDrop = (idx) => {
+    if (editDragIdx === null || editDragIdx === idx) { setEditDragIdx(null); return }
+    setEditPhotos(prev => {
+      const next = [...prev]
+      const [moved] = next.splice(editDragIdx, 1)
+      next.splice(idx, 0, moved)
+      return next
+    })
+    setEditDragIdx(null)
+  }
+
+  const handleEditDropFiles = (e) => {
+    e.preventDefault()
+    const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'))
+    if (files.length > 0) handleEditPhotos(null, files)
+  }
 
   const updateProduct = async (e) => {
     e.preventDefault()
     if (!editingProduct) return
+
+    // Upload new photos
+    let images = []
+    const newFiles = editPhotos.filter(p => p.file)
+    if (newFiles.length > 0) {
+      setUploadingEdit(true)
+      const formData = new FormData()
+      newFiles.forEach(p => formData.append('photos', p.file))
+      try {
+        const resp = await fetch(`${API}/api/upload`, { method: 'POST', body: formData })
+        const data = await resp.json()
+        images = data.urls || []
+      } catch (e) { console.error('Upload failed', e) }
+      setUploadingEdit(false)
+    }
+
+    // Final image list: existing (without file) + newly uploaded
+    const existingUrls = editPhotos.filter(p => !p.file).map(p => p.url)
+    const allImages = [...existingUrls, ...images]
+
     const updated = {
       ...editForm,
       price: Number(editForm.price) || 0,
       wholesale_price: Number(editForm.wholesale_price) || 0,
+      images: allImages,
+      image: allImages[0] || '',
       name: lang === 'zh' ? (editForm.name_zh || editForm.name_ru) : (editForm.name_ru || editForm.name_zh),
     }
     fetch(`${API}/api/products/${editingProduct.id}`, {
@@ -87,6 +146,8 @@ export default function Admin() {
       setProducts(list)
     })
     setEditingProduct(null)
+    setEditPhotos([])
+    setEditDragIdx(null)
     setTimeout(loadData, 300)
   }
 
@@ -690,6 +751,33 @@ export default function Admin() {
                 <input placeholder={t('fuel')} value={editForm.fuel} onChange={e => setEditForm({...editForm, fuel: e.target.value})} />
                 <input placeholder={t('cooling')} value={editForm.cooling} onChange={e => setEditForm({...editForm, cooling: e.target.value})} />
                 <input placeholder={t('max_speed')} value={editForm.max_speed} onChange={e => setEditForm({...editForm, max_speed: e.target.value})} />
+                <div className="full-width photo-upload-area"
+                  onDragOver={handleEditDragOver}
+                  onDrop={handleEditDropFiles}
+                >
+                  <label className="photo-upload-label">
+                    {uploadingEdit ? t('uploading') : 'Фото товара'}
+                    <input type="file" accept="image/*" multiple onChange={handleEditPhotos} disabled={uploadingEdit} hidden />
+                  </label>
+                  {editPhotos.length > 0 && (
+                    <div className="photo-previews">
+                      {editPhotos.map((p, i) => (
+                        <div key={i}
+                          className={`photo-preview ${editDragIdx === i ? 'dragging' : ''}`}
+                          draggable
+                          onDragStart={() => handleEditDragStart(i)}
+                          onDragOver={handleEditDragOver}
+                          onDrop={() => handleEditDrop(i)}
+                          onDragEnd={() => setEditDragIdx(null)}
+                        >
+                          <img src={p.url} alt="" />
+                          <button type="button" className="photo-remove" onClick={() => removeEditPhoto(i)}>×</button>
+                          <div className="photo-order">{i + 1}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <div className="full-width"><textarea placeholder={lang === 'zh' ? '描述' : 'Описание'} value={editForm.description} onChange={e => setEditForm({...editForm, description: e.target.value})} /></div>
               </div>
             <div className="modal-actions" style={{paddingTop:16}}>
