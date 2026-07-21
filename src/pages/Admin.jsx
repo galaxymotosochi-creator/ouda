@@ -46,6 +46,50 @@ export default function Admin() {
   })
   const [photos, setPhotos] = useState([]) // file previews
   const [uploading, setUploading] = useState(false)
+  // Edit product modal
+  const [editingProduct, setEditingProduct] = useState(null)
+  const [editForm, setEditForm] = useState({ name_ru: '', name_zh: '', price: '', wholesale_price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '' })
+
+  const openEditProduct = (p) => {
+    setEditForm({
+      name_ru: p.name_ru || '',
+      name_zh: p.name_zh || '',
+      price: p.price || '',
+      wholesale_price: p.wholesale_price || '',
+      power: p.power || '',
+      fuel: p.fuel || '',
+      cooling: p.cooling || '',
+      max_speed: p.max_speed || '',
+      wheels: p.wheels || '',
+      description: p.description || '',
+    })
+    setEditingProduct(p)
+  }
+
+  const closeEditProduct = () => { setEditingProduct(null) }
+
+  const updateProduct = async (e) => {
+    e.preventDefault()
+    if (!editingProduct) return
+    const updated = {
+      ...editForm,
+      price: Number(editForm.price) || 0,
+      wholesale_price: Number(editForm.wholesale_price) || 0,
+      name: lang === 'zh' ? (editForm.name_zh || editForm.name_ru) : (editForm.name_ru || editForm.name_zh),
+    }
+    fetch(`${API}/api/products/${editingProduct.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updated),
+    }).catch(() => {
+      const list = getLocal(LS_PRODUCTS).map(p => p.id === editingProduct.id ? { ...p, ...updated } : p)
+      setLocal(LS_PRODUCTS, list)
+      setProducts(list)
+    })
+    setEditingProduct(null)
+    setTimeout(loadData, 300)
+  }
+
   // Stock form
   const [stockForm, setStockForm] = useState({ product_id: '', selectedColors: {}, status: 'received' })  // { 'Красный': 5, 'Чёрный': 3 }
   const [inventory, setInventory] = useState([])
@@ -391,14 +435,14 @@ export default function Admin() {
             </tr></thead>
             <tbody>
               {products.map(p => (
-                <tr key={p.id}>
+                <tr key={p.id} style={{cursor:'pointer'}} onClick={() => openEditProduct(p)}>
                   <td><strong>{lang === 'zh' ? (p.name_zh || p.name) : (p.name_ru || p.name)}</strong></td>
                   <td>{p.price.toLocaleString('ru-RU')} ₽</td>
                   <td>{(p.wholesale_price || p.price).toLocaleString('ru-RU')} ₽</td>
                   <td>{p.power||'—'}</td>
                   <td>{p.fuel||'—'}</td>
                   <td>{p.wheels||'—'}</td>
-                  <td><button className="admin-btn admin-btn-done" onClick={() => deleteProduct(p.id)} style={{color:'#ef4444'}}>{t('delete')}</button></td>
+                  <td><button className="admin-btn admin-btn-done" onClick={(e) => { e.stopPropagation(); deleteProduct(p.id) }} style={{color:'#ef4444'}}>{t('delete')}</button></td>
                 </tr>
               ))}
               {products.length===0 && <tr><td colSpan={7} style={{textAlign:'center',color:'#666',padding:40}}>{t('noProducts')}</td></tr>}
@@ -626,6 +670,37 @@ export default function Admin() {
           </div>
           </div>
         </>)}
+
+        {/* === EDIT PRODUCT MODAL === */}
+      {editingProduct && (
+        <div className="modal-overlay" onClick={closeEditProduct}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>{t('editProduct') || 'Редактировать товар'}</h3>
+              <button className="modal-close" onClick={closeEditProduct}>×</button>
+            </div>
+            <form onSubmit={updateProduct}>
+            <div className="modal-body">
+              <div className="form-grid">
+                <input placeholder="Название (RU) *" value={editForm.name_ru} onChange={e => setEditForm({...editForm, name_ru: e.target.value})} required />
+                <input placeholder="Название (中文)" value={editForm.name_zh} onChange={e => setEditForm({...editForm, name_zh: e.target.value})} />
+                <input placeholder="Розничная цена *" type="number" value={editForm.price} onChange={e => setEditForm({...editForm, price: e.target.value})} required />
+                <input placeholder="Оптовая цена *" type="number" value={editForm.wholesale_price} onChange={e => setEditForm({...editForm, wholesale_price: e.target.value})} required />
+                <input placeholder={t('power')} value={editForm.power} onChange={e => setEditForm({...editForm, power: e.target.value})} />
+                <input placeholder={t('fuel')} value={editForm.fuel} onChange={e => setEditForm({...editForm, fuel: e.target.value})} />
+                <input placeholder={t('cooling')} value={editForm.cooling} onChange={e => setEditForm({...editForm, cooling: e.target.value})} />
+                <input placeholder={t('max_speed')} value={editForm.max_speed} onChange={e => setEditForm({...editForm, max_speed: e.target.value})} />
+                <div className="full-width"><textarea placeholder={lang === 'zh' ? '描述' : 'Описание'} value={editForm.description} onChange={e => setEditForm({...editForm, description: e.target.value})} /></div>
+              </div>
+            </div>
+            <div className="modal-actions">
+              <button type="button" className="admin-btn admin-btn-cancel" onClick={closeEditProduct}>Отмена</button>
+              <button type="submit" className="admin-btn-primary">Сохранить</button>
+            </div>
+            </form>
+          </div>
+        </div>
+      )}
 
         {/* === CREATE SHIPMENT MODAL === */}
       {showShipModal && (
