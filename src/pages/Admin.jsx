@@ -758,7 +758,6 @@ export default function Admin() {
               <button className="modal-close" onClick={closeEditProduct}>×</button>
             </div>
             <div className="admin-add-form" style={{border:'none',boxShadow:'none',margin:0}}>
-            <form onSubmit={updateProduct}>
             <div className="form-grid">
                 <input className="full-width" placeholder={lang === 'zh' ? '名称 *' : 'Название *'} value={lang === 'zh' ? (editForm.name_zh || editForm.name_ru) : (editForm.name_ru || editForm.name_zh)} onChange={e => {
                   const val = e.target.value
@@ -806,9 +805,8 @@ export default function Admin() {
               </div>
             <div className="modal-actions" style={{paddingTop:16}}>
               <button type="button" className="admin-btn admin-btn-cancel" onClick={closeEditProduct}>Отмена</button>
-              <button type="submit" className="admin-btn-primary">Сохранить</button>
+              <button type="button" className="admin-btn-primary" onClick={updateProduct}>Сохранить</button>
             </div>
-            </form>
             </div>
           </div>
         </div>
