@@ -146,6 +146,8 @@ export default function Admin() {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updated),
+    }).then(() => {
+      setTimeout(loadData, 300)
     }).catch(() => {
       const list = getLocal(LS_PRODUCTS).map(p => p.id === editingProduct.id ? { ...p, ...updated } : p)
       setLocal(LS_PRODUCTS, list)
@@ -153,7 +155,6 @@ export default function Admin() {
     })
     setEditingProduct(null)
     setEditPhotos([])
-    setTimeout(loadData, 300)
   }
 
   // Stock form
