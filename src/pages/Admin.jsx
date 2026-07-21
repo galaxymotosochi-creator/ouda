@@ -92,7 +92,12 @@ export default function Admin() {
       setProducts(list)
       setEditingProduct(null)
 
-      // Обновляем стейт сразу (loadData теперь из localStorage)
+      // Отправляем на сервер
+      fetch(`${API}/api/products/${editingProduct.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated),
+      }).then(r => { if (r.ok) setTimeout(loadData, 300) }).catch(() => {})
 
     } catch (e) {
       alert('Ошибка при сохранении: ' + e.message)
@@ -330,6 +335,10 @@ export default function Admin() {
     list.push(product)
     setLocal(LS_PRODUCTS, list)
     setProducts(list)
+    // Отправляем на сервер
+    fetch(`${API}/api/products`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(product) })
+      .then(r => { if (r.ok) setTimeout(loadData, 300) })
+      .catch(() => {})
     setNewProduct({ name_ru: '', name_zh: '', price: '', wholesale_price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', images: [] })
     setPhotos([])
   }
@@ -338,6 +347,7 @@ export default function Admin() {
     const list = getLocal(LS_PRODUCTS).filter(p => p.id !== id)
     setLocal(LS_PRODUCTS, list)
     setProducts(list)
+    fetch(`${API}/api/products/${id}`, { method: 'DELETE' }).catch(() => {})
   }
 
   const addStock = (e) => {

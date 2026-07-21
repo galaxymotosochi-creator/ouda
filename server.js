@@ -135,6 +135,13 @@ app.delete('/api/products/:id', (req, res) => {
   saveAll()
   res.json({ ok: true })
 })
+app.patch('/api/products/:id', (req, res) => {
+  const p = products.find(p => p.id == req.params.id)
+  if (!p) return res.status(404).json({ error: 'not found' })
+  Object.assign(p, req.body)
+  saveAll()
+  res.json(p)
+})
 
 // === Orders ===
 app.get('/api/orders', (req, res) => res.json(orders))
