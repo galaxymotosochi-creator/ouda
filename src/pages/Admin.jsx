@@ -489,7 +489,6 @@ export default function Admin() {
 
       {/* === INVENTORY TAB === */}
         {tab === 'inventory' && (<>
-          <div className="admin-add-form">
           <div style={{marginBottom:16}}>
             <h3 style={{fontSize:15,fontWeight:600}}>Остатки на складе</h3>
           </div>
@@ -533,7 +532,6 @@ export default function Admin() {
           {inventory.filter(d => d.totalAvailable > 0 || d.totalReceived > 0).length === 0 && (
             <p style={{color:'#666',textAlign:'center',padding:40}}>{t('noInventory')}</p>
           )}
-          </div>
         </>)}
 
         {/* === ORDERS TAB === */}
