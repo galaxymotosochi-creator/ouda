@@ -156,9 +156,17 @@ export default function Admin() {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updated),
-    }).then(() => {
-      setTimeout(loadData, 300)
+    }).then(res => {
+      if (res.ok) {
+        setTimeout(loadData, 300)
+      } else {
+        // Сервер не поддерживает PATCH — сохраняем локально
+        const list = getLocal(LS_PRODUCTS).map(p => p.id === editingProduct.id ? { ...p, ...updated } : p)
+        setLocal(LS_PRODUCTS, list)
+        setProducts(list)
+      }
     }).catch(() => {
+      // Сетевая ошибка — сохраняем локально
       const list = getLocal(LS_PRODUCTS).map(p => p.id === editingProduct.id ? { ...p, ...updated } : p)
       setLocal(LS_PRODUCTS, list)
       setProducts(list)
