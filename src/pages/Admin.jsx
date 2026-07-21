@@ -111,10 +111,19 @@ export default function Admin() {
   }, [])
 
   const loadData = () => {
-    setOrders(getLocal(LS_ORDERS))
-    setProducts(getLocal(LS_PRODUCTS))
-    setStock(getLocal(LS_STOCK))
-    setShipments(getLocal(LS_SHIPMENTS))
+    // Загружаем с сервера, сохраняем в localStorage на будущее
+    fetch(`${API}/api/products`).then(r => { if (r.ok) return r.json(); throw 'fail' })
+      .then(data => { setLocal(LS_PRODUCTS, data); setProducts(data) })
+      .catch(() => setProducts(getLocal(LS_PRODUCTS)))
+    fetch(`${API}/api/orders`).then(r => { if (r.ok) return r.json(); throw 'fail' })
+      .then(data => { setLocal(LS_ORDERS, data); setOrders(data) })
+      .catch(() => setOrders(getLocal(LS_ORDERS)))
+    fetch(`${API}/api/stock`).then(r => { if (r.ok) return r.json(); throw 'fail' })
+      .then(data => { setLocal(LS_STOCK, data); setStock(data) })
+      .catch(() => setStock(getLocal(LS_STOCK)))
+    fetch(`${API}/api/shipments`).then(r => { if (r.ok) return r.json(); throw 'fail' })
+      .then(data => { setLocal(LS_SHIPMENTS, data); setShipments(data) })
+      .catch(() => setShipments(getLocal(LS_SHIPMENTS)))
     fetch(`${API}/api/stock/details`).then(r => r.json()).then(setInventory).catch(() => {})
   }
 
