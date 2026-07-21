@@ -743,8 +743,11 @@ export default function Admin() {
             <div className="admin-add-form" style={{border:'none',boxShadow:'none',margin:0}}>
             <form onSubmit={updateProduct}>
             <div className="form-grid">
-                <input placeholder="Название (RU) *" value={editForm.name_ru} onChange={e => setEditForm({...editForm, name_ru: e.target.value})} required />
-                <input placeholder="Название (中文)" value={editForm.name_zh} onChange={e => setEditForm({...editForm, name_zh: e.target.value})} />
+                <input className="full-width" placeholder={lang === 'zh' ? '名称 *' : 'Название *'} value={lang === 'zh' ? (editForm.name_zh || editForm.name_ru) : (editForm.name_ru || editForm.name_zh)} onChange={e => {
+                  const val = e.target.value
+                  if (lang === 'zh') { setEditForm(prev => ({...prev, name_zh: val})) }
+                  else { setEditForm(prev => ({...prev, name_ru: val})) }
+                }} required />
                 <input placeholder="Розничная цена *" type="number" value={editForm.price} onChange={e => setEditForm({...editForm, price: e.target.value})} required />
                 <input placeholder="Оптовая цена *" type="number" value={editForm.wholesale_price} onChange={e => setEditForm({...editForm, wholesale_price: e.target.value})} required />
                 <input placeholder={t('power')} value={editForm.power} onChange={e => setEditForm({...editForm, power: e.target.value})} />
