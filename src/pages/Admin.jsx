@@ -92,14 +92,7 @@ export default function Admin() {
       setProducts(list)
       setEditingProduct(null)
 
-      // Пробуем отправить на сервер
-      fetch(`${API}/api/products/${editingProduct.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updated),
-      }).then(res => {
-        if (!res.ok) console.warn('Сервер не сохранил, данные в localStorage')
-      }).catch(e => console.warn('Ошибка сети:', e))
+      // Обновляем стейт сразу (loadData теперь из localStorage)
 
     } catch (e) {
       alert('Ошибка при сохранении: ' + e.message)
@@ -118,10 +111,10 @@ export default function Admin() {
   }, [])
 
   const loadData = () => {
-    fetch(`${API}/api/orders`).then(r => r.json()).then(setOrders).catch(() => setOrders(getLocal(LS_ORDERS)))
-    fetch(`${API}/api/products`).then(r => r.json()).then(setProducts).catch(() => setProducts(getLocal(LS_PRODUCTS)))
-    fetch(`${API}/api/stock`).then(r => r.json()).then(setStock).catch(() => setStock(getLocal(LS_STOCK)))
-    fetch(`${API}/api/shipments`).then(r => r.json()).then(setShipments).catch(() => setShipments(getLocal(LS_SHIPMENTS)))
+    setOrders(getLocal(LS_ORDERS))
+    setProducts(getLocal(LS_PRODUCTS))
+    setStock(getLocal(LS_STOCK))
+    setShipments(getLocal(LS_SHIPMENTS))
     fetch(`${API}/api/stock/details`).then(r => r.json()).then(setInventory).catch(() => {})
   }
 
@@ -324,17 +317,18 @@ export default function Admin() {
     }
 
     const product = { ...newProduct, price: basePrice, wholesale_price: wholesalePrice, name: lang === 'zh' ? (newProduct.name_zh || newProduct.name_ru) : (newProduct.name_ru || newProduct.name_zh), images, image: images[0] || '', id: Date.now() }
-    fetch(`${API}/api/products`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(product) })
-      .catch(() => { const list = getLocal(LS_PRODUCTS); list.push(product); setLocal(LS_PRODUCTS, list) })
+    const list = getLocal(LS_PRODUCTS)
+    list.push(product)
+    setLocal(LS_PRODUCTS, list)
+    setProducts(list)
     setNewProduct({ name_ru: '', name_zh: '', price: '', wholesale_price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', images: [] })
     setPhotos([])
-    setTimeout(loadData, 300)
   }
 
   const deleteProduct = (id) => {
-    fetch(`${API}/api/products/${id}`, { method: 'DELETE' })
-      .catch(() => { const list = getLocal(LS_PRODUCTS).filter(p => p.id !== id); setLocal(LS_PRODUCTS, list); setProducts(list) })
-    setTimeout(loadData, 300)
+    const list = getLocal(LS_PRODUCTS).filter(p => p.id !== id)
+    setLocal(LS_PRODUCTS, list)
+    setProducts(list)
   }
 
   const addStock = (e) => {
