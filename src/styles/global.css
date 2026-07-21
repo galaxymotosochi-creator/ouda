@@ -115,7 +115,7 @@ img { max-width: 100%; display: block; }
 }
 .spec-label { color: var(--text-muted); white-space: nowrap; }
 .product-specs strong { color: var(--text); font-weight: 500; }
-.product-price { font-size: 16px !important; font-weight: 600 !important; margin-bottom: 14px; line-height: 1.6; }
+.product-price { font-size: 16px !important; font-weight: 600 !important; margin-bottom: 14px; }
 .product-price small { font-size: 13px; font-weight: 400; color: var(--text-muted); }
 .price-label { font-size: 16px !important; font-weight: 600 !important; color: var(--text-muted); }
 .product-add {
