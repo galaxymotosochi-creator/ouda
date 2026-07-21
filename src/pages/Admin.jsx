@@ -451,7 +451,7 @@ export default function Admin() {
                 }
               }} required />
               <input placeholder="Розничная цена *" type="number" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} required />
-              <input placeholder="Оптовая цена *" type="number" value={newProduct.wholesale_price} onChange={e => setNewProduct({...newProduct, wholesale_price: e.target.value})} required />
+              <input placeholder="Оптовая цена" type="number" value={newProduct.wholesale_price} onChange={e => setNewProduct({...newProduct, wholesale_price: e.target.value})} />
               <input placeholder={t('power')} value={newProduct.power} onChange={e => setNewProduct({...newProduct, power: e.target.value})} />
               <input placeholder={t('fuel')} value={newProduct.fuel} onChange={e => setNewProduct({...newProduct, fuel: e.target.value})} />
               <input placeholder={t('cooling')} value={newProduct.cooling} onChange={e => setNewProduct({...newProduct, cooling: e.target.value})} />
@@ -499,7 +499,7 @@ export default function Admin() {
                 <tr key={p.id} style={{cursor:'pointer'}} onClick={() => openEditProduct(p)}>
                   <td><strong>{lang === 'zh' ? (p.name_zh || p.name) : (p.name_ru || p.name)}</strong></td>
                   <td>{p.price.toLocaleString('ru-RU')} ₽</td>
-                  <td>{(p.wholesale_price || p.price).toLocaleString('ru-RU')} ₽</td>
+                  <td>{p.wholesale_price ? Number(p.wholesale_price).toLocaleString('ru-RU') + ' ₽' : '—'}</td>
                   <td>{p.power||'—'}</td>
                   <td>{p.fuel||'—'}</td>
                   <td>{p.wheels||'—'}</td>
@@ -749,7 +749,7 @@ export default function Admin() {
                   else { setEditForm(prev => ({...prev, name_ru: val})) }
                 }} required />
                 <input placeholder="Розничная цена *" type="number" value={editForm.price} onChange={e => setEditForm({...editForm, price: e.target.value})} required />
-                <input placeholder="Оптовая цена *" type="number" value={editForm.wholesale_price} onChange={e => setEditForm({...editForm, wholesale_price: e.target.value})} required />
+                <input placeholder="Оптовая цена" type="number" value={editForm.wholesale_price} onChange={e => setEditForm({...editForm, wholesale_price: e.target.value})} />
                 <input placeholder={t('power')} value={editForm.power} onChange={e => setEditForm({...editForm, power: e.target.value})} />
                 <input placeholder={t('fuel')} value={editForm.fuel} onChange={e => setEditForm({...editForm, fuel: e.target.value})} />
                 <input placeholder={t('cooling')} value={editForm.cooling} onChange={e => setEditForm({...editForm, cooling: e.target.value})} />
