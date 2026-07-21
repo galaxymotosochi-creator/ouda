@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLang } from '../i18n'
 import { PRESET_COLORS, getColorHex } from '../colors'
@@ -51,7 +51,7 @@ export default function Admin() {
   const [editForm, setEditForm] = useState({ name_ru: '', name_zh: '', price: '', wholesale_price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '' })
   const [editPhotos, setEditPhotos] = useState([])
   const [uploadingEdit, setUploadingEdit] = useState(false)
-  const [editDragIdx, setEditDragIdx] = useState(null)
+  const editDragRef = useRef(null)
 
   const openEditProduct = (p) => {
     setEditForm({
@@ -71,7 +71,7 @@ export default function Admin() {
     setEditingProduct(p)
   }
 
-  const closeEditProduct = () => { setEditingProduct(null); setEditPhotos([]); setEditDragIdx(null) }
+  const closeEditProduct = () => { setEditingProduct(null); setEditPhotos([]) }
 
   const handleEditPhotos = (e, files) => {
     const fileList = files || Array.from(e?.target?.files || [])
@@ -86,17 +86,18 @@ export default function Admin() {
     setEditPhotos(prev => { URL.revokeObjectURL(prev[idx].url); return prev.filter((_, i) => i !== idx) })
   }
 
-  const handleEditDragStart = (idx) => { setEditDragIdx(idx) }
+  const handleEditDragStart = (idx) => { editDragRef.current = idx }
   const handleEditDragOver = (e) => { e.preventDefault() }
   const handleEditDrop = (idx) => {
-    if (editDragIdx === null || editDragIdx === idx) { setEditDragIdx(null); return }
+    const from = editDragRef.current
+    editDragRef.current = null
+    if (from === null || from === idx) return
     setEditPhotos(prev => {
       const next = [...prev]
-      const [moved] = next.splice(editDragIdx, 1)
+      const [moved] = next.splice(from, 1)
       next.splice(idx, 0, moved)
       return next
     })
-    setEditDragIdx(null)
   }
 
   const handleEditDropFiles = (e) => {
@@ -152,7 +153,6 @@ export default function Admin() {
     })
     setEditingProduct(null)
     setEditPhotos([])
-    setEditDragIdx(null)
     setTimeout(loadData, 300)
   }
 
@@ -319,7 +319,7 @@ export default function Admin() {
   }
 
   // Drag state for photo reorder
-  const [dragIdx, setDragIdx] = useState(null)
+  const dragRef = useRef(null)
 
   const handlePhotos = (e, files) => {
     const fileList = files || Array.from(e?.target?.files || [])
@@ -334,17 +334,18 @@ export default function Admin() {
     setPhotos(prev => { URL.revokeObjectURL(prev[idx].url); return prev.filter((_, i) => i !== idx) })
   }
 
-  const handleDragStart = (idx) => { setDragIdx(idx) }
+  const handleDragStart = (idx) => { dragRef.current = idx }
   const handleDragOver = (e) => { e.preventDefault() }
   const handleDrop = (idx) => {
-    if (dragIdx === null || dragIdx === idx) { setDragIdx(null); return }
+    const from = dragRef.current
+    dragRef.current = null
+    if (from === null || from === idx) return
     setPhotos(prev => {
       const next = [...prev]
-      const [moved] = next.splice(dragIdx, 1)
+      const [moved] = next.splice(from, 1)
       next.splice(idx, 0, moved)
       return next
     })
-    setDragIdx(null)
   }
 
   const handleDropFiles = (e) => {
@@ -474,12 +475,12 @@ export default function Admin() {
                   <div className="photo-previews">
                     {photos.map((p, i) => (
                       <div key={i}
-                        className={`photo-preview ${dragIdx === i ? 'dragging' : ''}`}
+                        className="photo-preview"
                         draggable
-                        onDragStart={() => handleDragStart(i)}
+                        onDragStart={(e) => { handleDragStart(i); e.currentTarget.classList.add('dragging') }}
                         onDragOver={handleDragOver}
                         onDrop={() => handleDrop(i)}
-                        onDragEnd={() => setDragIdx(null)}
+                        onDragEnd={(e) => { e.currentTarget.classList.remove('dragging') }}
                       >
                         <img src={p.url} alt="" />
                         <button type="button" className="photo-remove" onClick={() => removePhoto(i)}>×</button>
@@ -771,12 +772,12 @@ export default function Admin() {
                     <div className="photo-previews">
                       {editPhotos.map((p, i) => (
                         <div key={i}
-                          className={`photo-preview ${editDragIdx === i ? 'dragging' : ''}`}
+                          className="photo-preview"
                           draggable
-                          onDragStart={() => handleEditDragStart(i)}
+                          onDragStart={(e) => { handleEditDragStart(i); e.currentTarget.classList.add('dragging') }}
                           onDragOver={handleEditDragOver}
                           onDrop={() => handleEditDrop(i)}
-                          onDragEnd={() => setEditDragIdx(null)}
+                          onDragEnd={(e) => { e.currentTarget.classList.remove('dragging') }}
                         >
                           <img src={p.url} alt="" />
                           <button type="button" className="photo-remove" onClick={() => removeEditPhoto(i)}>×</button>
