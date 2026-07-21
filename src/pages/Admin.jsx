@@ -489,7 +489,7 @@ export default function Admin() {
 
       {/* === INVENTORY TAB === */}
         {tab === 'inventory' && (<>
-          <div className="admin-section">
+          <div className="admin-add-form">
           <div style={{marginBottom:16}}>
             <h3 style={{fontSize:15,fontWeight:600}}>Остатки на складе</h3>
           </div>
@@ -538,6 +538,7 @@ export default function Admin() {
 
         {/* === ORDERS TAB === */}
         {tab === 'orders' && (<>
+          <div className="admin-add-form">
           <table className="admin-table">
             <thead><tr>
               <th>№</th><th>{t('date')}</th><th>{t('name')}</th><th>{t('city')}</th><th>{t('phone')}</th>
@@ -567,10 +568,12 @@ export default function Admin() {
               {orders.length===0 && <tr><td colSpan={10} style={{textAlign:'center',color:'#666',padding:40}}>{t('noOrders')}</td></tr>}
             </tbody>
           </table>
+          </div>
         </>)}
 
         {/* === SHIPMENTS TAB === */}
         {tab === 'shipments' && (<>
+          <div className="admin-add-form">
           <div style={{marginBottom:16,display:'flex',gap:12,alignItems:'center'}}>
             <button style={{padding:'10px 24px',fontSize:13,fontWeight:500,background:'var(--bg-hover)',color:'var(--text)',border:'1px solid #999',borderRadius:50,cursor:'pointer',float:'right',marginBottom:16}} onClick={openShipManual}>Новая отгрузка</button>
           </div>
@@ -613,6 +616,7 @@ export default function Admin() {
               {shipments.length===0 && <tr><td colSpan={9} style={{textAlign:'center',color:'#666',padding:40}}>{t('noShipments')}</td></tr>}
             </tbody>
           </table>
+          </div>
         </>)}
 
         {/* === CREATE SHIPMENT MODAL === */}
@@ -671,12 +675,12 @@ export default function Admin() {
               <h4 style={{marginTop:20,marginBottom:10,fontSize:14,color:'#666'}}>Оплата</h4>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
                 <div>
-                  <label style={{fontSize:12,color:'#999'}}>{t('prepaidAmount')}</label>
+                  <label style={{fontSize:12,color:'#999',display:'block',marginBottom:4}}>{t('prepaidAmount')}</label>
                   <input className="ship-input" type="number" min="0" value={shipForm.prepaid}
                     onChange={e => setShipForm(prev => ({...prev, prepaid: e.target.value}))} />
                 </div>
                 <div>
-                  <label style={{fontSize:12,color:'#999'}}>{t('paidAmount')}</label>
+                  <label style={{fontSize:12,color:'#999',display:'block',marginBottom:4}}>{t('paidAmount')}</label>
                   <input className="ship-input" type="number" min="0" value={shipForm.paid}
                     onChange={e => setShipForm(prev => ({...prev, paid: e.target.value}))} />
                 </div>
