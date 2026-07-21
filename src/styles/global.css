@@ -193,7 +193,7 @@ img { max-width: 100%; display: block; }
 .admin-logout { background: none; color: var(--text-muted); padding: 8px 18px; border: 1px solid var(--border); border-radius: 50px; font-size: 13px; transition: all 0.2s; }
 .admin-logout:hover { border-color: var(--accent); color: var(--accent); }
 .admin-content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
-.admin-tabs { display: flex; gap: 4px; margin-bottom: 8px; background: var(--bg-card); border-radius: 12px; padding: 4px; box-shadow: var(--shadow); width: fit-content; }
+.admin-tabs { display: flex; gap: 4px; margin-bottom: 3px; background: var(--bg-card); border-radius: 12px; padding: 4px; box-shadow: var(--shadow); width: fit-content; }
 .admin-tab { background: none; color: var(--text-muted); padding: 8px 18px; border-radius: 10px; font-size: 13px; font-weight: 500; transition: all 0.2s; }
 .admin-tab:hover { color: var(--text); background: var(--bg-hover); }
 .admin-tab.active { color: #fff; background: var(--accent); }
