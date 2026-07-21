@@ -55,7 +55,7 @@ export default function Admin() {
 
   const openEditProduct = (p) => {
     setEditForm({
-      name_ru: p.name_ru || '',
+      name_ru: p.name_ru || p.name || '',
       name_zh: p.name_zh || '',
       price: p.price || '',
       wholesale_price: p.wholesale_price || '',
