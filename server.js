@@ -245,6 +245,13 @@ app.get('/api/stock/details', (req, res) => {
         if (colorDetails[color]) colorDetails[color].received += qty
       })
     })
+    // Sum in-transit stock
+    stock.filter(s => s.product_id === p.id && s.status === 'transit').forEach(s => {
+      Object.entries(s.colors || {}).forEach(([color, qty]) => {
+        if (colorDetails[color]) colorDetails[color].inTransit = (colorDetails[color].inTransit || 0) + qty
+        if (s.expected_date) colorDetails[color].expected_date = s.expected_date
+      })
+    })
     // Sum shipped (non-cancelled)
     shipments.filter(s => s.status !== 'отменено').forEach(s => {
       (s.items || []).forEach(item => {
@@ -260,6 +267,7 @@ app.get('/api/stock/details', (req, res) => {
     const totalReceived = colors.reduce((s, c) => s + c.received, 0)
     const totalShipped = colors.reduce((s, c) => s + c.shipped, 0)
     const totalAvailable = colors.reduce((s, c) => s + c.available, 0)
+    const totalInTransit = colors.reduce((s, c) => s + (c.inTransit || 0), 0)
 
     return {
       product_id: p.id,
@@ -268,6 +276,7 @@ app.get('/api/stock/details', (req, res) => {
       totalReceived,
       totalShipped,
       totalAvailable,
+      totalInTransit,
     }
   })
   res.json(details)

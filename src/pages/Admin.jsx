@@ -617,18 +617,18 @@ export default function Admin() {
           <div style={{margin:'0 24px 16px'}}>
             <h3 style={{fontSize:15,fontWeight:600}}>Остатки на складе</h3>
           </div>
-          {inventory.filter(d => d.totalAvailable > 0 || d.totalReceived > 0).map(d => (
+          {inventory.filter(d => d.totalAvailable > 0 || d.totalReceived > 0 || d.totalInTransit > 0).map(d => (
             <div key={d.product_id} className="inventory-card" style={{margin:'0 24px 16px'}}>
               <div className="inv-header">
                 <strong>{d.product_name}</strong>
-                <span className="inv-total">{t('totalItems')}: <b>{d.totalAvailable}</b> шт</span>
+                <span className="inv-total">{t('totalItems')}: <b>{d.totalAvailable}</b> шт{d.totalInTransit > 0 ? `, в пути: ${d.totalInTransit} шт` : ''}</span>
               </div>
               <table className="inv-table">
                 <thead><tr>
-                  <th>{t('color')}</th><th>{t('received')}</th><th>{t('shippedOut')}</th><th>{t('available')}</th><th></th>
+                  <th>{t('color')}</th><th>{t('received')}</th><th>В пути</th><th>{t('shippedOut')}</th><th>{t('available')}</th><th></th>
                 </tr></thead>
                 <tbody>
-                  {d.colors.filter(c => c.received > 0 || c.available > 0).map(c => (
+                  {d.colors.filter(c => c.received > 0 || c.available > 0 || c.inTransit > 0).map(c => (
                     <tr key={c.color}>
                       <td>
                         <div className="inv-color-cell">
@@ -638,14 +638,17 @@ export default function Admin() {
                         </div>
                       </td>
                       <td>{c.received}</td>
+                      <td>{(c.inTransit || 0) > 0 ? `${c.inTransit} ${c.expected_date ? '(до ' + c.expected_date + ')' : ''}` : '—'}</td>
                       <td>{c.shipped}</td>
                       <td><strong className={c.available === 0 ? 'inv-zero' : 'inv-ok'}>{c.available}</strong></td>
                       <td>
                         {c.available > 0
                           ? <span className="inv-badge">{t('inStock')}</span>
-                          : c.received > 0
-                            ? <span className="inv-badge inv-badge-out">{t('none')}</span>
-                            : <span className="inv-badge inv-badge-none">{t('neverHad')}</span>
+                          : c.inTransit > 0
+                            ? <span className="inv-badge inv-badge-out" style={{background:'#fff3cd',color:'#856404'}}>В пути</span>
+                            : c.received > 0
+                              ? <span className="inv-badge inv-badge-out">{t('none')}</span>
+                              : <span className="inv-badge inv-badge-none">{t('neverHad')}</span>
                         }
                       </td>
                     </tr>
@@ -654,7 +657,7 @@ export default function Admin() {
               </table>
             </div>
           ))}
-          {inventory.filter(d => d.totalAvailable > 0 || d.totalReceived > 0).length === 0 && (
+          {inventory.filter(d => d.totalAvailable > 0 || d.totalReceived > 0 || d.totalInTransit > 0).length === 0 && (
             <p style={{color:'#666',textAlign:'center',padding:40}}>{t('noInventory')}</p>
           )}
         </>)}
