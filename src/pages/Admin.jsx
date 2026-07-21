@@ -574,7 +574,7 @@ export default function Admin() {
         {/* === SHIPMENTS TAB === */}
         {tab === 'shipments' && (<>
           <div style={{margin:'0 24px'}}>
-            <button style={{padding:'10px 24px',fontSize:13,fontWeight:500,background:'var(--bg-hover)',color:'var(--text)',border:'1px solid #999',borderRadius:50,cursor:'pointer',float:'right',margin:0}} onClick={openShipManual}>Новая отгрузка</button>
+            <button style={{padding:'10px 24px',fontSize:13,fontWeight:500,background:'var(--bg-hover)',color:'var(--text)',border:'1px solid #999',borderRadius:50,cursor:'pointer',margin:'0 0 0 auto'}} onClick={openShipManual}>Новая отгрузка</button>
           </div>
           <div style={{margin:'0 24px 24px'}}>
           <div style={{overflowX:'auto',borderRadius:'var(--radius)'}}>
