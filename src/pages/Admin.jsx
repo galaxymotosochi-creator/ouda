@@ -110,7 +110,7 @@ export default function Admin() {
     if (!editingProduct) return
 
     // Upload new photos
-    let images = []
+    let uploadedUrls = []
     const newFiles = editPhotos.filter(p => p.file)
     if (newFiles.length > 0) {
       setUploadingEdit(true)
@@ -119,14 +119,19 @@ export default function Admin() {
       try {
         const resp = await fetch(`${API}/api/upload`, { method: 'POST', body: formData })
         const data = await resp.json()
-        images = data.urls || []
+        uploadedUrls = data.urls || []
       } catch (e) { console.error('Upload failed', e) }
       setUploadingEdit(false)
     }
 
-    // Final image list: existing (without file) + newly uploaded
-    const existingUrls = editPhotos.filter(p => !p.file).map(p => p.url)
-    const allImages = [...existingUrls, ...images]
+    // Build final image list in the same order as editPhotos
+    let newIdx = 0
+    const allImages = editPhotos.map(p => {
+      if (p.file) {
+        return uploadedUrls[newIdx++] || ''
+      }
+      return p.url
+    }).filter(Boolean)
 
     const updated = {
       ...editForm,
