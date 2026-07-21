@@ -49,6 +49,7 @@ export default function Admin() {
   // Edit product modal
   const [editingProduct, setEditingProduct] = useState(null)
   const [editForm, setEditForm] = useState({ name_ru: '', name_zh: '', price: '', wholesale_price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '' })
+  const [editPhotos, setEditPhotos] = useState([])
 
   const openEditProduct = (p) => {
     setEditForm({
@@ -63,41 +64,81 @@ export default function Admin() {
       wheels: p.wheels || '',
       description: p.description || '',
     })
+    setEditPhotos((p.images || []).map(url => ({ file: null, url })))
     setEditingProduct(p)
   }
 
-  const closeEditProduct = () => { setEditingProduct(null) }
+  const closeEditProduct = () => { setEditingProduct(null); setEditPhotos([]) }
+
+  const handleEditPhotos = (e) => {
+    const files = Array.from(e.target.files)
+    const total = editPhotos.length + files.length
+    if (total > 7) { alert(t('maxPhotos')); return }
+    const newPhotos = files.map(f => ({ file: f, url: URL.createObjectURL(f) }))
+    setEditPhotos(prev => [...prev, ...newPhotos])
+    e.target.value = ''
+  }
+
+  const removeEditPhoto = (idx) => {
+    setEditPhotos(prev => { URL.revokeObjectURL(prev[idx].url); return prev.filter((_, i) => i !== idx) })
+  }
 
   const updateProduct = () => {
     try {
       if (!editingProduct) { alert('Ошибка: товар не выбран'); return }
 
-      const updated = {
-        name_ru: editForm.name_ru,
-        name_zh: editForm.name_zh,
-        price: Number(editForm.price) || 0,
-        wholesale_price: Number(editForm.wholesale_price) || 0,
-        power: editForm.power,
-        fuel: editForm.fuel,
-        cooling: editForm.cooling,
-        max_speed: editForm.max_speed,
-        wheels: editForm.wheels,
-        description: editForm.description,
-        name: lang === 'zh' ? (editForm.name_zh || editForm.name_ru) : (editForm.name_ru || editForm.name_zh),
+      const uploadAndSave = (finalImages) => {
+        const updated = {
+          name_ru: editForm.name_ru,
+          name_zh: editForm.name_zh,
+          price: Number(editForm.price) || 0,
+          wholesale_price: Number(editForm.wholesale_price) || 0,
+          power: editForm.power,
+          fuel: editForm.fuel,
+          cooling: editForm.cooling,
+          max_speed: editForm.max_speed,
+          wheels: editForm.wheels,
+          description: editForm.description,
+          images: finalImages,
+          image: finalImages[0] || '',
+          name: lang === 'zh' ? (editForm.name_zh || editForm.name_ru) : (editForm.name_ru || editForm.name_zh),
+        }
+
+        const list = getLocal(LS_PRODUCTS).map(p => p.id === editingProduct.id ? { ...p, ...updated } : p)
+        setLocal(LS_PRODUCTS, list)
+        setProducts(list)
+        setEditingProduct(null)
+        setEditPhotos([])
+
+        fetch(`${API}/api/products/${editingProduct.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updated),
+        }).then(r => { if (r.ok) setTimeout(loadData, 300) }).catch(() => {})
       }
 
-      // Сохраняем локально в localStorage
-      const list = getLocal(LS_PRODUCTS).map(p => p.id === editingProduct.id ? { ...p, ...updated } : p)
-      setLocal(LS_PRODUCTS, list)
-      setProducts(list)
-      setEditingProduct(null)
-
-      // Отправляем на сервер
-      fetch(`${API}/api/products/${editingProduct.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updated),
-      }).then(r => { if (r.ok) setTimeout(loadData, 300) }).catch(() => {})
+      // Есть новые фото? Загружаем
+      const newFiles = editPhotos.filter(p => p.file)
+      if (newFiles.length > 0) {
+        const formData = new FormData()
+        newFiles.forEach(p => formData.append('photos', p.file))
+        fetch(`${API}/api/upload`, { method: 'POST', body: formData })
+          .then(r => r.json())
+          .then(data => {
+            const newUrls = data.urls || []
+            let idx = 0
+            const allImages = editPhotos.map(p => p.file ? (newUrls[idx++] || '') : p.url).filter(Boolean)
+            uploadAndSave(allImages)
+          })
+          .catch(() => {
+            // Если загрузка не удалась — сохраняем без новых фото
+            const allImages = editPhotos.filter(p => !p.file).map(p => p.url)
+            uploadAndSave(allImages)
+          })
+      } else {
+        const allImages = editPhotos.map(p => p.url).filter(Boolean)
+        uploadAndSave(allImages)
+      }
 
     } catch (e) {
       alert('Ошибка при сохранении: ' + e.message)
@@ -726,6 +767,23 @@ export default function Admin() {
                 <input placeholder={t('fuel')} value={editForm.fuel} onChange={e => setEditForm({...editForm, fuel: e.target.value})} />
                 <input placeholder={t('cooling')} value={editForm.cooling} onChange={e => setEditForm({...editForm, cooling: e.target.value})} />
                 <input placeholder={t('max_speed')} value={editForm.max_speed} onChange={e => setEditForm({...editForm, max_speed: e.target.value})} />
+                <div className="full-width" style={{marginBottom:12}}>
+                  <label style={{display:'inline-block',padding:'8px 16px',background:'var(--bg-hover)',borderRadius:50,cursor:'pointer',fontSize:13,border:'1px solid #999'}}>
+                    Загрузить фото
+                    <input type="file" accept="image/*" multiple onChange={handleEditPhotos} hidden />
+                  </label>
+                  {editPhotos.length > 0 && (
+                    <div className="photo-previews" style={{marginTop:8}}>
+                      {editPhotos.map((p, i) => (
+                        <div key={i} className="photo-preview">
+                          <img src={p.url} alt="" />
+                          <button type="button" className="photo-remove" onClick={() => removeEditPhoto(i)}>×</button>
+                          <div className="photo-order">{i + 1}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <div className="full-width"><textarea placeholder={lang === 'zh' ? '描述' : 'Описание'} value={editForm.description} onChange={e => setEditForm({...editForm, description: e.target.value})} /></div>
               </div>
             <div className="modal-actions" style={{paddingTop:16}}>
