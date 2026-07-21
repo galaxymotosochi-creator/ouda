@@ -383,7 +383,9 @@ export default function Admin() {
               <button type="submit">{t('addProduct')}</button>
             </div>
           </form>
-          <table className="admin-table">
+          <div style={{margin:'0 24px 24px'}}>
+          <div style={{overflowX:'auto',borderRadius:'var(--radius)'}}>
+          <table className="admin-table" style={{margin:0}}>
             <thead><tr>
               <th>{t('nameLabel')}</th><th>Розница</th><th>Опт</th><th>{t('power')}</th><th>{t('fuel')}</th><th>{t('wheels')}</th><th></th>
             </tr></thead>
@@ -402,6 +404,8 @@ export default function Admin() {
               {products.length===0 && <tr><td colSpan={7} style={{textAlign:'center',color:'#666',padding:40}}>{t('noProducts')}</td></tr>}
             </tbody>
           </table>
+          </div>
+          </div>
         </>)}
 
         {/* === STOCK TAB === */}
