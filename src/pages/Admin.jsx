@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLang } from '../i18n'
 import { PRESET_COLORS, getColorHex } from '../colors'
@@ -51,7 +51,6 @@ export default function Admin() {
   const [editForm, setEditForm] = useState({ name_ru: '', name_zh: '', price: '', wholesale_price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '' })
   const [editPhotos, setEditPhotos] = useState([])
   const [uploadingEdit, setUploadingEdit] = useState(false)
-  const editDragRef = useRef(null)
 
   const openEditProduct = (p) => {
     setEditForm({
@@ -86,12 +85,15 @@ export default function Admin() {
     setEditPhotos(prev => { URL.revokeObjectURL(prev[idx].url); return prev.filter((_, i) => i !== idx) })
   }
 
-  const handleEditDragStart = (idx) => { editDragRef.current = idx }
+  const handleEditDragStart = (idx, e) => {
+    e.dataTransfer.setData('text/plain', String(idx))
+    e.currentTarget.classList.add('dragging')
+  }
   const handleEditDragOver = (e) => { e.preventDefault() }
-  const handleEditDrop = (idx) => {
-    const from = editDragRef.current
-    editDragRef.current = null
-    if (from === null || from === idx) return
+  const handleEditDrop = (idx, e) => {
+    e.preventDefault()
+    const from = parseInt(e.dataTransfer.getData('text/plain'))
+    if (isNaN(from) || from === idx) return
     setEditPhotos(prev => {
       const next = [...prev]
       const [moved] = next.splice(from, 1)
@@ -319,9 +321,6 @@ export default function Admin() {
     })
   }
 
-  // Drag state for photo reorder
-  const dragRef = useRef(null)
-
   const handlePhotos = (e, files) => {
     const fileList = files || Array.from(e?.target?.files || [])
     const total = photos.length + fileList.length
@@ -335,12 +334,15 @@ export default function Admin() {
     setPhotos(prev => { URL.revokeObjectURL(prev[idx].url); return prev.filter((_, i) => i !== idx) })
   }
 
-  const handleDragStart = (idx) => { dragRef.current = idx }
+  const handleDragStart = (idx, e) => {
+    e.dataTransfer.setData('text/plain', String(idx))
+    e.currentTarget.classList.add('dragging')
+  }
   const handleDragOver = (e) => { e.preventDefault() }
-  const handleDrop = (idx) => {
-    const from = dragRef.current
-    dragRef.current = null
-    if (from === null || from === idx) return
+  const handleDrop = (idx, e) => {
+    e.preventDefault()
+    const from = parseInt(e.dataTransfer.getData('text/plain'))
+    if (isNaN(from) || from === idx) return
     setPhotos(prev => {
       const next = [...prev]
       const [moved] = next.splice(from, 1)
@@ -478,9 +480,9 @@ export default function Admin() {
                       <div key={i}
                         className="photo-preview"
                         draggable
-                        onDragStart={(e) => { handleDragStart(i); e.currentTarget.classList.add('dragging') }}
+                        onDragStart={(e) => handleDragStart(i, e)}
                         onDragOver={handleDragOver}
-                        onDrop={() => handleDrop(i)}
+                        onDrop={(e) => handleDrop(i, e)}
                         onDragEnd={(e) => { e.currentTarget.classList.remove('dragging') }}
                       >
                         <img src={p.url} alt="" />
@@ -775,9 +777,9 @@ export default function Admin() {
                         <div key={i}
                           className="photo-preview"
                           draggable
-                          onDragStart={(e) => { handleEditDragStart(i); e.currentTarget.classList.add('dragging') }}
+                          onDragStart={(e) => handleEditDragStart(i, e)}
                           onDragOver={handleEditDragOver}
-                          onDrop={() => handleEditDrop(i)}
+                          onDrop={(e) => handleEditDrop(i, e)}
                           onDragEnd={(e) => { e.currentTarget.classList.remove('dragging') }}
                         >
                           <img src={p.url} alt="" />
