@@ -489,12 +489,11 @@ export default function Admin() {
 
       {/* === INVENTORY TAB === */}
         {tab === 'inventory' && (<>
-          <div className="admin-add-form">
-          <div style={{marginBottom:16}}>
+          <div style={{margin:'0 24px 16px'}}>
             <h3 style={{fontSize:15,fontWeight:600}}>Остатки на складе</h3>
           </div>
           {inventory.filter(d => d.totalAvailable > 0 || d.totalReceived > 0).map(d => (
-            <div key={d.product_id} className="inventory-card">
+            <div key={d.product_id} className="inventory-card" style={{margin:'0 24px 16px'}}>
               <div className="inv-header">
                 <strong>{d.product_name}</strong>
                 <span className="inv-total">{t('totalItems')}: <b>{d.totalAvailable}</b> шт</span>
@@ -533,7 +532,6 @@ export default function Admin() {
           {inventory.filter(d => d.totalAvailable > 0 || d.totalReceived > 0).length === 0 && (
             <p style={{color:'#666',textAlign:'center',padding:40}}>{t('noInventory')}</p>
           )}
-          </div>
         </>)}
 
         {/* === ORDERS TAB === */}
