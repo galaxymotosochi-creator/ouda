@@ -718,6 +718,16 @@ export default function Admin() {
         {tab === 'inventory' && (<>
           <div style={{margin:'0 24px 16px'}}>
             <h3 style={{fontSize:15,fontWeight:600}}>Остатки на складе</h3>
+            {(() => {
+              const totalAll = inventory.reduce((s, d) => s + (d.totalAvailable || 0), 0)
+              const transitAll = inventory.reduce((s, d) => s + (d.totalInTransit || 0), 0)
+              if (totalAll === 0 && transitAll === 0) return null
+              return (
+                <div style={{fontSize:13,color:'#666',marginTop:4}}>
+                  Итого: <b style={{color:'#1a1a1a'}}>{totalAll}</b> шт{transitAll > 0 ? <> | В пути: <b style={{color:'#1a1a1a'}}>{transitAll}</b> шт</> : ''}
+                </div>
+              )
+            })()}
           </div>
           {inventory.filter(d => d.totalAvailable > 0 || d.totalReceived > 0 || d.totalInTransit > 0).map(d => (
             <div key={d.product_id} className="inventory-card" style={{margin:'0 24px 16px'}}>
