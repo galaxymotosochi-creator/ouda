@@ -565,13 +565,13 @@ export default function Admin() {
               </select>
               <select value={newProduct.fuel} onChange={e => setNewProduct({...newProduct, fuel: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
                 <option value="">{t('fuel')}</option>
-                <option value="Карбюратор">Карбюратор</option>
-                <option value="Инжектор">Инжектор</option>
+                <option value="Карбюратор">{t('carburetor')}</option>
+                <option value="Инжектор">{t('injector')}</option>
               </select>
               <select value={newProduct.cooling} onChange={e => setNewProduct({...newProduct, cooling: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
                 <option value="">{t('cooling')}</option>
-                <option value="Воздушное">Воздушное</option>
-                <option value="Жидкостное">Жидкостное</option>
+                <option value="Воздушное">{t('airCooled')}</option>
+                <option value="Жидкостное">{t('liquidCooled')}</option>
               </select>
               <select value={newProduct.max_speed} onChange={e => setNewProduct({...newProduct, max_speed: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
                 <option value="">{t('max_speed')}</option>
@@ -912,13 +912,13 @@ export default function Admin() {
                 </select>
                 <select value={editForm.fuel} onChange={e => setEditForm({...editForm, fuel: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
                   <option value="">{t('fuel')}</option>
-                  <option value="Карбюратор">Карбюратор</option>
-                  <option value="Инжектор">Инжектор</option>
+                  <option value="Карбюратор">{t('carburetor')}</option>
+                  <option value="Инжектор">{t('injector')}</option>
                 </select>
                 <select value={editForm.cooling} onChange={e => setEditForm({...editForm, cooling: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
                   <option value="">{t('cooling')}</option>
-                  <option value="Воздушное">Воздушное</option>
-                  <option value="Жидкостное">Жидкостное</option>
+                  <option value="Воздушное">{t('airCooled')}</option>
+                  <option value="Жидкостное">{t('liquidCooled')}</option>
                 </select>
                 <select value={editForm.max_speed} onChange={e => setEditForm({...editForm, max_speed: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
                   <option value="">{t('max_speed')}</option>
