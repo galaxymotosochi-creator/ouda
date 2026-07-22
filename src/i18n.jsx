@@ -115,6 +115,10 @@ const translations = {
     cancel: 'Отмена',
     retailPrice: 'Розничная цена *',
     wholesalePrice: 'Оптовая цена',
+    carburetor: 'Карбюратор',
+    injector: 'Инжектор',
+    airCooled: 'Воздушное',
+    liquidCooled: 'Жидкостное',
   },
   zh: {
     logo: 'OUDA',
@@ -222,6 +226,10 @@ const translations = {
     cancel: '取消',
     retailPrice: '零售价格 *',
     wholesalePrice: '批发价格',
+    carburetor: '化油器',
+    injector: '喷射',
+    airCooled: '风冷',
+    liquidCooled: '水冷',
   },
 }
 
