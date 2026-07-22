@@ -568,7 +568,11 @@ export default function Admin() {
                 <option value="Карбюратор">Карбюратор</option>
                 <option value="Инжектор">Инжектор</option>
               </select>
-              <input placeholder={t('cooling')} value={newProduct.cooling} onChange={e => setNewProduct({...newProduct, cooling: e.target.value})} />
+              <select value={newProduct.cooling} onChange={e => setNewProduct({...newProduct, cooling: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
+                <option value="">Охлаждение</option>
+                <option value="Воздушное">Воздушное</option>
+                <option value="Жидкостное">Жидкостное</option>
+              </select>
               <input placeholder={t('max_speed')} value={newProduct.max_speed} onChange={e => setNewProduct({...newProduct, max_speed: e.target.value})} />
               <input placeholder={t('wheels')} value={newProduct.wheels} onChange={e => setNewProduct({...newProduct, wheels: e.target.value})} />
               <div className="full-width photo-upload-area"
@@ -898,7 +902,11 @@ export default function Admin() {
                   <option value="Карбюратор">Карбюратор</option>
                   <option value="Инжектор">Инжектор</option>
                 </select>
-                <input placeholder={t('cooling')} value={editForm.cooling} onChange={e => setEditForm({...editForm, cooling: e.target.value})} />
+                <select value={editForm.cooling} onChange={e => setEditForm({...editForm, cooling: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
+                  <option value="">Охлаждение</option>
+                  <option value="Воздушное">Воздушное</option>
+                  <option value="Жидкостное">Жидкостное</option>
+                </select>
                 <input placeholder={t('max_speed')} value={editForm.max_speed} onChange={e => setEditForm({...editForm, max_speed: e.target.value})} />
                 <div className="full-width" style={{marginBottom:12}}>
                   <label style={{display:'inline-block',padding:'8px 16px',background:'var(--bg-hover)',borderRadius:50,cursor:'pointer',fontSize:13,border:'1px solid #999'}}>
