@@ -563,7 +563,11 @@ export default function Admin() {
                 <option value="150">150</option>
                 <option value="180">180</option>
               </select>
-              <input placeholder={t('fuel')} value={newProduct.fuel} onChange={e => setNewProduct({...newProduct, fuel: e.target.value})} />
+              <select value={newProduct.fuel} onChange={e => setNewProduct({...newProduct, fuel: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
+                <option value="">Подача топлива</option>
+                <option value="Карбюратор">Карбюратор</option>
+                <option value="Инжектор">Инжектор</option>
+              </select>
               <input placeholder={t('cooling')} value={newProduct.cooling} onChange={e => setNewProduct({...newProduct, cooling: e.target.value})} />
               <input placeholder={t('max_speed')} value={newProduct.max_speed} onChange={e => setNewProduct({...newProduct, max_speed: e.target.value})} />
               <input placeholder={t('wheels')} value={newProduct.wheels} onChange={e => setNewProduct({...newProduct, wheels: e.target.value})} />
@@ -889,7 +893,11 @@ export default function Admin() {
                   <option value="150">150</option>
                   <option value="180">180</option>
                 </select>
-                <input placeholder={t('fuel')} value={editForm.fuel} onChange={e => setEditForm({...editForm, fuel: e.target.value})} />
+                <select value={editForm.fuel} onChange={e => setEditForm({...editForm, fuel: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
+                  <option value="">Подача топлива</option>
+                  <option value="Карбюратор">Карбюратор</option>
+                  <option value="Инжектор">Инжектор</option>
+                </select>
                 <input placeholder={t('cooling')} value={editForm.cooling} onChange={e => setEditForm({...editForm, cooling: e.target.value})} />
                 <input placeholder={t('max_speed')} value={editForm.max_speed} onChange={e => setEditForm({...editForm, max_speed: e.target.value})} />
                 <div className="full-width" style={{marginBottom:12}}>
