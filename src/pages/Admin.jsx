@@ -557,7 +557,12 @@ export default function Admin() {
               }} required />
               <input placeholder={t('retailPrice')} type="number" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} required />
               <input placeholder={t('wholesalePrice')} type="number" value={newProduct.wholesale_price} onChange={e => setNewProduct({...newProduct, wholesale_price: e.target.value})} />
-              <input placeholder={t('power')} value={newProduct.power} onChange={e => setNewProduct({...newProduct, power: e.target.value})} />
+              <select value={newProduct.power} onChange={e => setNewProduct({...newProduct, power: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
+                <option value="">Мощность</option>
+                <option value="125">125</option>
+                <option value="150">150</option>
+                <option value="180">180</option>
+              </select>
               <input placeholder={t('fuel')} value={newProduct.fuel} onChange={e => setNewProduct({...newProduct, fuel: e.target.value})} />
               <input placeholder={t('cooling')} value={newProduct.cooling} onChange={e => setNewProduct({...newProduct, cooling: e.target.value})} />
               <input placeholder={t('max_speed')} value={newProduct.max_speed} onChange={e => setNewProduct({...newProduct, max_speed: e.target.value})} />
@@ -878,7 +883,12 @@ export default function Admin() {
                 }} required />
                 <input placeholder="Розничная цена *" type="number" value={editForm.price} onChange={e => setEditForm({...editForm, price: e.target.value})} required />
                 <input placeholder="Оптовая цена" type="number" value={editForm.wholesale_price} onChange={e => setEditForm({...editForm, wholesale_price: e.target.value})} />
-                <input placeholder={t('power')} value={editForm.power} onChange={e => setEditForm({...editForm, power: e.target.value})} />
+                <select value={editForm.power} onChange={e => setEditForm({...editForm, power: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
+                  <option value="">Мощность</option>
+                  <option value="125">125</option>
+                  <option value="150">150</option>
+                  <option value="180">180</option>
+                </select>
                 <input placeholder={t('fuel')} value={editForm.fuel} onChange={e => setEditForm({...editForm, fuel: e.target.value})} />
                 <input placeholder={t('cooling')} value={editForm.cooling} onChange={e => setEditForm({...editForm, cooling: e.target.value})} />
                 <input placeholder={t('max_speed')} value={editForm.max_speed} onChange={e => setEditForm({...editForm, max_speed: e.target.value})} />
