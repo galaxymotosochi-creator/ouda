@@ -116,7 +116,7 @@ export default function Catalog() {
           </div>
           <a href="#catalog" className="hero-btn">{t('heroBtn')}</a>
           <div className="hero-contacts">
-            <a href="https://wa.me/79628888888" target="_blank" className="glass-btn">
+            <a href="max://+79003140987" target="_blank" className="glass-btn">
               <img src="/manager-sapa.jpg" alt="MAX" className="glass-avatar" />
               <span>MAX</span>
             </a>
