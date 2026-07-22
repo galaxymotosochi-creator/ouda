@@ -35,12 +35,14 @@ export default function ProductCard({ product, onAdd, inCart }) {
         <div className="product-name">{lang === 'zh' ? (product.name_zh || product.name) : (product.name_ru || product.name)}</div>
 
         {/* Colors from stock — comma separated with quantities */}
-        {hasColors && (
-          <div className="product-colors">
-            <span className="spec-label">{t('color')}:</span>
-            <strong>{colorNames.map(name => `${translateColor(name)} (${availColors[name]})`).join(', ')}</strong>
-          </div>
-        )}
+        <div className="product-colors">
+          {hasColors ? (
+            <><span className="spec-label">{t('color')}:</span>
+            <strong>{colorNames.map(name => `${translateColor(name)} (${availColors[name]})`).join(', ')}</strong></>
+          ) : (
+            <span style={{visibility:'hidden'}}> </span>
+          )}
+        </div>
 
         {/* Specs list */}
         <div className="product-specs">

@@ -108,7 +108,7 @@ img { max-width: 100%; display: block; }
 .product-img { width: 100%; aspect-ratio: 1; object-fit: cover; background: var(--bg-hover); }
 .product-body { padding: 20px; display: flex; flex-direction: column; flex: 1; }
 .product-name { font-size: 16px; font-weight: 600; margin-bottom: 10px; }
-.product-colors { display: grid; grid-template-columns: auto 1fr; gap: 4px 8px; font-size: 13px; margin-bottom: 6px; }
+.product-colors { display: grid; grid-template-columns: auto 1fr; gap: 4px 8px; font-size: 13px; margin-bottom: 6px; min-height: 36px; }
 .product-colors strong { color: var(--text); font-weight: 500; }
 .product-specs {
   display: grid; grid-template-columns: auto 1fr;
