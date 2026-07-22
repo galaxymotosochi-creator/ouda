@@ -996,8 +996,10 @@ export default function Admin() {
                 return (
                   <div key={color} className="receive-color-row">
                     <label className="receive-color-label">
-                      <input type="checkbox" checked={selected}
-                        onChange={() => toggleReceiveColor(color)} />
+                      <span className={`receive-toggle ${selected ? 'active' : ''}`}
+                        onClick={() => toggleReceiveColor(color)}>
+                        <span className="receive-toggle-knob" />
+                      </span>
                       <span className={`receive-color-swatch ${getColorHex(color) === 'chameleon' ? 'color-swatch-chameleon' : ''}`}
                         style={getColorHex(color) !== 'chameleon' ? {background: getColorHex(color)} : {}} />
                       <span style={{marginLeft:8}}>{color}</span>
