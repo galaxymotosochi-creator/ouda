@@ -558,30 +558,30 @@ export default function Admin() {
               <input placeholder={t('retailPrice')} type="number" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} required />
               <input placeholder={t('wholesalePrice')} type="number" value={newProduct.wholesale_price} onChange={e => setNewProduct({...newProduct, wholesale_price: e.target.value})} />
               <select value={newProduct.power} onChange={e => setNewProduct({...newProduct, power: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
-                <option value="">Мощность</option>
+                <option value="">{t('power')}</option>
                 <option value="125">125</option>
                 <option value="150">150</option>
                 <option value="180">180</option>
               </select>
               <select value={newProduct.fuel} onChange={e => setNewProduct({...newProduct, fuel: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
-                <option value="">Подача топлива</option>
+                <option value="">{t('fuel')}</option>
                 <option value="Карбюратор">Карбюратор</option>
                 <option value="Инжектор">Инжектор</option>
               </select>
               <select value={newProduct.cooling} onChange={e => setNewProduct({...newProduct, cooling: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
-                <option value="">Охлаждение</option>
+                <option value="">{t('cooling')}</option>
                 <option value="Воздушное">Воздушное</option>
                 <option value="Жидкостное">Жидкостное</option>
               </select>
               <select value={newProduct.max_speed} onChange={e => setNewProduct({...newProduct, max_speed: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
-                <option value="">Макс. скорость</option>
+                <option value="">{t('max_speed')}</option>
                 <option value="95">95</option>
                 <option value="100">100</option>
                 <option value="105">105</option>
                 <option value="110">110</option>
               </select>
               <select value={newProduct.wheels} onChange={e => setNewProduct({...newProduct, wheels: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
-                <option value="">Колёса</option>
+                <option value="">{t('wheels')}</option>
                 <option value="10/10">10/10</option>
                 <option value="12/12">12/12</option>
                 <option value="13/13">13/13</option>
@@ -905,30 +905,30 @@ export default function Admin() {
                 <input placeholder="Розничная цена *" type="number" value={editForm.price} onChange={e => setEditForm({...editForm, price: e.target.value})} required />
                 <input placeholder="Оптовая цена" type="number" value={editForm.wholesale_price} onChange={e => setEditForm({...editForm, wholesale_price: e.target.value})} />
                 <select value={editForm.power} onChange={e => setEditForm({...editForm, power: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
-                  <option value="">Мощность</option>
+                  <option value="">{t('power')}</option>
                   <option value="125">125</option>
                   <option value="150">150</option>
                   <option value="180">180</option>
                 </select>
                 <select value={editForm.fuel} onChange={e => setEditForm({...editForm, fuel: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
-                  <option value="">Подача топлива</option>
+                  <option value="">{t('fuel')}</option>
                   <option value="Карбюратор">Карбюратор</option>
                   <option value="Инжектор">Инжектор</option>
                 </select>
                 <select value={editForm.cooling} onChange={e => setEditForm({...editForm, cooling: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
-                  <option value="">Охлаждение</option>
+                  <option value="">{t('cooling')}</option>
                   <option value="Воздушное">Воздушное</option>
                   <option value="Жидкостное">Жидкостное</option>
                 </select>
                 <select value={editForm.max_speed} onChange={e => setEditForm({...editForm, max_speed: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
-                  <option value="">Макс. скорость</option>
+                  <option value="">{t('max_speed')}</option>
                   <option value="95">95</option>
                   <option value="100">100</option>
                   <option value="105">105</option>
                   <option value="110">110</option>
                 </select>
                 <select value={editForm.wheels} onChange={e => setEditForm({...editForm, wheels: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
-                  <option value="">Колёса</option>
+                  <option value="">{t('wheels')}</option>
                   <option value="10/10">10/10</option>
                   <option value="12/12">12/12</option>
                   <option value="13/13">13/13</option>
