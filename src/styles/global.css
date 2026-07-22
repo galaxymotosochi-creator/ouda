@@ -110,9 +110,11 @@ img { max-width: 100%; display: block; }
 .product-name { font-size: 16px; font-weight: 600; margin-bottom: 10px; }
 .product-colors { display: grid; grid-template-columns: auto 1fr; gap: 4px 8px; font-size: 13px; margin-bottom: 6px; }
 .product-colors strong { color: var(--text); font-weight: 500; }
-.product-specs { font-size: 13px; margin-bottom: 14px; }
-.product-specs .spec-row { display: flex; gap: 6px; margin-bottom: 2px; }
-.spec-label { color: var(--text-muted); white-space: nowrap; flex-shrink: 0; }
+.product-specs {
+  display: grid; grid-template-columns: auto 1fr;
+  gap: 4px 8px; font-size: 13px; margin-bottom: 14px;
+}
+.spec-label { color: var(--text-muted); white-space: nowrap; }
 .product-specs strong { color: var(--text); font-weight: 500; }
 .product-price { font-size: 15px !important; font-weight: 400 !important; margin-bottom: 14px; }
 .product-price small { font-size: 13px; font-weight: 400; color: var(--text-muted); }
