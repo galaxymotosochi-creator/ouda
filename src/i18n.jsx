@@ -113,6 +113,8 @@ const translations = {
     receiveStock: 'Подтвердить получение',
     receiveConfirm: 'Поступило',
     cancel: 'Отмена',
+    retailPrice: 'Розничная цена *',
+    wholesalePrice: 'Оптовая цена',
   },
   zh: {
     logo: 'OUDA',
@@ -218,6 +220,8 @@ const translations = {
     receiveStock: '确认收货',
     receiveConfirm: '已入库',
     cancel: '取消',
+    retailPrice: '零售价格 *',
+    wholesalePrice: '批发价格',
   },
 }
 
