@@ -289,6 +289,101 @@ export default function Admin() {
     setTimeout(loadData, 300)
   }
 
+  // === RECEIVE STOCK MODAL ===
+  const [showReceiveModal, setShowReceiveModal] = useState(false)
+  const [receiveStockEntry, setReceiveStockEntry] = useState(null)
+  const [receiveColors, setReceiveColors] = useState({})
+
+  const openReceiveModal = (entry) => {
+    setReceiveStockEntry(entry)
+    // Pre-fill all colors with full qty
+    const initial = {}
+    Object.entries(entry.colors || {}).forEach(([color, qty]) => { initial[color] = qty })
+    setReceiveColors(initial)
+    setShowReceiveModal(true)
+  }
+
+  const closeReceiveModal = () => {
+    setShowReceiveModal(false)
+    setReceiveStockEntry(null)
+    setReceiveColors({})
+  }
+
+  const toggleReceiveColor = (color) => {
+    setReceiveColors(prev => {
+      const entry = receiveStockEntry
+      const maxQty = entry?.colors?.[color] || 0
+      if (!(color in prev)) return { ...prev, [color]: maxQty }
+      const next = { ...prev }
+      delete next[color]
+      return next
+    })
+  }
+
+  const updateReceiveColorQty = (color, delta) => {
+    setReceiveColors(prev => {
+      const entry = receiveStockEntry
+      const maxQty = entry?.colors?.[color] || 0
+      const current = prev[color] || 0
+      let next = Math.max(0, Math.min(maxQty, current + delta))
+      if (next === 0) {
+        const copy = { ...prev }
+        delete copy[color]
+        return copy
+      }
+      return { ...prev, [color]: next }
+    })
+  }
+
+  const submitReceive = () => {
+    const entry = receiveStockEntry
+    if (!entry) return
+    const receivedColors = {}
+    Object.entries(receiveColors).forEach(([color, qty]) => {
+      if (qty > 0) receivedColors[color] = qty
+    })
+    if (Object.keys(receivedColors).length === 0) return
+
+    fetch(`${API}/api/stock/${entry.id}/receive`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ receivedColors }),
+    }).catch(() => {
+      // Offline fallback
+      const list = getLocal(LS_STOCK)
+      const idx = list.findIndex(s => s.id === entry.id)
+      if (idx === -1) return
+      const current = list[idx]
+      let allReceived = true
+      Object.entries(current.colors || {}).forEach(([color, qty]) => {
+        const rcv = receivedColors[color] || 0
+        if (qty - rcv > 0) allReceived = false
+      })
+      if (allReceived) {
+        list[idx] = { ...current, status: 'received', date: new Date().toISOString().slice(0, 10) }
+      } else {
+        Object.entries(receivedColors).forEach(([color, qty]) => {
+          current.colors[color] = (current.colors[color] || 0) - qty
+        })
+        Object.keys(current.colors).forEach(c => { if (current.colors[c] <= 0) delete current.colors[c] })
+        list[idx] = current
+        list.push({
+          id: Date.now(),
+          product_id: current.product_id,
+          product_name: current.product_name,
+          date: new Date().toISOString().slice(0, 10),
+          status: 'received',
+          expected_date: null,
+          colors: receivedColors,
+        })
+      }
+      setLocal(LS_STOCK, list)
+      setStock(list)
+    })
+    closeReceiveModal()
+    setTimeout(loadData, 300)
+  }
+
   // === PRODUCT & STOCK ===
   const handleStockProductChange = (productId) => {
     setStockForm({ product_id: Number(productId), selectedColors: {}, status: 'received' })
@@ -590,9 +685,16 @@ export default function Admin() {
               <div key={s.id} className="stock-card">
                 <div className="stock-card-head">
                   <strong className="stock-card-name">{s.product_name}</strong>
-                  <span className={`admin-badge ${s.status==='received'?'badge-received':'badge-transit'}`}>
-                    {s.status==='received' ? t('received') : t('inTransit')} {formatShortDate(s.date)}
-                  </span>
+                  {s.status==='received' ? (
+                    <span className="admin-badge badge-received">
+                      {t('received')} {formatShortDate(s.date)}
+                    </span>
+                  ) : (
+                    <span className="admin-badge badge-transit clickable-badge"
+                      onClick={() => openReceiveModal(s)} title="Нажмите чтобы подтвердить получение">
+                      {t('inTransit')} {formatShortDate(s.date)} 📦
+                    </span>
+                  )}
                 </div>
                 {s.colors && Object.entries(s.colors).filter(([,v]) => v > 0).length > 0 && (
                   <div className="stock-card-colors">
@@ -874,6 +976,55 @@ export default function Admin() {
                 <button className="admin-btn admin-btn-cancel" onClick={closeShipModal}>Отмена</button>
                 <button className="admin-btn-primary" onClick={createShipment}>Создать отгрузку</button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* === RECEIVE STOCK MODAL === */}
+      {showReceiveModal && receiveStockEntry && (
+        <div className="modal-overlay" onClick={closeReceiveModal}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>📦 {t('receiveStock')} — {receiveStockEntry.product_name}</h3>
+              <button className="modal-close" onClick={closeReceiveModal}>×</button>
+            </div>
+            <div className="modal-body">
+              <p style={{color:'#888',fontSize:13,marginBottom:16}}>
+                Отметьте какие цвета и сколько поступило
+              </p>
+              {Object.entries(receiveStockEntry.colors || {}).filter(([,v]) => v > 0).map(([color, maxQty]) => {
+                const selected = color in receiveColors
+                const qty = receiveColors[color] || 0
+                return (
+                  <div key={color} className="receive-color-row">
+                    <label className="receive-color-label">
+                      <input type="checkbox" checked={selected}
+                        onChange={() => toggleReceiveColor(color)} />
+                      <span className={`receive-color-swatch ${getColorHex(color) === 'chameleon' ? 'color-swatch-chameleon' : ''}`}
+                        style={getColorHex(color) !== 'chameleon' ? {background: getColorHex(color)} : {}} />
+                      <span style={{marginLeft:8}}>{color}</span>
+                    </label>
+                    {selected && (
+                      <div className="receive-qty-control">
+                        <button type="button" className="stock-qty-btn"
+                          onClick={() => updateReceiveColorQty(color, -1)}>−</button>
+                        <span className="stock-qty">{qty}</span>
+                        <button type="button" className="stock-qty-btn"
+                          onClick={() => updateReceiveColorQty(color, 1)}>+</button>
+                        <span style={{color:'#999',fontSize:12,marginLeft:8}}>/ {maxQty}</span>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+            <div className="modal-actions">
+              <button className="admin-btn admin-btn-cancel" onClick={closeReceiveModal}>{t('cancel')}</button>
+              <button className="admin-btn-primary" onClick={submitReceive}
+                disabled={Object.keys(receiveColors).filter(k => receiveColors[k] > 0).length === 0}>
+                ✅ {t('receiveConfirm')}
+              </button>
             </div>
           </div>
         </div>

@@ -167,6 +167,62 @@ app.post('/api/stock', (req, res) => {
   res.json(s)
 })
 
+// === Receive stock (partial/full) ===
+app.patch('/api/stock/:id/receive', (req, res) => {
+  const idx = stock.findIndex(s => s.id == req.params.id)
+  if (idx === -1) return res.status(404).json({ error: 'not found' })
+  const entry = stock[idx]
+  if (entry.status !== 'transit') return res.status(400).json({ error: 'not in transit' })
+
+  const { receivedColors } = req.body // { 'Чёрный': 5, 'Красный': 3 }
+  if (!receivedColors || Object.keys(receivedColors).length === 0)
+    return res.status(400).json({ error: 'no colors specified' })
+
+  const today = new Date().toISOString().slice(0, 10)
+
+  // Check if we're receiving all items
+  let allReceived = true
+  const remainingColors = {}
+  Object.entries(entry.colors || {}).forEach(([color, qty]) => {
+    const rcv = receivedColors[color] || 0
+    const remaining = qty - rcv
+    if (remaining > 0) {
+      allReceived = false
+      remainingColors[color] = remaining
+    } else if (remaining < 0) {
+      return res.status(400).json({ error: `received more than in transit for ${color}` })
+    }
+  })
+
+  if (allReceived) {
+    // Full receive — just change status
+    entry.status = 'received'
+    entry.date = today
+    stock[idx] = entry
+    saveAll()
+    return res.json({ action: 'full', entry })
+  }
+
+  // Partial receive — reduce transit, create received entry
+  entry.colors = remainingColors
+  // Remove colors with 0 qty
+  Object.keys(entry.colors).forEach(c => { if (entry.colors[c] <= 0) delete entry.colors[c] })
+  stock[idx] = entry
+
+  const newEntry = {
+    id: nextId++,
+    product_id: entry.product_id,
+    product_name: entry.product_name,
+    date: today,
+    status: 'received',
+    expected_date: null,
+    colors: receivedColors,
+  }
+  stock.push(newEntry)
+  saveAll()
+  res.json({ action: 'partial', transit: entry, received: newEntry })
+})
+
 // === Shipments ===
 app.get('/api/shipments', (req, res) => res.json(shipments))
 app.get('/api/shipments/:id', (req, res) => {

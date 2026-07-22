@@ -372,6 +372,14 @@ img { max-width: 100%; display: block; }
 
 .badge-received { background: #d1fae5; color: #065f46; }
 .badge-transit { background: #fef3c7; color: #92400e; }
+.clickable-badge { cursor: pointer; transition: all 0.2s; }
+.clickable-badge:hover { filter: brightness(0.9); transform: scale(1.02); }
+.receive-color-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.receive-color-row:last-child { border-bottom: none; }
+.receive-color-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; }
+.receive-color-label input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+.receive-color-swatch { display: inline-block; width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.1); flex-shrink: 0; }
+.receive-qty-control { display: flex; align-items: center; gap: 4px; }
 
 /* === INVOICE === */
 .invoice-body { padding: 32px 40px; }

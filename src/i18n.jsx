@@ -88,7 +88,7 @@ const translations = {
     sum: 'Сумма',
     inventoryTitle: 'Остатки на складе',
     totalItems: 'Всего',
-    received: 'Приход',
+    received: 'Поступило',
     shippedOut: 'Отгружено',
     available: 'Доступно',
     inStock: 'В наличии',
@@ -110,6 +110,9 @@ const translations = {
     inStockStatus: 'Получено',
     inTransitStatus: 'В пути',
     pcs: 'шт',
+    receiveStock: 'Подтвердить получение',
+    receiveConfirm: 'Поступило',
+    cancel: 'Отмена',
   },
   zh: {
     logo: 'OUDA',
@@ -212,6 +215,9 @@ const translations = {
     inStockStatus: '已入库',
     inTransitStatus: '运输中',
     pcs: '件',
+    receiveStock: '确认收货',
+    receiveConfirm: '已入库',
+    cancel: '取消',
   },
 }
 
