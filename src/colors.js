@@ -9,6 +9,8 @@ export const PRESET_COLORS = [
   { name: 'Красный матовый', nameZh: '哑光红色', hex: '#8a2a1a' },
   { name: 'Синий', nameZh: '蓝色', hex: '#1a3a6b' },
   { name: 'Синий матовый', nameZh: '哑光蓝色', hex: '#1a2a4b' },
+  { name: 'Зелёный', nameZh: '绿色', hex: '#2d8a2d' },
+  { name: 'Зелёный матовый', nameZh: '哑光绿色', hex: '#1a6a1a' },
   { name: 'Хамелеон', nameZh: '变色龙', hex: 'chameleon' },
 ]
 
