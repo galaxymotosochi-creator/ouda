@@ -692,7 +692,7 @@ export default function Admin() {
                   ) : (
                     <span className="admin-badge badge-transit clickable-badge"
                       onClick={() => openReceiveModal(s)} title="Нажмите чтобы подтвердить получение">
-                      {t('inTransit')} {formatShortDate(s.date)} 📦
+                      {t('inTransit')} {formatShortDate(s.date)}
                     </span>
                   )}
                 </div>
@@ -984,15 +984,12 @@ export default function Admin() {
       {/* === RECEIVE STOCK MODAL === */}
       {showReceiveModal && receiveStockEntry && (
         <div className="modal-overlay" onClick={closeReceiveModal}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
+          <div className="modal modal-compact" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>📦 {t('receiveStock')} — {receiveStockEntry.product_name}</h3>
+              <h3>{t('receiveStock')} — {receiveStockEntry.product_name}</h3>
               <button className="modal-close" onClick={closeReceiveModal}>×</button>
             </div>
             <div className="modal-body">
-              <p style={{color:'#888',fontSize:13,marginBottom:16}}>
-                Отметьте какие цвета и сколько поступило
-              </p>
               {Object.entries(receiveStockEntry.colors || {}).filter(([,v]) => v > 0).map(([color, maxQty]) => {
                 const selected = color in receiveColors
                 const qty = receiveColors[color] || 0
@@ -1023,7 +1020,7 @@ export default function Admin() {
               <button className="admin-btn admin-btn-cancel" onClick={closeReceiveModal}>{t('cancel')}</button>
               <button className="admin-btn-primary" onClick={submitReceive}
                 disabled={Object.keys(receiveColors).filter(k => receiveColors[k] > 0).length === 0}>
-                ✅ {t('receiveConfirm')}
+                {t('receiveConfirm')}
               </button>
             </div>
           </div>
