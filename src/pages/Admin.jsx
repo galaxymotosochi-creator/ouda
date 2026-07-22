@@ -573,7 +573,13 @@ export default function Admin() {
                 <option value="Воздушное">Воздушное</option>
                 <option value="Жидкостное">Жидкостное</option>
               </select>
-              <input placeholder={t('max_speed')} value={newProduct.max_speed} onChange={e => setNewProduct({...newProduct, max_speed: e.target.value})} />
+              <select value={newProduct.max_speed} onChange={e => setNewProduct({...newProduct, max_speed: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
+                <option value="">Макс. скорость</option>
+                <option value="95">95</option>
+                <option value="100">100</option>
+                <option value="105">105</option>
+                <option value="110">110</option>
+              </select>
               <input placeholder={t('wheels')} value={newProduct.wheels} onChange={e => setNewProduct({...newProduct, wheels: e.target.value})} />
               <div className="full-width photo-upload-area"
                 onDragOver={handleDragOver}
@@ -907,7 +913,13 @@ export default function Admin() {
                   <option value="Воздушное">Воздушное</option>
                   <option value="Жидкостное">Жидкостное</option>
                 </select>
-                <input placeholder={t('max_speed')} value={editForm.max_speed} onChange={e => setEditForm({...editForm, max_speed: e.target.value})} />
+                <select value={editForm.max_speed} onChange={e => setEditForm({...editForm, max_speed: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
+                  <option value="">Макс. скорость</option>
+                  <option value="95">95</option>
+                  <option value="100">100</option>
+                  <option value="105">105</option>
+                  <option value="110">110</option>
+                </select>
                 <div className="full-width" style={{marginBottom:12}}>
                   <label style={{display:'inline-block',padding:'8px 16px',background:'var(--bg-hover)',borderRadius:50,cursor:'pointer',fontSize:13,border:'1px solid #999'}}>
                     Загрузить фото
