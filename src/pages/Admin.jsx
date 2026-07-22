@@ -580,7 +580,14 @@ export default function Admin() {
                 <option value="105">105</option>
                 <option value="110">110</option>
               </select>
-              <input placeholder={t('wheels')} value={newProduct.wheels} onChange={e => setNewProduct({...newProduct, wheels: e.target.value})} />
+              <select value={newProduct.wheels} onChange={e => setNewProduct({...newProduct, wheels: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
+                <option value="">Колёса</option>
+                <option value="10/10">10/10</option>
+                <option value="12/12">12/12</option>
+                <option value="13/13">13/13</option>
+                <option value="13/14">13/14</option>
+                <option value="14/14">14/14</option>
+              </select>
               <div className="full-width photo-upload-area"
                 onDragOver={handleDragOver}
                 onDrop={handleDropFiles}
@@ -919,6 +926,14 @@ export default function Admin() {
                   <option value="100">100</option>
                   <option value="105">105</option>
                   <option value="110">110</option>
+                </select>
+                <select value={editForm.wheels} onChange={e => setEditForm({...editForm, wheels: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
+                  <option value="">Колёса</option>
+                  <option value="10/10">10/10</option>
+                  <option value="12/12">12/12</option>
+                  <option value="13/13">13/13</option>
+                  <option value="13/14">13/14</option>
+                  <option value="14/14">14/14</option>
                 </select>
                 <div className="full-width" style={{marginBottom:12}}>
                   <label style={{display:'inline-block',padding:'8px 16px',background:'var(--bg-hover)',borderRadius:50,cursor:'pointer',fontSize:13,border:'1px solid #999'}}>
