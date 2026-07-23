@@ -708,7 +708,7 @@ export default function Admin() {
               {products.map(p => (
                 <tr key={p.id} style={{cursor:'pointer',borderBottom:'1px solid #f0f2ff'}} onClick={() => openEditProduct(p)}
                   onMouseOver={e => e.currentTarget.style.background='#fafbff'} onMouseOut={e => e.currentTarget.style.background=''}>
-                  <td style={{padding:'12px 16px',whiteSpace:'nowrap',fontWeight:500}}>{lang === 'zh' ? (p.name_zh || p.name) : (p.name_ru || p.name)}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{lang === 'zh' ? (p.name_zh || p.name) : (p.name_ru || p.name)}</td>
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{p.price.toLocaleString('ru-RU')} ₽</td>
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{p.wholesale_price ? Number(p.wholesale_price).toLocaleString('ru-RU') + ' ₽' : '—'}</td>
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{p.power||'—'}</td>
