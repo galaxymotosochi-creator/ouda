@@ -115,6 +115,11 @@ img { max-width: 100%; display: block; }
   padding: 3px 12px; border-radius: 20px; font-size: 12px;
   white-space: nowrap; font-weight: 500;
 }
+.wholesale-pill {
+  background: var(--bg-hover); color: var(--text-muted);
+  padding: 2px 10px; border-radius: 20px; font-size: 11px;
+  display: inline-block; margin-top: 4px;
+}
 .product-specs {
   display: grid; grid-template-columns: auto 1fr;
   gap: 4px 8px; font-size: 13px; margin-bottom: 14px;
