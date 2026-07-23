@@ -219,6 +219,25 @@ export default function Admin() {
     setShowShipModal(true)
   }
 
+  const showOrderInvoice = (order, orderNum) => {
+    const fakeShip = {
+      number: 'Заказ #' + orderNum,
+      created_at: order.created_at,
+      client: { name: order.name, phone: order.phone, city: order.city || '', transport: order.transport || '' },
+      items: (order.items || []).map(item => ({
+        product_name: item.name,
+        color: item.color || '',
+        price: item.price || 0,
+        qty: item.qty || 0,
+        subtotal: (item.price || 0) * (item.qty || 0),
+      })),
+      total: order.total || 0,
+      prepaid: 0,
+      paid: 0,
+      status: '—',
+    }
+    setInvoiceShip(fakeShip)
+  }
   const closeShipModal = () => { setShowShipModal(false); setShipOrder(null); setShipOrderNum(0) }
 
   const updateShipItem = (idx, field, value) => {
@@ -913,7 +932,8 @@ export default function Admin() {
                   <td>
                     <div className="admin-actions">
                       {o.status==='new' && <button className="admin-btn admin-btn-accept" onClick={() => updateStatus(o.id,'accepted')}>Взять в работу</button>}
-                      {o.status==='accepted' && <button className="admin-btn admin-btn-ship" onClick={() => openShipFromOrder(o, i+1)} style={{background:"linear-gradient(135deg,#667eea,#764ba2)",color:"#fff",padding:"5px 12px",borderRadius:8,fontSize:13,border:"none",cursor:"pointer",fontWeight:500}}>Отгрузить</button>}
+                      {o.status==='accepted' && <button className="admin-btn admin-btn-ship" onClick={() => openShipFromOrder(o, i+1)} style={{background:"linear-gradient(135deg,#667eea,#764ba2)",color:"#fff",padding:"5px 12px",borderRadius:8,fontSize:13,border:"none",cursor:"pointer",fontWeight:500}}>Отгрузить</button>
+                      <button className="admin-btn admin-btn-invoice" onClick={() => showOrderInvoice(o, i+1)} style={{background:"none",color:"#667eea",padding:"5px 10px",borderRadius:8,fontSize:12,border:"1px solid #667eea",cursor:"pointer"}}>Накладная</button>}
                     </div>
                   </td>
                 </tr>
