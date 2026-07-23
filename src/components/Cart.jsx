@@ -15,12 +15,12 @@ function getItemPrice(item, allItems) {
 
 export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRemove, onAddAnother, api, onSuccess }) {
   const { t } = useLang()
-  const [form, setForm] = useState({ name: '', city: '', phone: '', payment: 'cash' })
+  const [form, setForm] = useState({ name: '', city: '', phone: '', transport: '', payment: 'cash' })
   const [sending, setSending] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.name || !form.phone) return
+    if (!form.name || !form.phone || !form.city || !form.transport) return
     setSending(true)
     try {
       const effectiveTotal = items.reduce((s, i) => s + getItemPrice(i, items) * i.qty, 0)
@@ -107,7 +107,9 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
             <input placeholder={t('name')} value={form.name}
               onChange={e => setForm({ ...form, name: e.target.value })} required />
             <input placeholder={t('city')} value={form.city}
-              onChange={e => setForm({ ...form, city: e.target.value })} />
+              onChange={e => setForm({ ...form, city: e.target.value })} required />
+            <input placeholder="Транспортная компания и адрес" value={form.transport}
+              onChange={e => setForm({ ...form, transport: e.target.value })} required />
             <input placeholder={t('phone')} type="tel" value={form.phone}
               onChange={e => setForm({ ...form, phone: e.target.value })} required />
             <select value={form.payment}

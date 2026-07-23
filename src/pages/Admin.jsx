@@ -204,7 +204,7 @@ export default function Admin() {
     }))
     setShipOrder(order)
     setShipForm({
-      client: { name: order.name, phone: order.phone, city: order.city || '', transport: '' },
+      client: { name: order.name, phone: order.phone, city: order.city || '', transport: order.transport || '' },
       items, prepaid: 0, paid: 0,
     })
     setShowShipModal(true)
@@ -806,7 +806,7 @@ export default function Admin() {
           <div style={{overflowX:'auto',borderRadius:'var(--radius)'}}>
           <table className="admin-table" style={{margin:0}}>
             <thead><tr>
-              <th>№</th><th>{t('date')}</th><th>{t('name')}</th><th>{t('city')}</th><th>{t('phone')}</th>
+              <th>№</th><th>{t('date')}</th><th>{t('name')}</th><th>{t('city')}</th><th>ТК</th><th>{t('phone')}</th>
               <th>{t('products')}</th><th>{t('total')}</th><th>{t('payment')}</th><th>{t('status')}</th><th></th>
             </tr></thead>
             <tbody>
@@ -816,6 +816,7 @@ export default function Admin() {
                   <td style={{fontSize:13,color:'#999'}}>{formatDate(o.created_at)}</td>
                   <td><strong>{o.name}</strong></td>
                   <td>{o.city||'—'}</td>
+                  <td>{o.transport||'—'}</td>
                   <td>{o.phone}</td>
                   <td style={{fontSize:13}}>{o.items?.map(item => `${item.name} ×${item.qty}`).join(', ')||'—'}</td>
                   <td><strong>{(o.total||0).toLocaleString('ru-RU')} ₽</strong></td>
@@ -830,7 +831,7 @@ export default function Admin() {
                   </td>
                 </tr>
               ))}
-              {orders.length===0 && <tr><td colSpan={10} style={{textAlign:'center',color:'#666',padding:40}}>{t('noOrders')}</td></tr>}
+              {orders.length===0 && <tr><td colSpan={11} style={{textAlign:'center',color:'#666',padding:40}}>{t('noOrders')}</td></tr>}
             </tbody>
           </table>
           </div>
