@@ -1268,8 +1268,8 @@ export default function Admin() {
               })}
             </div>
             <div className="modal-actions">
-              <button className="admin-btn admin-btn-cancel" onClick={closeReceiveModal}>{t('cancel')}</button>
-              <button className="admin-btn-primary" onClick={submitReceive}
+              <button className="v2-btn v2-btn-cancel" onClick={closeReceiveModal}>{t('cancel')}</button>
+              <button className="v2-btn v2-btn-primary" onClick={submitReceive}
                 disabled={Object.keys(receiveColors).filter(k => receiveColors[k] > 0).length === 0}>
                 {t('receiveConfirm')}
               </button>
