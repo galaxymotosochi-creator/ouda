@@ -696,13 +696,13 @@ export default function Admin() {
           <div style={{overflowX:'auto'}}>
           <table className="admin-table" style={{margin:0,border:'none',boxShadow:'none',width:'100%',borderCollapse:'collapse'}}>
             <thead><tr>
-              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap',fontSize:11,color:'#667eea',fontWeight:600,textTransform:'uppercase',letterSpacing:'.5px',borderBottom:'1px solid #f0f2ff',background:'#f8f9ff'}}>{t('nameLabel')}</th>
-              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap',fontSize:11,color:'#667eea',fontWeight:600,textTransform:'uppercase',letterSpacing:'.5px',borderBottom:'1px solid #f0f2ff',background:'#f8f9ff'}}>Розница</th>
-              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap',fontSize:11,color:'#667eea',fontWeight:600,textTransform:'uppercase',letterSpacing:'.5px',borderBottom:'1px solid #f0f2ff',background:'#f8f9ff'}}>Опт</th>
-              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap',fontSize:11,color:'#667eea',fontWeight:600,textTransform:'uppercase',letterSpacing:'.5px',borderBottom:'1px solid #f0f2ff',background:'#f8f9ff'}}>{t('power')}</th>
-              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap',fontSize:11,color:'#667eea',fontWeight:600,textTransform:'uppercase',letterSpacing:'.5px',borderBottom:'1px solid #f0f2ff',background:'#f8f9ff'}}>{t('fuel')}</th>
-              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap',fontSize:11,color:'#667eea',fontWeight:600,textTransform:'uppercase',letterSpacing:'.5px',borderBottom:'1px solid #f0f2ff',background:'#f8f9ff'}}>{t('wheels')}</th>
-              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap',fontSize:11,color:'#667eea',fontWeight:600,textTransform:'uppercase',letterSpacing:'.5px',borderBottom:'1px solid #f0f2ff',background:'#f8f9ff'}}></th>
+              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap',fontSize:13,color:'#667eea',fontWeight:600,textTransform:'uppercase',letterSpacing:'.5px',borderBottom:'1px solid #f0f2ff',background:'#f8f9ff'}}>{t('nameLabel')}</th>
+              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap',fontSize:13,color:'#667eea',fontWeight:600,textTransform:'uppercase',letterSpacing:'.5px',borderBottom:'1px solid #f0f2ff',background:'#f8f9ff'}}>Розница</th>
+              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap',fontSize:13,color:'#667eea',fontWeight:600,textTransform:'uppercase',letterSpacing:'.5px',borderBottom:'1px solid #f0f2ff',background:'#f8f9ff'}}>Опт</th>
+              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap',fontSize:13,color:'#667eea',fontWeight:600,textTransform:'uppercase',letterSpacing:'.5px',borderBottom:'1px solid #f0f2ff',background:'#f8f9ff'}}>{t('power')}</th>
+              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap',fontSize:13,color:'#667eea',fontWeight:600,textTransform:'uppercase',letterSpacing:'.5px',borderBottom:'1px solid #f0f2ff',background:'#f8f9ff'}}>{t('fuel')}</th>
+              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap',fontSize:13,color:'#667eea',fontWeight:600,textTransform:'uppercase',letterSpacing:'.5px',borderBottom:'1px solid #f0f2ff',background:'#f8f9ff'}}>{t('wheels')}</th>
+              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap',fontSize:13,color:'#667eea',fontWeight:600,textTransform:'uppercase',letterSpacing:'.5px',borderBottom:'1px solid #f0f2ff',background:'#f8f9ff'}}></th>
             </tr></thead>
             <tbody>
               {products.map(p => (
@@ -714,7 +714,7 @@ export default function Admin() {
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{p.power||'—'}</td>
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{p.fuel||'—'}</td>
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{p.wheels||'—'}</td>
-                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}><button style={{background:'linear-gradient(135deg,#667eea,#764ba2)',color:'#fff',padding:'5px 14px',borderRadius:8,fontSize:11,border:'none',cursor:'pointer',fontWeight:500}} onClick={(e) => { e.stopPropagation(); deleteProduct(p.id) }}>{t('delete')}</button></td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}><button style={{background:'linear-gradient(135deg,#667eea,#764ba2)',color:'#fff',padding:'5px 14px',borderRadius:8,fontSize:13,border:'none',cursor:'pointer',fontWeight:500}} onClick={(e) => { e.stopPropagation(); deleteProduct(p.id) }}>{t('delete')}</button></td>
                 </tr>
               ))}
               {products.length===0 && <tr><td colSpan={7} style={{textAlign:'center',color:'#666',padding:40}}>{t('noProducts')}</td></tr>}
@@ -903,7 +903,7 @@ export default function Admin() {
                   <td>
                     <div className="admin-actions">
                       {o.status==='new' && <button className="admin-btn admin-btn-accept" onClick={() => updateStatus(o.id,'accepted')}>Взять в работу</button>}
-                      {o.status==='accepted' && <button className="admin-btn admin-btn-ship" onClick={() => openShipFromOrder(o, i+1)} style={{background:"linear-gradient(135deg,#667eea,#764ba2)",color:"#fff",padding:"5px 12px",borderRadius:8,fontSize:11,border:"none",cursor:"pointer",fontWeight:500}}>Отгрузить</button>}
+                      {o.status==='accepted' && <button className="admin-btn admin-btn-ship" onClick={() => openShipFromOrder(o, i+1)} style={{background:"linear-gradient(135deg,#667eea,#764ba2)",color:"#fff",padding:"5px 12px",borderRadius:8,fontSize:13,border:"none",cursor:"pointer",fontWeight:500}}>Отгрузить</button>}
                     </div>
                   </td>
                 </tr>
