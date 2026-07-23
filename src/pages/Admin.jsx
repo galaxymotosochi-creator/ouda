@@ -809,7 +809,7 @@ export default function Admin() {
               </>
               )}
               <input id="stock-date" name="date" type="date" className="full-width" defaultValue={new Date().toISOString().slice(0,10)} />
-              <button type="submit">{t('addStock')}</button>
+              <button type="submit" className="v2-btn v2-btn-primary">{t('addStock')}</button>
             </div>
           </form>
           <div className="stock-list">
