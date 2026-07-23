@@ -152,7 +152,7 @@ export default function Catalog() {
               <img src="/manager-sapa.jpg" alt="MAX" className="glass-avatar" />
               <span>MAX</span>
             </a>
-            <a href="https://t.me/ouda_scooters" target="_blank" className="glass-btn">
+            <a href="https://t.me/iuliiashimanskaia" target="_blank" className="glass-btn">
               <img src="/manager-tg.jpg" alt="Telegram" className="glass-avatar" />
               <span>Telegram</span>
             </a>
