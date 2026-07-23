@@ -15,12 +15,12 @@ function getItemPrice(item, allItems) {
 
 export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRemove, onAddAnother, api, onSuccess }) {
   const { t } = useLang()
-  const [form, setForm] = useState({ name: '', city: '', phone: '', transport: '', payment: 'cash' })
+  const [form, setForm] = useState({ name: '', city: '', phone: '+7', transport: '', payment: 'cash' })
   const [sending, setSending] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.name || !form.phone || !form.city || !form.transport) return
+    if (!form.name || !form.phone || form.phone === '+7' || !form.city || !form.transport) return
     setSending(true)
     try {
       const effectiveTotal = items.reduce((s, i) => s + getItemPrice(i, items) * i.qty, 0)
@@ -111,7 +111,11 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
             <input placeholder="Транспортная компания и адрес терминала *" value={form.transport}
               onChange={e => setForm({ ...form, transport: e.target.value })} required />
             <input placeholder="Номер телефона *" type="tel" value={form.phone}
-              onChange={e => setForm({ ...form, phone: e.target.value })} required />
+              onChange={e => {
+                const v = e.target.value.replace(/[^0-9]/g, '')
+                const cleaned = v.startsWith('7') ? '+7' + v.slice(1) : '+7' + v
+                setForm({ ...form, phone: cleaned })
+              }} required />
             <select value={form.payment}
               onChange={e => setForm({ ...form, payment: e.target.value })}>
               <option value="cash">{t('cash')}</option>
