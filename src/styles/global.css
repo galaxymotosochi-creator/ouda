@@ -759,7 +759,8 @@ img { max-width: 100%; display: block; }
 
 
 /* V2 Products Tab */
-.v2-products-section { background: #f8f9ff; padding: 24px; }
+.v2-products-section { background: #f8f9ff; padding: 0; }
+.v2-form-body { padding: 24px; }
 .v2-products-section .v2-btn { padding: 10px 24px; border-radius: 12px; font-size: 13px; cursor: pointer; border: none; font-weight: 500; background: transparent; justify-self: auto; grid-column: auto; }
 .v2-products-section .v2-btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; }
 .v2-products-section .v2-btn-primary:hover { opacity: 0.9; }
