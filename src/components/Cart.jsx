@@ -57,7 +57,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
             <div className="cart-empty">{t('cartEmpty')}</div>
           ) : (
             items.map(item => (
-              <div key={item.id} className="cart-item">
+              <div key={item.cartKey} className="cart-item">
                 <img className="cart-item-img" src={item.images?.[0] || item.image || '/placeholder.svg'} alt={item.name}
                   onError={(e) => { e.target.src = '/placeholder.svg' }} />
                 <div className="cart-item-info">
