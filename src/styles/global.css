@@ -398,6 +398,7 @@ img { max-width: 100%; display: block; }
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.3px;
+  align-items: center;
 }
 .ship-table-row {
   display: grid;
