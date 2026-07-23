@@ -554,8 +554,6 @@ export default function Admin() {
 
         {/* === PRODUCTS TAB === */}
         {tab === 'products' && (<>
-          <div className="v2-products-section">
-          <div className="v2-card v2-card-form">
           <form className="admin-add-form" onSubmit={addProduct}>
             <h3>{t('addProduct')}</h3>
             <div className="form-grid">
@@ -635,8 +633,6 @@ export default function Admin() {
               <button type="submit">{t('addProduct')}</button>
             </div>
           </form>
-          </div>
-          <div className="v2-card v2-card-table">
           <div style={{margin:'0 24px 24px'}}>
           <div style={{overflowX:'auto',borderRadius:'var(--radius)'}}>
           <table className="admin-table" style={{margin:0}}>
@@ -658,8 +654,6 @@ export default function Admin() {
               {products.length===0 && <tr><td colSpan={7} style={{textAlign:'center',color:'#666',padding:40}}>{t('noProducts')}</td></tr>}
             </tbody>
           </table>
-          </div>
-          </div>
           </div>
           </div>
         </>)}
