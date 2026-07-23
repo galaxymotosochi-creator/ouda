@@ -1267,18 +1267,18 @@ export default function Admin() {
 
               <div className="invoice-summary">
                 <div className="invoice-total">
-                  <span>{t('totalDue')}:</span>
+                  <span>{t('totalDue')}: </span>
                   <span className="invoice-total-amount">{(invoiceShip.total||0).toLocaleString('ru-RU')} ₽</span>
                 </div>
                 {invoiceShip.prepaid > 0 && (
                   <div className="invoice-paid">
-                    <span>{t('prepaid')}:</span>
+                    <span>{t('prepaid')}: </span>
                     <span>{(invoiceShip.prepaid||0).toLocaleString('ru-RU')} ₽</span>
                   </div>
                 )}
                 {invoiceShip.paid > 0 && (
                   <div className="invoice-paid">
-                    <span>{t('fullPayment')}:</span>
+                    <span>{t('fullPayment')}: </span>
                     <span>{(invoiceShip.paid||0).toLocaleString('ru-RU')} ₽</span>
                   </div>
                 )}
