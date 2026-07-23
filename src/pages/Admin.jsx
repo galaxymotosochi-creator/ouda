@@ -1009,71 +1009,115 @@ export default function Admin() {
               <h3>Редактировать товар</h3>
               <button className="modal-close" onClick={closeEditProduct} style={{color:'#fff'}}>×</button>
             </div>
-            <div className="admin-add-form" style={{border:'none',boxShadow:'none',margin:0}}>
-            <div className="form-grid">
-                <input className="full-width" placeholder={lang === 'zh' ? '名称 *' : 'Название *'} value={lang === 'zh' ? (editForm.name_zh || editForm.name_ru) : (editForm.name_ru || editForm.name_zh)} onChange={e => {
-                  const val = e.target.value
-                  if (lang === 'zh') { setEditForm(prev => ({...prev, name_zh: val})) }
-                  else { setEditForm(prev => ({...prev, name_ru: val})) }
-                }} required />
-                <input placeholder="Розничная цена *" type="number" value={editForm.price} onChange={e => setEditForm({...editForm, price: e.target.value})} required />
-                <input placeholder="Оптовая цена" type="number" value={editForm.wholesale_price} onChange={e => setEditForm({...editForm, wholesale_price: e.target.value})} />
-                <select value={editForm.power} onChange={e => setEditForm({...editForm, power: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
-                  <option value="">{t('power')}</option>
-                  <option value="125">125</option>
-                  <option value="150">150</option>
-                  <option value="180">180</option>
-                </select>
-                <select value={editForm.fuel} onChange={e => setEditForm({...editForm, fuel: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
-                  <option value="">{t('fuel')}</option>
-                  <option value="Карбюратор">{t('carburetor')}</option>
-                  <option value="Инжектор">{t('injector')}</option>
-                </select>
-                <select value={editForm.cooling} onChange={e => setEditForm({...editForm, cooling: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
-                  <option value="">{t('cooling')}</option>
-                  <option value="Воздушное">{t('airCooled')}</option>
-                  <option value="Жидкостное">{t('liquidCooled')}</option>
-                </select>
-                <select value={editForm.max_speed} onChange={e => setEditForm({...editForm, max_speed: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
-                  <option value="">{t('max_speed')}</option>
-                  <option value="95">95</option>
-                  <option value="100">100</option>
-                  <option value="105">105</option>
-                  <option value="110">110</option>
-                </select>
-                <select value={editForm.wheels} onChange={e => setEditForm({...editForm, wheels: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
-                  <option value="">{t('wheels')}</option>
-                  <option value="10/10">10/10</option>
-                  <option value="12/12">12/12</option>
-                  <option value="13/13">13/13</option>
-                  <option value="13/14">13/14</option>
-                  <option value="14/14">14/14</option>
-                </select>
-                <div className="full-width" style={{marginBottom:12}}>
-                  <label style={{display:'inline-block',padding:'8px 16px',background:'var(--bg-hover)',borderRadius:50,cursor:'pointer',fontSize:13,border:'1px solid #999'}}>
+            <div style={{padding:24,background:'#f8f9ff',display:'flex',flexDirection:'column',gap:16}}>
+
+              <div className="v2-st">Основное</div>
+              <div className="v2-card">
+                <div className="v2-field full-w">
+                  <label>Название *</label>
+                  <input className="v2-input" placeholder={lang === 'zh' ? '名称 *' : 'Название *'} value={lang === 'zh' ? (editForm.name_zh || editForm.name_ru) : (editForm.name_ru || editForm.name_zh)} onChange={e => {
+                    const val = e.target.value
+                    if (lang === 'zh') { setEditForm(prev => ({...prev, name_zh: val})) }
+                    else { setEditForm(prev => ({...prev, name_ru: val})) }
+                  }} required />
+                </div>
+                <div className="v2-row2">
+                  <div className="v2-field half">
+                    <label>Розничная цена *</label>
+                    <input className="v2-input" type="number" value={editForm.price} onChange={e => setEditForm({...editForm, price: e.target.value})} required />
+                  </div>
+                  <div className="v2-field half">
+                    <label>Оптовая цена</label>
+                    <input className="v2-input" type="number" value={editForm.wholesale_price} onChange={e => setEditForm({...editForm, wholesale_price: e.target.value})} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="v2-st">Характеристики</div>
+              <div className="v2-card">
+                <div className="v2-row2">
+                  <div className="v2-field half">
+                    <label>{t('power')}</label>
+                    <select className="v2-input" value={editForm.power} onChange={e => setEditForm({...editForm, power: e.target.value})}>
+                      <option value="">{t('power')}</option>
+                      <option value="125">125</option>
+                      <option value="150">150</option>
+                      <option value="180">180</option>
+                    </select>
+                  </div>
+                  <div className="v2-field half">
+                    <label>{t('fuel')}</label>
+                    <select className="v2-input" value={editForm.fuel} onChange={e => setEditForm({...editForm, fuel: e.target.value})}>
+                      <option value="">{t('fuel')}</option>
+                      <option value="Карбюратор">{t('carburetor')}</option>
+                      <option value="Инжектор">{t('injector')}</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="v2-row3">
+                  <div className="v2-field third">
+                    <label>{t('cooling')}</label>
+                    <select className="v2-input" value={editForm.cooling} onChange={e => setEditForm({...editForm, cooling: e.target.value})}>
+                      <option value="">{t('cooling')}</option>
+                      <option value="Воздушное">{t('airCooled')}</option>
+                      <option value="Жидкостное">{t('liquidCooled')}</option>
+                    </select>
+                  </div>
+                  <div className="v2-field third">
+                    <label>{t('max_speed')}</label>
+                    <select className="v2-input" value={editForm.max_speed} onChange={e => setEditForm({...editForm, max_speed: e.target.value})}>
+                      <option value="">{t('max_speed')}</option>
+                      <option value="95">95</option>
+                      <option value="100">100</option>
+                      <option value="105">105</option>
+                      <option value="110">110</option>
+                    </select>
+                  </div>
+                  <div className="v2-field third">
+                    <label>{t('wheels')}</label>
+                    <select className="v2-input" value={editForm.wheels} onChange={e => setEditForm({...editForm, wheels: e.target.value})}>
+                      <option value="">{t('wheels')}</option>
+                      <option value="10/10">10/10</option>
+                      <option value="12/12">12/12</option>
+                      <option value="13/13">13/13</option>
+                      <option value="13/14">13/14</option>
+                      <option value="14/14">14/14</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="v2-field full-w">
+                  <label>Описание</label>
+                  <textarea className="v2-input" style={{resize:'vertical',minHeight:60}} placeholder={lang === 'zh' ? '描述' : 'Описание'} value={editForm.description} onChange={e => setEditForm({...editForm, description: e.target.value})} />
+                </div>
+              </div>
+
+              <div className="v2-st">Фото</div>
+              <div className="v2-card">
+                <div style={{border:'2px dashed #e0e7ff',borderRadius:12,padding:30,textAlign:'center',color:'#667eea',fontSize:13}}>
+                  <label style={{cursor:'pointer'}}>
                     Загрузить фото
                     <input type="file" accept="image/*" multiple onChange={handleEditPhotos} hidden />
                   </label>
                   {editPhotos.length > 0 && (
-                    <div className="photo-previews" style={{marginTop:8}}>
+                    <div className="photo-previews" style={{display:'flex',gap:10,marginTop:12,flexWrap:'wrap',justifyContent:'center'}}>
                       {editPhotos.map((p, i) => (
-                        <div key={i} className="photo-preview">
-                          <img src={p.url} alt="" />
-                          <button type="button" className="photo-remove" onClick={() => removeEditPhoto(i)}>×</button>
-                          <div className="photo-order">{i + 1}</div>
+                        <div key={i} className="photo-preview" style={{width:80,height:80,borderRadius:12,overflow:'hidden',position:'relative'}}>
+                          <img src={p.url} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}} />
+                          <button type="button" className="photo-remove" onClick={() => removeEditPhoto(i)}>&times;</button>
+                          <div className="photo-order" style={{position:'absolute',bottom:2,left:2,background:'rgba(0,0,0,0.5)',color:'#fff',fontSize:10,padding:'1px 6px',borderRadius:4}}>{i + 1}</div>
                         </div>
                       ))}
                     </div>
                   )}
                 </div>
-                <div className="full-width"><textarea placeholder={lang === 'zh' ? '描述' : 'Описание'} value={editForm.description} onChange={e => setEditForm({...editForm, description: e.target.value})} /></div>
               </div>
+
+            </div>
             <div className="modal-actions" style={{paddingTop:16}}>
               <button type="button" className="v2-btn v2-btn-cancel" onClick={closeEditProduct}>Отмена</button>
               <button type="button" className="v2-btn v2-btn-primary" onClick={updateProduct}>Сохранить</button>
             </div>
             </div>
-          </div>
         </div>
       )}
 
