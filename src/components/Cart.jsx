@@ -73,7 +73,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
                           {(Number(item.price) * item.qty).toLocaleString('ru-RU')}
                         </span>
                         {(getItemPrice(item, items) * item.qty).toLocaleString('ru-RU')} {t('rub')}
-                        <span style={{display:'block',fontSize:11,color:'#22c55e',fontWeight:500}}>Оптовая цена</span>
+                        <span style={{display:'block',fontSize:11,color:'#555',fontWeight:500}}>Оптовая цена</span>
                       </>
                     ) : (
                       <>{getItemPrice(item, items).toLocaleString('ru-RU')} {t('rub')} / шт</>
@@ -97,7 +97,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
                 const totalQty = items.filter(x => x.id === i.id).reduce((s, x) => s + x.qty, 0)
                 return totalQty >= 2 && i.wholesale_price && Number(i.wholesale_price) > 0
               }) && (
-                <span style={{fontSize:11,color:'#22c55e',display:'block',marginBottom:6}}>✓ Применена оптовая цена (от 2 шт)</span>
+                <span style={{fontSize:11,color:'#555',display:'block',marginBottom:6}}>✓ Применена оптовая цена (от 2 шт)</span>
               )}
             </div>
             <div className="cart-total">
