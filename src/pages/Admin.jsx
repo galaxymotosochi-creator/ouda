@@ -915,7 +915,6 @@ export default function Admin() {
           </div>
           </div>
           </div>
-          </div>
         </>)}
 
         {/* === SHIPMENTS TAB === */}
@@ -923,8 +922,7 @@ export default function Admin() {
           <div style={{margin:'0 24px 16px'}}>
             <button style={{padding:'10px 24px',fontSize:13,fontWeight:500,background:'var(--bg-hover)',color:'var(--text)',border:'1px solid #999',borderRadius:50,cursor:'pointer',margin:'0 0 0 auto'}} onClick={openShipManual}>Новая отгрузка</button>
           </div>
-          <div className="v2-products-section">
-          <div className="v2-card" style={{overflow:'hidden',padding:0}}>
+          <div style={{margin:'0 24px 24px'}}>
           <div style={{overflowX:'auto',borderRadius:'var(--radius)'}}>
           <table className="admin-table" style={{margin:0}}>
             <thead><tr>
