@@ -231,22 +231,19 @@ export default function Catalog() {
                   return (
                     <div key={name} className="color-picker-item">
                       <span className="color-picker-name">{name}</span>
-                      <div className="cart-item-qty" style={{marginLeft:'auto'}}>
-                        <button onClick={() => handleColorQty(name, -1)}>−</button>
-                        <span>{qty}</span>
-                        <button onClick={() => handleColorQty(name, 1)}
-                          disabled={qty >= remaining}>+</button>
+                      <div className="color-picker-controls">
+                        <div className="cart-item-qty">
+                          <button onClick={() => handleColorQty(name, -1)}>−</button>
+                          <span>{qty}</span>
+                          <button onClick={() => handleColorQty(name, 1)}
+                            disabled={qty >= remaining}>+</button>
+                        </div>
+                        {remaining > 0 ? (
+                          <span className="color-picker-remain">можно {remaining} шт</span>
+                        ) : (
+                          <span className="color-picker-remain">всё в корзине</span>
+                        )}
                       </div>
-                      {remaining > 0 && (
-                        <span style={{fontSize:11,color:'#999',marginLeft:8}}>
-                          можно {remaining} шт
-                        </span>
-                      )}
-                      {remaining <= 0 && (
-                        <span style={{fontSize:11,color:'#999',marginLeft:8}}>
-                          всё в корзине
-                        </span>
-                      )}
                     </div>
                   )
                 })}
