@@ -522,16 +522,14 @@ img { max-width: 100%; display: block; }
 
 /* Print styles */
 @media print {
-  body { background: #fff !important; }
-  body > *:not(.modal-overlay) { display: none !important; }
-  .modal-overlay { display: block !important; position: static !important; background: none !important; padding: 0 !important; }
-  .modal { box-shadow: none !important; max-height: none !important; border-radius: 0 !important; border: none !important; }
-  .modal-header { display: flex !important; }
-  .modal-header h3 { display: none !important; }
-  .modal-header > :not(h3):not(.invoice-modal-title) { display: none !important; }
+  #root { background: #fff; }
+  .admin-header, .admin-tabs, .v2-products-section, .v2-section-title, .v2-card, .v2-st { display: none !important; }
+  .modal-overlay { position: static !important; background: none !important; padding: 0 !important; display: block !important; }
+  .modal-overlay .modal { box-shadow: none !important; max-height: none !important; border-radius: 0 !important; border: none !important; }
+  .modal-header h3 { display: none; }
+  .modal-header > :not(h3) { display: none !important; }
   .modal-body { padding: 0 !important; }
-  .modal-wide { max-width: 100% !important; }
-  .invoice-body { padding: 20px !important; }
+  .invoice-body { padding: 20px !important; display: block !important; }
   .invoice-table td, .invoice-table th { padding: 8px 10px !important; }
   @page { margin: 15mm; }
 }
