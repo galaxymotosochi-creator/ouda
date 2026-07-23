@@ -72,6 +72,20 @@ export default function ProductCard({ product, onAdd, inCart, cartQtys }) {
                   )
                 })}
               </div>
+              {product.incoming && product.incoming.some(t => Object.keys(t.colors || {}).length > 0) && (
+                <div className="incoming-section">
+                  <span className="spec-label" style={{display:'block',marginBottom:4}}>В пути:</span>
+                  {product.incoming.filter(t => Object.keys(t.colors || {}).length > 0).map((t, idx) => (
+                    <div key={idx} className="incoming-row">
+                      {Object.entries(t.colors).filter(([,qty]) => qty > 0).map(([color, qty]) => (
+                        <span key={color} className="incoming-item">
+                          {translateColor(color)} {qty} шт{t.date ? ` (ориент. ${new Date(t.date).toLocaleDateString('ru-RU', {day:'2-digit',month:'2-digit',year:'2-digit'})})` : ''}
+                        </span>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              )}
             </>
           ) : (
             <span style={{visibility:'hidden'}}> </span>

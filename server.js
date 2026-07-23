@@ -115,9 +115,14 @@ function getEnrichedProducts() {
         if (!(color in colorsAvailable)) colorsAvailable[color] = 0
       })
     })
+    const incoming = transit.map(t => ({
+      date: t.expected_date || null,
+      colors: t.colors || {},
+    }))
     return {
       ...p, in_stock: received, expected_qty: totalTransit || null,
       expected_date: earliestTransit?.expected_date || null, available_colors: colorsAvailable,
+      incoming,
     }
   })
 }
