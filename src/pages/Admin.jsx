@@ -520,7 +520,7 @@ export default function Admin() {
     setTimeout(loadData, 300)
   }
 
-  const statusLabel = (s) => { const map = { new: t('new'), accepted: t('accepted'), done: t('completed') }; return map[s] || s }
+  const statusLabel = (s) => { const map = { new: t('new'), accepted: 'В работе', done: t('completed') }; return map[s] || s }
   const statusClass = (s) => { const map = { new: 'status-new', accepted: 'status-accepted', done: 'status-done' }; return map[s] || '' }
   const logout = () => { sessionStorage.removeItem('ouda_admin'); navigate('/login') }
 
@@ -902,9 +902,8 @@ export default function Admin() {
                   <td><span className={`status ${statusClass(o.status)}`}>{statusLabel(o.status)}</span></td>
                   <td>
                     <div className="admin-actions">
-                      {o.status==='new' && <button className="admin-btn admin-btn-accept" onClick={() => updateStatus(o.id,'accepted')}>{t('accept')}</button>}
-                      {o.status!=='done' && <button className="admin-btn admin-btn-done" onClick={() => updateStatus(o.id,'done')}>{t('done')}</button>}
-                      <button className="admin-btn admin-btn-ship" onClick={() => openShipFromOrder(o, i+1)}>Отгрузить</button>
+                      {o.status==='new' && <button className="admin-btn admin-btn-accept" onClick={() => updateStatus(o.id,'accepted')}>Взять в работу</button>}
+                      {o.status==='accepted' && <button className="admin-btn admin-btn-ship" onClick={() => openShipFromOrder(o, i+1)}>Отгрузить</button>}
                     </div>
                   </td>
                 </tr>
