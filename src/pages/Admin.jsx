@@ -1019,15 +1019,28 @@ export default function Admin() {
                 {shipForm.items.map((item, idx) => (
                   <div key={idx} className="v2-item-card">
                     <div className="v2-item-info">
-                      <div className="v2-item-name">{item.product_name || '—'}</div>
-                      <div className="v2-item-extra">
-                        <select className="v2-select-color" value={item.color} onChange={e => updateShipItem(idx, 'color', e.target.value)}>
-                          <option value="">Цвет</option>
-                          {(products.find(p => p.id === item.product_id)?.available_colors ? Object.entries(products.find(p => p.id === item.product_id).available_colors).filter(([,qty]) => qty > 0).map(([color, qty]) => (
-                            <option key={color} value={color}>{color}</option>
-                          )) : [])}
-                        </select>
-                      </div>
+                      {item.product_id > 0 ? (
+                        <>
+                          <div className="v2-item-name">{item.product_name}</div>
+                          <div className="v2-item-extra">
+                            <select className="v2-select-color" value={item.color} onChange={e => updateShipItem(idx, 'color', e.target.value)}>
+                              <option value="">Цвет</option>
+                              {(products.find(p => p.id === item.product_id)?.available_colors ? Object.entries(products.find(p => p.id === item.product_id).available_colors).filter(([,qty]) => qty > 0).map(([color, qty]) => (
+                                <option key={color} value={color}>{color}</option>
+                              )) : [])}
+                            </select>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="v2-item-name" style={{flex:1}}>
+                          <select className="v2-select-product" value={item.product_id} onChange={e => onProductSelect(idx, e.target.value)}>
+                            <option value="0">— Выберите товар —</option>
+                            {products.map(p => (
+                              <option key={p.id} value={p.id}>{p.name} — {(p.price||0).toLocaleString('ru-RU')} ₽</option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
                     </div>
                     <div className="v2-item-controls">
                       <input className="v2-input-qty" type="number" min="0" value={item.qty}
@@ -1038,7 +1051,7 @@ export default function Admin() {
                   </div>
                 ))}
               </div>
-              {!shipOrder && <button className="v2-add-btn" onClick={addShipItem}>+ Добавить товар</button>}
+              <button className="v2-add-btn" onClick={addShipItem}>+ Добавить товар</button>
 
               <div className="v2-section-title" style={{marginTop:24}}>Оплата</div>
               <div className="v2-payment">

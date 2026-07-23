@@ -409,6 +409,7 @@ img { max-width: 100%; display: block; }
 .v2-item-name { font-size: 13px; font-weight: 500; color: #333; }
 .v2-item-extra { display: flex; gap: 8px; }
 .v2-select-color { border: 1px solid #e0e7ff; border-radius: 6px; padding: 3px 6px; font-size: 12px; background: #fafafe; color: #555; }
+.v2-select-product { width: 100%; border: 1px solid #e0e7ff; border-radius: 6px; padding: 4px 8px; font-size: 13px; background: #fafafe; }
 .v2-item-controls { display: flex; align-items: center; gap: 12px; }
 .v2-input-qty { width: 40px; text-align: center; border: 1px solid #e0e7ff; border-radius: 6px; padding: 4px 6px; font-size: 13px; background: #fafafe; }
 .v2-input-qty:focus { border-color: #667eea; outline: none; }
