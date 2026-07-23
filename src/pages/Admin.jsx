@@ -918,8 +918,10 @@ export default function Admin() {
 
         {/* === SHIPMENTS TAB === */}
         {tab === 'shipments' && (<>
-          <div style={{margin:'0 24px 16px'}}>
-            <button style={{padding:'10px 24px',fontSize:13,fontWeight:500,background:'var(--bg-hover)',color:'var(--text)',border:'1px solid #999',borderRadius:50,cursor:'pointer',margin:'0 0 0 auto'}} onClick={openShipManual}>Новая отгрузка</button>
+          <div className="v2-products-section">
+          <div className="v2-card" style={{overflow:'hidden',padding:0}}>
+          <div style={{marginBottom:16}}>
+            <button onClick={openShipManual} style={{background:'linear-gradient(135deg,#667eea,#764ba2)',color:'#fff',padding:'10px 24px',borderRadius:12,fontSize:13,fontWeight:500,border:'none',cursor:'pointer'}}>Новая отгрузка</button>
           </div>
           <div style={{margin:'0 24px 24px'}}>
           <div style={{overflowX:'auto',borderRadius:'var(--radius)'}}>
@@ -930,21 +932,22 @@ export default function Admin() {
             </tr></thead>
             <tbody>
               {shipments.map(s => (
-                <tr key={s.id}>
-                  <td><strong>{s.number}</strong></td>
-                  <td style={{fontSize:13,color:'#999'}}>{formatDate(s.created_at)}</td>
-                  <td>{s.client?.name || '—'}</td>
-                  <td>{s.client?.phone || '—'}</td>
-                  <td style={{fontSize:13}}>
+                <tr key={s.id} style={{borderTop:'1px solid #f0f2ff',transition:'background .15s'}}
+                  onMouseOver={e => e.currentTarget.style.background='#fafbff'} onMouseOut={e => e.currentTarget.style.background=''}>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap',fontWeight:500}}>{s.number}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap',color:'#999',fontSize:12}}>{formatDate(s.created_at)}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{s.client?.name || '—'}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{s.client?.phone || '—'}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap',fontSize:12}}>
                     {(s.items || []).map(item => `${item.product_name}${item.color ? ' ('+item.color+')' : ''} ×${item.qty}`).join(', ')}
                   </td>
-                  <td><strong>{(s.total||0).toLocaleString('ru-RU')} ₽</strong></td>
-                  <td style={{fontSize:13}}>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap',fontWeight:600}}>{(s.total||0).toLocaleString('ru-RU')} ₽</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap',fontSize:13}}>
                     {s.prepaid > 0 && <div>{t('prepaid')}: {(s.prepaid||0).toLocaleString('ru-RU')} ₽</div>}
                     {s.paid > 0 && <div>{t('fullPayment')}: {(s.paid||0).toLocaleString('ru-RU')} ₽</div>}
                     {!s.prepaid && !s.paid && <span style={{color:'#999'}}>—</span>}
                   </td>
-                  <td><span className={`status ${statusShipClass(s.status)}`}>{statusShipLabel(s.status)}</span></td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap',fontSize:13}}>{statusShipLabel(s.status)}</td>
                   <td>
                     <div className="admin-actions">
                       {s.status === 'оформлено' && <>
@@ -962,6 +965,8 @@ export default function Admin() {
               {shipments.length===0 && <tr><td colSpan={9} style={{textAlign:'center',color:'#666',padding:40}}>{t('noShipments')}</td></tr>}
             </tbody>
           </table>
+          </div>
+          </div>
           </div>
           </div>
         </>)}
