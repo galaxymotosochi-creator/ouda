@@ -97,7 +97,13 @@ export default function Catalog() {
   }, [])
 
   const totalItems = cart.reduce((s, i) => s + i.qty, 0)
-  const totalSum = cart.reduce((s, i) => s + i.price * i.qty, 0)
+  const getItemPrice = (item) => {
+    if (item.qty >= 2 && item.wholesale_price && Number(item.wholesale_price) > 0) {
+      return Number(item.wholesale_price)
+    }
+    return Number(item.price) || 0
+  }
+  const totalSum = cart.reduce((s, i) => s + getItemPrice(i) * i.qty, 0)
 
   const showToast = (msg) => {
     setToast(msg)

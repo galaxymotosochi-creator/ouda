@@ -1,6 +1,14 @@
 import { useState } from 'react'
 import { useLang } from '../i18n'
 
+function getItemPrice(item) {
+  // 1 шт → розничная цена, 2+ шт → оптовая (если указана)
+  if (item.qty >= 2 && item.wholesale_price && Number(item.wholesale_price) > 0) {
+    return Number(item.wholesale_price)
+  }
+  return Number(item.price) || 0
+}
+
 export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRemove, onAddAnother, api, onSuccess }) {
   const { t } = useLang()
   const [form, setForm] = useState({ name: '', city: '', phone: '', payment: 'cash' })
@@ -11,22 +19,24 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
     if (!form.name || !form.phone) return
     setSending(true)
     try {
+      const effectiveTotal = items.reduce((s, i) => s + getItemPrice(i) * i.qty, 0)
       await fetch(`${api}/api/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...form,
-          items: items.map(i => ({ product_id: i.id, name: i.name, price: i.price, qty: i.qty, color: i.selectedColor || '' })),
-          total: totalSum,
+          items: items.map(i => ({ product_id: i.id, name: i.name, price: getItemPrice(i), qty: i.qty, color: i.selectedColor || '' })),
+          total: effectiveTotal,
         }),
       })
       onSuccess()
     } catch {
+      const effectiveTotal = items.reduce((s, i) => s + getItemPrice(i) * i.qty, 0)
       const localOrders = JSON.parse(localStorage.getItem('ouda_orders') || '[]')
       localOrders.push({
         id: Date.now(), ...form,
-        items: items.map(i => ({ product_id: i.id, name: i.name, price: i.price, qty: i.qty, color: i.selectedColor || '' })),
-        total: totalSum, status: 'new', created_at: new Date().toISOString(),
+        items: items.map(i => ({ product_id: i.id, name: i.name, price: getItemPrice(i), qty: i.qty, color: i.selectedColor || '' })),
+        total: effectiveTotal, status: 'new', created_at: new Date().toISOString(),
       })
       localStorage.setItem('ouda_orders', JSON.stringify(localOrders))
       onSuccess()
@@ -52,7 +62,19 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
                   onError={(e) => { e.target.src = '/placeholder.svg' }} />
                 <div className="cart-item-info">
                   <div className="cart-item-name">{item.name}{item.selectedColor ? ` — ${item.selectedColor}` : ''}</div>
-                  <div className="cart-item-price">{(item.price * item.qty).toLocaleString('ru-RU')} {t('rub')}</div>
+                  <div className="cart-item-price">
+                    {item.qty >= 2 && item.wholesale_price && Number(item.wholesale_price) > 0 ? (
+                      <>
+                        <span style={{textDecoration:'line-through',color:'#999',marginRight:6,fontSize:12}}>
+                          {(Number(item.price) * item.qty).toLocaleString('ru-RU')}
+                        </span>
+                        {(getItemPrice(item) * item.qty).toLocaleString('ru-RU')} {t('rub')}
+                        <span style={{display:'block',fontSize:11,color:'#22c55e',fontWeight:500}}>Оптовая цена</span>
+                      </>
+                    ) : (
+                      <>{getItemPrice(item).toLocaleString('ru-RU')} {t('rub')} / шт</>
+                    )}
+                  </div>
                   <div className="cart-item-qty">
                     <button onClick={() => onUpdateQty(item.cartKey, -1)}>−</button>
                     <span>{item.qty}</span>
@@ -66,9 +88,14 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
         </div>
         {items.length > 0 && (
           <form className="cart-form" onSubmit={handleSubmit}>
+            <div className="cart-rule-hint">
+              {items.some(i => i.qty >= 2 && i.wholesale_price && Number(i.wholesale_price) > 0) && (
+                <span style={{fontSize:11,color:'#22c55e',display:'block',marginBottom:6}}>✓ Применена оптовая цена (от 2 шт)</span>
+              )}
+            </div>
             <div className="cart-total">
               <span>{t('total')}</span>
-              <span>{totalSum.toLocaleString('ru-RU')} {t('rub')}</span>
+              <span>{items.reduce((s, i) => s + getItemPrice(i) * i.qty, 0).toLocaleString('ru-RU')} {t('rub')}</span>
             </div>
             <input placeholder={t('name')} value={form.name}
               onChange={e => setForm({ ...form, name: e.target.value })} required />
