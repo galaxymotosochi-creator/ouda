@@ -932,8 +932,8 @@ export default function Admin() {
                   <td>
                     <div className="admin-actions">
                       {o.status==='new' && <button className="admin-btn admin-btn-accept" onClick={() => updateStatus(o.id,'accepted')}>Взять в работу</button>}
-                      {o.status==='accepted' && <button className="admin-btn admin-btn-ship" onClick={() => openShipFromOrder(o, i+1)} style={{background:"linear-gradient(135deg,#667eea,#764ba2)",color:"#fff",padding:"5px 12px",borderRadius:8,fontSize:13,border:"none",cursor:"pointer",fontWeight:500}}>Отгрузить</button>
-                      <button className="admin-btn admin-btn-invoice" onClick={() => showOrderInvoice(o, i+1)} style={{background:"none",color:"#667eea",padding:"5px 10px",borderRadius:8,fontSize:12,border:"1px solid #667eea",cursor:"pointer"}}>Накладная</button>}
+                      {o.status==='accepted' && <button className="admin-btn admin-btn-ship" onClick={() => openShipFromOrder(o, i+1)} style={{background:"linear-gradient(135deg,#667eea,#764ba2)",color:"#fff",padding:"5px 12px",borderRadius:8,fontSize:13,border:"none",cursor:"pointer",fontWeight:500}}>Отгрузить</button>}
+                      <button className="admin-btn admin-btn-invoice" onClick={() => showOrderInvoice(o, i+1)} style={{background:"none",color:"#667eea",padding:"5px 10px",borderRadius:8,fontSize:12,border:"1px solid #667eea",cursor:"pointer"}}>Накладная</button>
                     </div>
                   </td>
                 </tr>
