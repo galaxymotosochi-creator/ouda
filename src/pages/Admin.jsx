@@ -899,7 +899,7 @@ export default function Admin() {
                   <td>{o.items?.map(item => `${item.name} ×${item.qty}${item.color ? ' ('+item.color+')' : ''}`).join(', ')||'—'}</td>
                   <td>{(o.total||0).toLocaleString('ru-RU')} ₽</td>
                   <td>{o.payment==='usdt'?'USDT':o.payment==='discuss'?'Хочу обсудить':t('cash')}</td>
-                  <td><span className={`status ${statusClass(o.status)}`}>{statusLabel(o.status)}</span></td>
+                  <td>{statusLabel(o.status)}</td>
                   <td>
                     <div className="admin-actions">
                       {o.status==='new' && <button className="admin-btn admin-btn-accept" onClick={() => updateStatus(o.id,'accepted')}>Взять в работу</button>}
