@@ -556,16 +556,15 @@ export default function Admin() {
                 {tab === 'products' && (<>
           <div className="v2-products-section">
 
-          <div className="v2-header">
-            <h3>{t('addProduct')}</h3>
-            <span>Новый товар</span>
-          </div>
-
-          <form className="admin-add-form" onSubmit={addProduct} style={{border:'none',padding:0,background:'transparent',boxShadow:'none'}}>
-
-          <div className="v2-form-body">
-          <div className="v2-st">Основное</div>
           <div className="v2-card" style={{overflow:"hidden",padding:0}}>
+            <div className="v2-header">
+              <h3>{t('addProduct')}</h3>
+              <span>Новый товар</span>
+            </div>
+            <form className="admin-add-form" onSubmit={addProduct} style={{border:'none',padding:0,background:'transparent',boxShadow:'none'}}>
+
+            <div className="v2-form-body">
+            <div className="v2-st">Основное</div>
             <div className="v2-field full-w">
               <label>Название *</label>
               <input className="v2-input" placeholder={lang === 'zh' ? '名称 *' : 'Название *'} value={lang === 'zh' ? (newProduct.name_zh || newProduct.name_ru) : (newProduct.name_ru || newProduct.name_zh)} onChange={e => {
@@ -689,6 +688,7 @@ export default function Admin() {
           </div>
 
           </form>
+          </div>
 
           {/* Таблица товаров */}
           <div className="v2-st">Товары</div>
