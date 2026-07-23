@@ -126,6 +126,14 @@ img { max-width: 100%; display: block; }
 }
 .product-add:hover { background: var(--accent-hover); }
 .product-add.in-cart { background: var(--accent); opacity: 0.6; }
+.product-add.disabled,
+.product-add:disabled {
+  background: #ccc;
+  color: #888;
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.7;
+}
 
 /* Cart Sidebar */
 .cart-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.25); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s; }

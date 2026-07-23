@@ -2,13 +2,27 @@ import { useState } from 'react'
 import { useLang } from '../i18n'
 import { PRESET_COLORS, getColorHex } from '../colors'
 
-export default function ProductCard({ product, onAdd, inCart }) {
+export default function ProductCard({ product, onAdd, inCart, cartQtys }) {
   const { t, lang, translateColor } = useLang()
-  const availColors = product.available_colors || {}
-  const colorNames = Object.keys(availColors).filter(name => availColors[name] > 0)
+  const avail = product.available_colors || {}
+  const colorNames = Object.keys(avail).filter(name => avail[name] > 0)
   const hasColors = colorNames.length > 0
 
+  // Check if any color still has stock available (not already in cart)
+  const canAddAny = colorNames.some(name => {
+    const stock = avail[name] || 0
+    const inCartQty = (cartQtys || {})[`${product.id}_${name}`] || 0
+    return stock > inCartQty
+  })
+
+  // Total in cart across all colors of this product
+  const totalInCart = Object.entries(cartQtys || {})
+    .filter(([key]) => key.startsWith(`${product.id}_`))
+    .reduce((s, [, qty]) => s + qty, 0)
+
   const handleClick = () => {
+    if (!canAddAny) return // no stock left, do nothing
+
     if (hasColors && colorNames.length > 1) {
       onAdd(product, true)
     } else {
@@ -21,6 +35,13 @@ export default function ProductCard({ product, onAdd, inCart }) {
         price: product.price,
       }, false)
     }
+  }
+
+  const getButtonText = () => {
+    if (!canAddAny && totalInCart > 0) return '✓ ' + t('inCart')
+    if (!canAddAny && totalInCart === 0) return 'Нет в наличии'
+    if (totalInCart > 0) return `+1 (в корзине ${totalInCart})`
+    return t('addToCart')
   }
 
   return (
@@ -38,7 +59,12 @@ export default function ProductCard({ product, onAdd, inCart }) {
         <div className="product-colors">
           {hasColors ? (
             <><span className="spec-label">{t('color')}:</span>
-            <strong>{colorNames.map(name => `${translateColor(name)} (${availColors[name]})`).join(', ')}</strong></>
+            <strong>{colorNames.map(name => {
+              const stock = avail[name] || 0
+              const inCartQty = (cartQtys || {})[`${product.id}_${name}`] || 0
+              const remaining = stock - inCartQty
+              return `${translateColor(name)} (${remaining}/${stock})`
+            }).join(', ')}</strong></>
           ) : (
             <span style={{visibility:'hidden'}}> </span>
           )}
@@ -60,14 +86,16 @@ export default function ProductCard({ product, onAdd, inCart }) {
         <div className="product-price">
           <div><span className="price-label">Розничная:</span> {product.price.toLocaleString('ru-RU')} {t('rub')}</div>
           <div><span className="price-label">Оптовая:</span> {product.wholesale_price ? Number(product.wholesale_price).toLocaleString('ru-RU') + ' ' + t('rub') : '—'}</div>
+          <div style={{fontSize:11,color:'#666',marginTop:2}}>Оптовая цена от 2 шт</div>
         </div>
         <div style={{textAlign:'right', marginTop:'auto'}}>
-        <button
-          className={`product-add ${inCart ? 'in-cart' : ''}`}
-          onClick={handleClick}
-        >
-          {inCart ? t('inCart') : t('addToCart')}
-        </button>
+          <button
+            className={`product-add ${(inCart || totalInCart > 0) && canAddAny ? 'in-cart' : ''} ${!canAddAny ? 'disabled' : ''}`}
+            onClick={handleClick}
+            disabled={!canAddAny}
+          >
+            {getButtonText()}
+          </button>
         </div>
       </div>
     </div>

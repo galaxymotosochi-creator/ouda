@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { PRESET_COLORS, getColorHex } from '../colors'
 import { useLang } from '../i18n'
 import Header from '../components/Header'
@@ -22,13 +22,32 @@ export default function Catalog() {
     fetch(`${API}/api/products`)
       .then(r => r.json())
       .then(setProducts)
-      .catch(() => {
-        setProducts([])
-      })
+      .catch(() => { setProducts([]) })
   }, [])
+
+  // Cart index: product_id_color -> qty in cart
+  const cartQtys = useMemo(() => {
+    const idx = {}
+    cart.forEach(item => { idx[item.cartKey] = item.qty })
+    return idx
+  }, [cart])
+
+  // Total in cart per product (sum across all colors)
+  const productCartQty = useMemo(() => {
+    const idx = {}
+    cart.forEach(item => {
+      idx[item.id] = (idx[item.id] || 0) + item.qty
+    })
+    return idx
+  }, [cart])
 
   const addToCart = useCallback((product, colorName, colorHex) => {
     const key = `${product.id}_${colorName}`
+    // Check if still can add (avail > inCart)
+    const avail = (product.available_colors || {})[colorName] || 0
+    const inCart = cartQtys[key] || 0
+    if (avail <= inCart) return
+
     setCart(prev => {
       const exists = prev.find(item => item.cartKey === key)
       if (exists) {
@@ -44,28 +63,38 @@ export default function Catalog() {
         qty: 1,
       }, ...prev]
     })
-  }, [])
+  }, [cartQtys])
 
   const handleAddClick = (product, needsColor) => {
-    if (needsColor) {
-      // Init quantities from available_colors
-      const avail = product.available_colors || {}
+    const avail = product.available_colors || {}
+    const availColors = Object.keys(avail).filter(k => (avail[k] || 0) > 0)
+
+    if (needsColor && availColors.length > 1) {
+      // Open color picker — show remaining (avail - inCart)
       const init = {}
-      Object.keys(avail).forEach(name => { init[name] = 0 })
+      availColors.forEach(name => {
+        const remaining = (avail[name] || 0) - (cartQtys[`${product.id}_${name}`] || 0)
+        init[name] = 0 // always start at 0, user picks
+      })
+      // Show remaining near color name
       setColorQtys(init)
       setColorModal({ product })
     } else {
-      const availColors = Object.keys(product.available_colors || {}).filter(k => product.available_colors[k] > 0)
+      // Single color or no color choice
       const firstName = availColors[0] || ''
       addToCart(product, firstName, '')
     }
   }
 
   const handleColorQty = (name, delta) => {
-    const maxAvail = (colorModal?.product?.available_colors || {})[name] || 0
+    const product = colorModal?.product
+    if (!product) return
+    const avail = (product.available_colors || {})[name] || 0
+    const inCart = cartQtys[`${product.id}_${name}`] || 0
+    const maxRemaining = avail - inCart
     setColorQtys(prev => ({
       ...prev,
-      [name]: Math.max(0, Math.min(maxAvail, (prev[name] || 0) + delta))
+      [name]: Math.max(0, Math.min(maxRemaining, (prev[name] || 0) + delta))
     }))
   }
 
@@ -136,14 +165,18 @@ export default function Catalog() {
 
       <section className="catalog" id="catalog">
         <div className="catalog-grid">
-          {products.map(product => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onAdd={handleAddClick}
-              inCart={cart.some(c => c.id === product.id)}
-            />
-          ))}
+          {products.map(product => {
+            const inCart = (productCartQty[product.id] || 0) > 0
+            return (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onAdd={handleAddClick}
+                inCart={inCart}
+                cartQtys={cartQtys}
+              />
+            )
+          })}
         </div>
       </section>
 
@@ -156,14 +189,19 @@ export default function Catalog() {
         onRemove={removeFromCart}
         onAddAnother={(item) => {
           const product = products.find(p => p.id === item.id)
-          const availColors = Object.keys(product?.available_colors || {}).filter(k => (product.available_colors[k] || 0) > 0)
+          if (!product) return
+          const availColors = Object.keys(product.available_colors || {}).filter(k => (product.available_colors[k] || 0) > 0)
           if (availColors.length > 1) {
             const init = {}
-            availColors.forEach(name => { init[name] = 0 })
+            availColors.forEach(name => {
+              const remaining = (product.available_colors[name] || 0) - (cartQtys[`${product.id}_${name}`] || 0)
+              init[name] = remaining > 0 ? 0 : -1
+            })
             setColorQtys(init)
             setColorModal({ product })
           } else {
-            addToCart(product, item.selectedColor || (availColors[0] || ''), '')
+            const firstName = availColors[0] || item.selectedColor || ''
+            addToCart(product, firstName, '')
           }
         }}
         api={API}
@@ -183,23 +221,39 @@ export default function Catalog() {
             <h4>{colorModal.product.name}</h4>
             <p style={{fontSize:13,color:'#666',marginBottom:16}}>Выберите цвета и количество</p>
             <div className="color-picker-list">
-              {Object.entries(colorQtys).filter(([,qty]) => qty > 0 || true).map(([name, qty]) => {
-                const avail = (colorModal.product.available_colors || {})[name] || 0
-                return (
-                  <div key={name} className="color-picker-item">
-                    <span className="color-picker-name">{name}</span>
-                    <div className="cart-item-qty" style={{marginLeft:'auto'}}>
-                      <button onClick={() => handleColorQty(name, -1)}>−</button>
-                      <span>{qty}</span>
-                      <button onClick={() => handleColorQty(name, 1)}>+</button>
+              {Object.entries(colorQtys)
+                .filter(([,qty]) => qty >= 0)
+                .map(([name, qty]) => {
+                  const product = colorModal.product
+                  const avail = (product.available_colors || {})[name] || 0
+                  const inCart = cartQtys[`${product.id}_${name}`] || 0
+                  const remaining = Math.max(0, avail - inCart)
+                  return (
+                    <div key={name} className="color-picker-item">
+                      <span className="color-picker-name">{name}</span>
+                      <div className="cart-item-qty" style={{marginLeft:'auto'}}>
+                        <button onClick={() => handleColorQty(name, -1)}>−</button>
+                        <span>{qty}</span>
+                        <button onClick={() => handleColorQty(name, 1)}
+                          disabled={qty >= remaining}>+</button>
+                      </div>
+                      {remaining > 0 && (
+                        <span style={{fontSize:11,color:'#999',marginLeft:8}}>
+                          можно {remaining} шт
+                        </span>
+                      )}
+                      {remaining <= 0 && (
+                        <span style={{fontSize:11,color:'#999',marginLeft:8}}>
+                          всё в корзине
+                        </span>
+                      )}
                     </div>
-                    {avail > 0 && <span style={{fontSize:11,color:'#999',marginLeft:8}}>в нал. {avail}</span>}
-                  </div>
-                )
-              })}
+                  )
+                })}
             </div>
             <div style={{marginTop:16,borderTop:'1px solid var(--border)',paddingTop:16}}>
-              <button className="product-add" onClick={handleAddColorsToCart}>
+              <button className="product-add" onClick={handleAddColorsToCart}
+                disabled={Object.values(colorQtys).reduce((s, v) => s + v, 0) === 0}>
                 Добавить в корзину
               </button>
               <button className="color-modal-cancel" onClick={() => setColorModal(null)}>
