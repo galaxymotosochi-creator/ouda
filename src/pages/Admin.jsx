@@ -1128,7 +1128,7 @@ export default function Admin() {
             <div className="modal-header v2-header">
               <h3>{shipOrder ? `${t('shipmentFromOrder')} #${shipOrderNum}` : t('newShipment')}</h3>
               <div className="v2-header-right">
-                <span className="v2-date-badge">{shipForm.date}</span>
+                <span className="v2-date-badge">{shipForm.date ? shipForm.date.split("-").reverse().join(".") : ""}</span>
                 <button className="modal-close" onClick={closeShipModal} style={{color:'#fff'}}>×</button>
               </div>
             </div>
