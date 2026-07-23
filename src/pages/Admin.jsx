@@ -561,9 +561,8 @@ export default function Admin() {
             <span>Новый товар</span>
           </div>
 
-          <form className="admin-add-form" onSubmit={addProduct} style={{border:'none',padding:0,background:'transparent',boxShadow:'none'}}>
+          <form className="admin-add-form" onSubmit={addProduct} style={{border:'none',padding:'24px',background:'transparent',boxShadow:'none'}}>
 
-          <div className="v2-form-body">
           <div className="v2-st">Основное</div>
           <div className="v2-card">
             <div className="v2-field full-w">
@@ -682,7 +681,6 @@ export default function Admin() {
             </div>
           </div>
 
-          </div>
           <div style={{display:'flex',justifyContent:'flex-end',gap:10,margin:'16px 0'}}>
             <button type="button" className="v2-btn v2-btn-cancel">Отмена</button>
             <button type="submit" className="v2-btn v2-btn-primary">{t('addProduct')}</button>
