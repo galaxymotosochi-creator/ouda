@@ -270,7 +270,11 @@ export default function Admin() {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
     }).catch(() => {
       const list = getLocal(LS_SHIPMENTS)
-      list.push({ id: Date.now(), number: 'OUDA-' + String(list.length + 1).padStart(3, '0'), ...payload, status: 'оформлено', created_at: new Date().toISOString() })
+      const maxNum = list.reduce((max, s) => {
+        const n = parseInt((s.number || '').replace(/\D/g, ''), 10)
+        return n > max ? n : max
+      }, 0)
+      list.push({ id: Date.now(), number: 'OUDA-' + String(maxNum + 1).padStart(3, '0'), ...payload, status: 'оформлено', created_at: new Date().toISOString() })
       setLocal(LS_SHIPMENTS, list)
     })
     setShowShipModal(false)
