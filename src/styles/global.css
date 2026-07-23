@@ -755,20 +755,3 @@ img { max-width: 100%; display: block; }
 }
 .stock-chip-chameleon { background: linear-gradient(135deg, #8b5cf6, #6366f1, #3b82f6) !important; }
 .admin-section { background: var(--bg-card); border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); padding: 24px; margin-bottom: 24px; }
-
-
-/* V2 Products Tab */
-.v2-products-section { background: #f8f9ff; padding: 24px; }
-.v2-st { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #667eea; font-weight: 600; margin-bottom: 10px; }
-.v2-card { background: #fff; border-radius: 14px; padding: 16px; box-shadow: 0 2px 8px rgba(102,126,234,0.08); margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; }
-.v2-field { display: flex; flex-direction: column; gap: 4px; }
-.v2-field.full-w { grid-column: 1/-1; }
-.v2-field.half { display: flex; flex-direction: column; gap: 4px; }
-.v2-field.third { display: flex; flex-direction: column; gap: 4px; }
-.v2-field label { font-size: 11px; color: #999; font-weight: 500; }
-.v2-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.v2-row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-.v2-btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; padding: 10px 24px; border-radius: 12px; font-size: 13px; font-weight: 500; border: none; cursor: pointer; }
-.v2-btn-cancel { background: transparent; color: #999; padding: 10px 20px; border-radius: 12px; font-size: 13px; border: none; cursor: pointer; }
-.v2-btn-cancel:hover { color: #333; }
-.v2-btn-primary:hover { opacity: 0.9; }
