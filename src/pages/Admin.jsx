@@ -274,7 +274,8 @@ export default function Admin() {
         const n = parseInt((s.number || '').replace(/\D/g, ''), 10)
         return n > max ? n : max
       }, 0)
-      list.push({ id: Date.now(), number: 'OUDA-' + String(maxNum + 1).padStart(3, '0'), ...payload, status: 'оформлено', created_at: new Date().toISOString() })
+      const nextNum = payload.order_id ? payload.order_id : (maxNum + 1)
+      list.push({ id: Date.now(), number: 'OUDA-' + String(nextNum).padStart(3, '0'), ...payload, status: 'оформлено', created_at: new Date().toISOString() })
       setLocal(LS_SHIPMENTS, list)
     })
     setShowShipModal(false)
