@@ -879,31 +879,42 @@ export default function Admin() {
 
         {/* === ORDERS TAB === */}
         {tab === 'orders' && (<>
-          <div style={{margin:'0 24px 24px'}}>
-          <div style={{overflowX:'auto',borderRadius:'var(--radius)'}}>
-          <table className="admin-table" style={{margin:0}}>
-            <thead><tr>
-              <th>№</th><th>{t('date')}</th><th>{t('name')}</th><th>{t('city')}</th><th>ТК</th><th>{t('phone')}</th>
-              <th>{t('products')}</th><th>{t('total')}</th><th>{t('payment')}</th><th>{t('status')}</th><th></th>
+          <div className="v2-products-section">
+          <div className="v2-card" style={{overflow:'hidden',padding:0}}>
+          <div style={{overflowX:'auto'}}>
+          <table className="admin-table" style={{margin:0,border:'none',boxShadow:'none',width:'100%',borderCollapse:'collapse'}}>
+            <thead><tr style={{background:'#f8f9ff',textTransform:'uppercase',letterSpacing:'.5px',fontSize:11,color:'#667eea',fontWeight:600}}>
+              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap'}}>№</th>
+              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap'}}>{t('date')}</th>
+              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap'}}>{t('name')}</th>
+              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap'}}>{t('city')}</th>
+              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap'}}>ТК</th>
+              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap'}}>{t('phone')}</th>
+              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap'}}>{t('products')}</th>
+              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap'}}>{t('total')}</th>
+              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap'}}>{t('payment')}</th>
+              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap'}}>{t('status')}</th>
+              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap'}}></th>
             </tr></thead>
             <tbody>
               {orders.map((o, i) => (
-                <tr key={o.id}>
-                  <td>{i+1}</td>
-                  <td>{formatDate(o.created_at)}</td>
-                  <td>{o.name}</td>
-                  <td>{o.city||'—'}</td>
-                  <td>{o.transport||'—'}</td>
-                  <td>{o.phone}</td>
-                  <td>{o.items?.map(item => `${item.name} ×${item.qty}${item.color ? ' ('+item.color+')' : ''}`).join(', ')||'—'}</td>
-                  <td>{(o.total||0).toLocaleString('ru-RU')} ₽</td>
-                  <td><span className="admin-badge">{o.payment==='usdt'?'USDT':o.payment==='discuss'?'Хочу обсудить':t('cash')}</span></td>
-                  <td><span className={`status ${statusClass(o.status)}`}>{statusLabel(o.status)}</span></td>
-                  <td>
-                    <div className="admin-actions">
-                      {o.status==='new' && <button className="admin-btn admin-btn-accept" onClick={() => updateStatus(o.id,'accepted')}>{t('accept')}</button>}
-                      {o.status!=='done' && <button className="admin-btn admin-btn-done" onClick={() => updateStatus(o.id,'done')}>{t('done')}</button>}
-                      <button className="admin-btn admin-btn-ship" onClick={() => openShipFromOrder(o, i+1)}>Отгрузить</button>
+                <tr key={o.id} style={{borderTop:'1px solid #f0f2ff',transition:'background .15s'}}
+                  onMouseOver={e => e.currentTarget.style.background='#fafbff'} onMouseOut={e => e.currentTarget.style.background=''}>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap',fontWeight:500}}>{i+1}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap',color:'#999',fontSize:12}}>{formatDate(o.created_at)}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{o.name}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{o.city||'—'}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{o.transport||'—'}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{o.phone}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap',fontSize:12}}>{o.items?.map(item => `${item.name} ×${item.qty}${item.color ? ' ('+item.color+')' : ''}`).join(', ')||'—'}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap',fontWeight:600}}>{(o.total||0).toLocaleString('ru-RU')} ₽</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}><span className="admin-badge" style={{padding:'4px 12px',borderRadius:20,fontSize:11,fontWeight:500,display:'inline-block',background:o.payment==='usdt'?'#fff3e0':o.payment==='discuss'?'#fce4ec':'#e8f5e9',color:o.payment==='usdt'?'#e65100':o.payment==='discuss'?'#c62828':'#2e7d32'}}>{o.payment==='usdt'?'USDT':o.payment==='discuss'?'Хочу обсудить':t('cash')}</span></td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}><span style={{display:'inline-block',padding:'4px 12px',borderRadius:20,fontSize:11,fontWeight:500,background:o.status==='new'?'#e8f5e9':o.status==='accepted'?'#e3f2fd':'#f3e5f5',color:o.status==='new'?'#2e7d32':o.status==='accepted'?'#1565c0':'#7b1fa2'}}>{statusLabel(o.status)}</span></td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>
+                    <div style={{display:'flex',gap:4}}>
+                      {o.status==='new' && <button className="admin-btn admin-btn-accept" onClick={() => updateStatus(o.id,'accepted')} style={{background:'#e8f5e9',color:'#2e7d32',padding:'5px 12px',borderRadius:8,fontSize:11,border:'none',cursor:'pointer',fontWeight:500}}>{t('accept')}</button>}
+                      {o.status!=='done' && <button className="admin-btn admin-btn-done" onClick={() => updateStatus(o.id,'done')} style={{background:o.status==='new'?'linear-gradient(135deg,#667eea,#764ba2)':'#f3e5f5',color:'#fff',padding:'5px 12px',borderRadius:8,fontSize:11,border:'none',cursor:'pointer',fontWeight:500}}>{t('done')}</button>}
+                      <button className="admin-btn admin-btn-ship" onClick={() => openShipFromOrder(o, i+1)} style={{background:'linear-gradient(135deg,#667eea,#764ba2)',color:'#fff',padding:'5px 12px',borderRadius:8,fontSize:11,border:'none',cursor:'pointer',fontWeight:500}}>Отгрузить</button>
                     </div>
                   </td>
                 </tr>
@@ -913,10 +924,12 @@ export default function Admin() {
           </table>
           </div>
           </div>
+          </div>
         </>)}
 
         {/* === SHIPMENTS TAB === */}
         {tab === 'shipments' && (<>
+          <div style={{margin:'0 24px 16px'}}>{tab === 'shipments' && (<>
           <div style={{margin:'0 24px 16px'}}>
             <button style={{padding:'10px 24px',fontSize:13,fontWeight:500,background:'var(--bg-hover)',color:'var(--text)',border:'1px solid #999',borderRadius:50,cursor:'pointer',margin:'0 0 0 auto'}} onClick={openShipManual}>Новая отгрузка</button>
           </div>
