@@ -1005,12 +1005,11 @@ export default function Admin() {
       {editingProduct && (
         <div className="modal-overlay" onClick={closeEditProduct}>
           <div className="modal modal-wide v2-modal" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Редактировать товар</h3>
-              <button className="modal-close" onClick={closeEditProduct}>×</button>
+            <div className="v2-header" style={{borderRadius:'14px 14px 0 0'}}>
+              <h3 style={{fontSize:16,fontWeight:600}}>Редактировать товар</h3>
+              <button className="modal-close" onClick={closeEditProduct} style={{color:'#fff',fontSize:20}}>×</button>
             </div>
-            <div className="admin-add-form" style={{border:'none',boxShadow:'none',margin:0}}>
-            <div className="form-grid">
+            <div style={{padding:24,background:'#f8f9ff',display:'flex',flexDirection:'column',gap:12}}">
                 <input className="full-width" placeholder={lang === 'zh' ? '名称 *' : 'Название *'} value={lang === 'zh' ? (editForm.name_zh || editForm.name_ru) : (editForm.name_ru || editForm.name_zh)} onChange={e => {
                   const val = e.target.value
                   if (lang === 'zh') { setEditForm(prev => ({...prev, name_zh: val})) }
@@ -1068,9 +1067,9 @@ export default function Admin() {
                 </div>
                 <div className="full-width"><textarea placeholder={lang === 'zh' ? '描述' : 'Описание'} value={editForm.description} onChange={e => setEditForm({...editForm, description: e.target.value})} /></div>
               </div>
-            <div className="modal-actions" style={{paddingTop:16}}>
-              <button type="button" className="admin-btn admin-btn-cancel" onClick={closeEditProduct}>Отмена</button>
-              <button type="button" className="admin-btn-primary" onClick={updateProduct}>Сохранить</button>
+            <div style={{display:'flex',justifyContent:'flex-end',gap:10,paddingTop:16}}>
+              <button type="button" className="v2-btn v2-btn-cancel" onClick={closeEditProduct}>Отмена</button>
+              <button type="button" className="v2-btn v2-btn-primary" onClick={updateProduct}>Сохранить</button>
             </div>
             </div>
           </div>
