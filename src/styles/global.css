@@ -410,7 +410,8 @@ img { max-width: 100%; display: block; }
   font-size: 13px;
 }
 .ship-table-row:hover { background: var(--bg-hover); }
-.ship-col-color { text-align: center; }
+.ship-col-color { text-align: left; }
+.ship-table-header .ship-col-color { padding-left: 7px; }
 .ship-col-qty { text-align: center; }
 .ship-col-price { text-align: right; }
 .ship-col-sum { text-align: right; font-weight: 600; }
