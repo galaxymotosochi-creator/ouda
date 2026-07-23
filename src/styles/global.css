@@ -386,58 +386,55 @@ img { max-width: 100%; display: block; }
 .ship-remove:hover { color: var(--red); background: var(--bg-hover); }
 .ship-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: 700; margin-top: 16px; padding-top: 12px; border-top: 2px solid var(--accent); }
 
-/* Shipment table (new) */
-.ship-table { border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
-.ship-table-header {
-  display: grid;
-  grid-template-columns: 1fr 120px 70px 100px 100px 30px;
-  gap: 8px;
-  padding: 10px 14px;
-  background: var(--bg-hover);
-  font-size: 11px;
-  color: var(--text-muted);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  align-items: center;
-}
-.ship-table-row {
-  display: grid;
-  grid-template-columns: 1fr 120px 70px 100px 100px 30px;
-  gap: 8px;
-  padding: 10px 14px;
-  align-items: center;
-  border-top: 1px solid var(--border);
-  font-size: 13px;
-}
-.ship-table-row:hover { background: var(--bg-hover); }
-.ship-col-color { text-align: left; }
-.ship-table-header .ship-col-color { padding-left: 7px; }
-.ship-col-qty { text-align: center; }
-.ship-col-price { text-align: right; padding: 0 6px; }
-.ship-col-sum { text-align: right; font-weight: 600; padding: 0 6px; }
+/* V2 Shipment Modal */
+.v2-modal { border-radius: 20px; }
+.v2-header { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; padding: 20px 24px; }
+.v2-header h3 { font-size: 16px; font-weight: 600; }
+.v2-header-right { display: flex; align-items: center; gap: 12px; }
+.v2-date-badge { font-size: 11px; background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 8px; }
+.v2-body { background: #f8f9ff; padding: 24px; }
+.v2-section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #667eea; font-weight: 600; margin-bottom: 8px; }
 
-.ship-select-sm {
-  width: 100%; padding: 4px 6px; border: 1px solid var(--border);
-  border-radius: 6px; font-size: 12px; background: #fff;
-}
-.ship-input-qty {
-  width: 100%; padding: 4px 6px; border: 1px solid var(--border);
-  border-radius: 6px; font-size: 12px; text-align: center; background: #fff;
-}
-.ship-remove-sm { background: none; border: none; color: #ccc; cursor: pointer; font-size: 16px; padding: 0; line-height: 1; }
-.ship-remove-sm:hover { color: var(--red); }
+.v2-client-card { background: #fff; border-radius: 14px; padding: 16px; box-shadow: 0 2px 8px rgba(102,126,234,0.08); margin-bottom: 20px; }
+.v2-client-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px; }
+.v2-client-row:last-child { margin-bottom: 0; }
+.v2-client-field { display: flex; flex-direction: column; gap: 4px; }
+.v2-field-label { font-size: 11px; color: #999; font-weight: 500; }
+.v2-input { width: 100%; padding: 8px 12px; border: 1px solid #e8e8e8; border-radius: 10px; font-size: 13px; background: #fafafa; transition: border 0.2s; }
+.v2-input:focus { border-color: #667eea; outline: none; background: #fff; }
 
-/* Payment section (new) */
-.ship-payment { display: flex; gap: 24px; }
-.ship-payment-row { display: flex; align-items: center; gap: 8px; }
-.ship-payment-row label { font-size: 13px; color: var(--text-muted); white-space: nowrap; }
-.ship-input-pay {
-  width: 120px; padding: 8px 12px; border: 1px solid var(--border);
-  border-radius: 8px; font-size: 14px; text-align: right; background: #fff;
-}
-.ship-input-pay:focus { border-color: var(--accent); outline: none; }
-.ship-payment-row span { font-size: 14px; color: var(--text-muted); }
+.v2-items-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.v2-item-card { background: #fff; border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+.v2-item-info { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.v2-item-name { font-size: 13px; font-weight: 500; color: #333; }
+.v2-item-extra { display: flex; gap: 8px; }
+.v2-select-color { border: 1px solid #e0e7ff; border-radius: 6px; padding: 3px 6px; font-size: 12px; background: #fafafe; color: #555; }
+.v2-item-controls { display: flex; align-items: center; gap: 12px; }
+.v2-input-qty { width: 40px; text-align: center; border: 1px solid #e0e7ff; border-radius: 6px; padding: 4px 6px; font-size: 13px; background: #fafafe; }
+.v2-input-qty:focus { border-color: #667eea; outline: none; }
+.v2-item-sum { font-weight: 600; font-size: 13px; min-width: 70px; text-align: right; color: #333; }
+.v2-item-remove { background: none; border: none; color: #ccc; font-size: 16px; cursor: pointer; padding: 0; line-height: 1; }
+.v2-item-remove:hover { color: #ef4444; }
+.v2-add-btn { background: none; border: 1px dashed #667eea; color: #667eea; padding: 8px 16px; border-radius: 10px; font-size: 13px; cursor: pointer; margin-top: 8px; width: 100%; }
+.v2-add-btn:hover { background: rgba(102,126,234,0.05); }
+
+.v2-payment { display: flex; gap: 16px; margin-top: 8px; }
+.v2-pay-field { background: #fff; border-radius: 12px; padding: 12px 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); flex: 1; display: flex; align-items: center; gap: 8px; }
+.v2-pay-field .v2-field-label { margin-bottom: 0; white-space: nowrap; }
+.v2-input-pay { width: 100%; border: none; font-size: 14px; text-align: right; background: transparent; padding: 2px 0; }
+.v2-input-pay:focus { outline: none; }
+.v2-pay-currency { font-size: 14px; color: #999; }
+
+.v2-total { text-align: right; font-size: 18px; font-weight: 700; color: #667eea; margin-top: 16px; display: flex; justify-content: flex-end; gap: 8px; }
+
+.v2-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 24px 20px; border-top: 1px solid #e0e7ff; background: #fff; }
+.v2-btn { padding: 10px 24px; border-radius: 12px; font-size: 13px; cursor: pointer; border: none; font-weight: 500; }
+.v2-btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; }
+.v2-btn-primary:hover { opacity: 0.9; }
+.v2-btn-cancel { background: none; color: #999; }
+.v2-btn-cancel:hover { color: #333; }
+
+
 
 /* Shipment date */
 .ship-date-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }

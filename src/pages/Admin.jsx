@@ -901,7 +901,7 @@ export default function Admin() {
         {/* === EDIT PRODUCT MODAL === */}
       {editingProduct && (
         <div className="modal-overlay" onClick={closeEditProduct}>
-          <div className="modal modal-wide" onClick={e => e.stopPropagation()}>
+          <div className="modal modal-wide v2-modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h3>Редактировать товар</h3>
               <button className="modal-close" onClick={closeEditProduct}>×</button>
@@ -977,85 +977,93 @@ export default function Admin() {
         {/* === CREATE SHIPMENT MODAL === */}
       {showShipModal && (
         <div className="modal-overlay" onClick={closeShipModal}>
-          <div className="modal modal-wide" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
+          <div className="modal modal-wide v2-modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header v2-header">
               <h3>{shipOrder ? `${t('shipmentFromOrder')} #${shipOrderNum}` : t('newShipment')}</h3>
-              <div className="ship-header-date">
-                <span>Дата отгрузки:</span>
-                <input type="date" className="ship-input-date-sm" value={shipForm.date}
-                  onChange={e => setShipForm(prev => ({...prev, date: e.target.value}))} />
+              <div className="v2-header-right">
+                <span className="v2-date-badge">{shipForm.date}</span>
+                <button className="modal-close" onClick={closeShipModal} style={{color:'#fff'}}>×</button>
               </div>
-              <button className="modal-close" onClick={closeShipModal}>×</button>
             </div>
-            <div className="modal-body">
-              <h4 style={{marginBottom:12,fontSize:14,color:'#666'}}>Клиент</h4>
-              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:16}}>
-                <input className="ship-input" placeholder="Имя *" value={shipForm.client.name}
-                  onChange={e => setShipForm(prev => ({...prev, client: {...prev.client, name: e.target.value}}))} />
-                <input className="ship-input" placeholder={t('phone')} value={shipForm.client.phone}
-                  onChange={e => setShipForm(prev => ({...prev, client: {...prev.client, phone: e.target.value}}))} />
-                <input className="ship-input" placeholder="Город" value={shipForm.client.city}
-                  onChange={e => setShipForm(prev => ({...prev, client: {...prev.client, city: e.target.value}}))} />
-                <input className="ship-input" placeholder="Транспортная компания" value={shipForm.client.transport}
-                  onChange={e => setShipForm(prev => ({...prev, client: {...prev.client, transport: e.target.value}}))} />
+            <div className="modal-body v2-body">
+              <div className="v2-section-title">Клиент</div>
+              <div className="v2-client-card">
+                <div className="v2-client-row">
+                  <div className="v2-client-field">
+                    <span className="v2-field-label">Имя</span>
+                    <input className="v2-input" placeholder="Имя *" value={shipForm.client.name}
+                      onChange={e => setShipForm(prev => ({...prev, client: {...prev.client, name: e.target.value}}))} />
+                  </div>
+                  <div className="v2-client-field">
+                    <span className="v2-field-label">Телефон</span>
+                    <input className="v2-input" placeholder={t('phone')} value={shipForm.client.phone}
+                      onChange={e => setShipForm(prev => ({...prev, client: {...prev.client, phone: e.target.value}}))} />
+                  </div>
+                </div>
+                <div className="v2-client-row">
+                  <div className="v2-client-field">
+                    <span className="v2-field-label">Город</span>
+                    <input className="v2-input" placeholder="Город" value={shipForm.client.city}
+                      onChange={e => setShipForm(prev => ({...prev, client: {...prev.client, city: e.target.value}}))} />
+                  </div>
+                  <div className="v2-client-field">
+                    <span className="v2-field-label">Транспортная</span>
+                    <input className="v2-input" placeholder="Транспортная компания" value={shipForm.client.transport}
+                      onChange={e => setShipForm(prev => ({...prev, client: {...prev.client, transport: e.target.value}}))} />
+                  </div>
+                </div>
               </div>
 
-              <h4 style={{marginBottom:12,fontSize:14,color:'#666'}}>{t('product')}</h4>
-              <div className="ship-table">
-                <div className="ship-table-header">
-                  <span className="ship-col-name">{t('product')}</span>
-                  <span className="ship-col-color">Цвет</span>
-                  <span className="ship-col-qty">{t('qty')}</span>
-                  <span className="ship-col-price">{t('unitPrice')}</span>
-                  <span className="ship-col-sum">{t('sum')}</span>
-                </div>
+              <div className="v2-section-title">Товары</div>
+              <div className="v2-items-list">
                 {shipForm.items.map((item, idx) => (
-                  <div key={idx} className="ship-table-row">
-                    <span className="ship-col-name">{item.product_name || '—'}</span>
-                    <span className="ship-col-color">
-                      <select className="ship-select-sm" value={item.color} onChange={e => updateShipItem(idx, 'color', e.target.value)}>
-                        <option value="">—</option>
-                        {(products.find(p => p.id === item.product_id)?.available_colors ? Object.entries(products.find(p => p.id === item.product_id).available_colors).filter(([,qty]) => qty > 0).map(([color, qty]) => (
-                          <option key={color} value={color}>{color}</option>
-                        )) : [])}
-                      </select>
-                    </span>
-                    <span className="ship-col-qty">
-                      <input className="ship-input-qty" type="number" min="0" value={item.qty}
+                  <div key={idx} className="v2-item-card">
+                    <div className="v2-item-info">
+                      <div className="v2-item-name">{item.product_name || '—'}</div>
+                      <div className="v2-item-extra">
+                        <select className="v2-select-color" value={item.color} onChange={e => updateShipItem(idx, 'color', e.target.value)}>
+                          <option value="">Цвет</option>
+                          {(products.find(p => p.id === item.product_id)?.available_colors ? Object.entries(products.find(p => p.id === item.product_id).available_colors).filter(([,qty]) => qty > 0).map(([color, qty]) => (
+                            <option key={color} value={color}>{color}</option>
+                          )) : [])}
+                        </select>
+                      </div>
+                    </div>
+                    <div className="v2-item-controls">
+                      <input className="v2-input-qty" type="number" min="0" value={item.qty}
                         onChange={e => updateShipItem(idx, 'qty', Number(e.target.value))} />
-                    </span>
-                    <span className="ship-col-price">{(item.price||0).toLocaleString('ru-RU')} ₽</span>
-                    <span className="ship-col-sum">{(item.subtotal||0).toLocaleString('ru-RU')} ₽</span>
-                    <button className="ship-remove-sm" onClick={() => removeShipItem(idx)}>×</button>
+                      <span className="v2-item-sum">{(item.subtotal||0).toLocaleString('ru-RU')} ₽</span>
+                      <button className="v2-item-remove" onClick={() => removeShipItem(idx)}>×</button>
+                    </div>
                   </div>
                 ))}
               </div>
-              {!shipOrder && <button className="admin-btn admin-btn-add-item" onClick={addShipItem}>+ {t('addProduct')}</button>}
+              {!shipOrder && <button className="v2-add-btn" onClick={addShipItem}>+ Добавить товар</button>}
 
-              <h4 style={{marginTop:20,marginBottom:10,fontSize:14,color:'#666'}}>Оплата</h4>
-              <div className="ship-payment">
-                <div className="ship-payment-row">
-                  <label>{t('paidAmount')}</label>
-                  <input className="ship-input-pay" type="number" min="0" value={shipForm.paid}
+              <div className="v2-section-title" style={{marginTop:24}}>Оплата</div>
+              <div className="v2-payment">
+                <div className="v2-pay-field">
+                  <span className="v2-field-label">Полная оплата</span>
+                  <input className="v2-input-pay" type="number" min="0" value={shipForm.paid}
                     onChange={e => setShipForm(prev => ({...prev, paid: e.target.value}))} />
-                  <span>₽</span>
+                  <span className="v2-pay-currency">₽</span>
                 </div>
-                <div className="ship-payment-row">
-                  <label>{t('prepaidAmount')}</label>
-                  <input className="ship-input-pay" type="number" min="0" value={shipForm.prepaid}
+                <div className="v2-pay-field">
+                  <span className="v2-field-label">Предоплата</span>
+                  <input className="v2-input-pay" type="number" min="0" value={shipForm.prepaid}
                     onChange={e => setShipForm(prev => ({...prev, prepaid: e.target.value}))} />
-                  <span>₽</span>
+                  <span className="v2-pay-currency">₽</span>
                 </div>
               </div>
 
-              <div className="ship-total">
-                <span>{t('total')}</span>
+              <div className="v2-total">
+                <span>Итого</span>
                 <span>{shipTotal().toLocaleString('ru-RU')} ₽</span>
               </div>
 
-              <div className="modal-actions" style={{justifyContent:"flex-end"}}>
-                <button className="admin-btn admin-btn-cancel" onClick={closeShipModal}>Отмена</button>
-                <button className="admin-btn-primary" onClick={createShipment}>Создать отгрузку</button>
+              <div className="v2-footer">
+                <button className="v2-btn v2-btn-cancel" onClick={closeShipModal}>Отмена</button>
+                <button className="v2-btn v2-btn-primary" onClick={createShipment}>Создать отгрузку</button>
               </div>
             </div>
           </div>
