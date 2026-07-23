@@ -556,7 +556,7 @@ export default function Admin() {
                 {tab === 'products' && (<>
           <div className="v2-products-section">
 
-          <div className="v2-header">
+          <div className="v2-header" style={{borderRadius:"14px 14px 0 0"}}>
             <h3>{t('addProduct')}</h3>
             <span>Новый товар</span>
           </div>
