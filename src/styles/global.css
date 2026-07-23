@@ -151,7 +151,7 @@ img { max-width: 100%; display: block; }
 .cart-item-name { font-weight: 600; font-size: 14px; }
 .cart-item-price { font-weight: 700; font-size: 14px; }
 .cart-item-qty { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
-.cart-item-qty button { width: 28px; height: 28px; border-radius: 50%; background: var(--bg-hover); color: var(--text); font-size: 16px; transition: background 0.2s; }
+.cart-item-qty button { width: 28px; min-width: 28px; height: 28px; min-height: 28px; border-radius: 50%; background: var(--bg-hover); color: var(--text); font-size: 16px; transition: background 0.2s; display: inline-flex; align-items: center; justify-content: center; line-height: 1; padding: 0; }
 .cart-item-qty button:hover { background: var(--border); }
 .cart-item-qty span { font-size: 14px; min-width: 20px; text-align: center; }
 .cart-item-remove { background: none; color: var(--text-muted); padding: 4px; }
@@ -623,7 +623,7 @@ img { max-width: 100%; display: block; }
 
 /* Color picker with qty */
 .color-picker-item .cart-item-qty { display: flex; align-items: center; gap: 8px; }
-.color-picker-item .cart-item-qty button { width: 28px; height: 28px; border-radius: 50%; background: var(--bg-hover); color: var(--text); font-size: 16px; border: none; cursor: pointer; transition: background 0.2s; }
+.color-picker-item .cart-item-qty button { width: 28px; min-width: 28px; height: 28px; min-height: 28px; border-radius: 50%; background: var(--bg-hover); color: var(--text); font-size: 16px; border: none; cursor: pointer; transition: background 0.2s; display: inline-flex; align-items: center; justify-content: center; line-height: 1; padding: 0; }
 .color-picker-item .cart-item-qty button:hover { background: var(--border); }
 .color-picker-item .cart-item-qty span { font-size: 15px; font-weight: 700; min-width: 20px; text-align: center; }
 .color-modal .product-add { width: fit-content; margin: 0 auto 8px; }
