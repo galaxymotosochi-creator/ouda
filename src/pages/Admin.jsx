@@ -1005,9 +1005,9 @@ export default function Admin() {
       {editingProduct && (
         <div className="modal-overlay" onClick={closeEditProduct}>
           <div className="modal modal-wide v2-modal" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
+            <div className="modal-header v2-header" style={{borderRadius:'14px 14px 0 0'}}>
               <h3>Редактировать товар</h3>
-              <button className="modal-close" onClick={closeEditProduct}>×</button>
+              <button className="modal-close" onClick={closeEditProduct} style={{color:'#fff'}}>×</button>
             </div>
             <div className="admin-add-form" style={{border:'none',boxShadow:'none',margin:0}}>
             <div className="form-grid">
@@ -1069,8 +1069,8 @@ export default function Admin() {
                 <div className="full-width"><textarea placeholder={lang === 'zh' ? '描述' : 'Описание'} value={editForm.description} onChange={e => setEditForm({...editForm, description: e.target.value})} /></div>
               </div>
             <div className="modal-actions" style={{paddingTop:16}}>
-              <button type="button" className="admin-btn admin-btn-cancel" onClick={closeEditProduct}>Отмена</button>
-              <button type="button" className="admin-btn-primary" onClick={updateProduct}>Сохранить</button>
+              <button type="button" className="v2-btn v2-btn-cancel" onClick={closeEditProduct}>Отмена</button>
+              <button type="button" className="v2-btn v2-btn-primary" onClick={updateProduct}>Сохранить</button>
             </div>
             </div>
           </div>
