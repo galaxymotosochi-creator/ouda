@@ -556,7 +556,10 @@ export default function Admin() {
                 {tab === 'products' && (<>
           <div className="v2-products-section">
 
-          <div style={{fontSize:14,fontWeight:600,color:'#667eea',marginBottom:16,textTransform:'uppercase',letterSpacing:0.5}}>{t('addProduct')}</div>
+          <div className="v2-header">
+            <h3>{t('addProduct')}</h3>
+            <span>Новый товар</span>
+          </div>
 
           <form className="admin-add-form" onSubmit={addProduct} style={{border:'none',padding:0,background:'transparent',boxShadow:'none'}}>
 
