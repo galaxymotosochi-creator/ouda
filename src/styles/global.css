@@ -523,7 +523,7 @@ img { max-width: 100%; display: block; }
 /* Print styles */
 @media print {
   body { background: #fff !important; }
-  .admin-header, .admin-tabs, .admin-content > :not(.modal-overlay), .modal-overlay > .modal > .modal-header > :not(h3) { display: none !important; }
+  .admin-header, .admin-tabs, .admin-tabs *, .admin-content > *:not(.modal-overlay), .modal-overlay > .modal > .modal-header > :not(h3) { display: none !important; }
   .modal-overlay { position: static !important; background: none !important; padding: 0 !important; }
   .modal { box-shadow: none !important; max-height: none !important; border-radius: 0 !important; }
   .modal-header h3 { display: none; }
