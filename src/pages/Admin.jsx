@@ -934,14 +934,14 @@ export default function Admin() {
               {shipments.map(s => (
                 <tr key={s.id} style={{borderTop:'1px solid #f0f2ff',transition:'background .15s'}}
                   onMouseOver={e => e.currentTarget.style.background='#fafbff'} onMouseOut={e => e.currentTarget.style.background=''}>
-                  <td style={{padding:'12px 16px',whiteSpace:'nowrap',fontWeight:500}}>{s.number}</td>
-                  <td style={{padding:'12px 16px',whiteSpace:'nowrap',color:'#999',fontSize:12}}>{formatDate(s.created_at)}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{s.number}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{formatDate(s.created_at)}</td>
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{s.client?.name || '—'}</td>
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{s.client?.phone || '—'}</td>
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap',fontSize:12}}>
                     {(s.items || []).map(item => `${item.product_name}${item.color ? ' ('+item.color+')' : ''} ×${item.qty}`).join(', ')}
                   </td>
-                  <td style={{padding:'12px 16px',whiteSpace:'nowrap',fontWeight:600}}>{(s.total||0).toLocaleString('ru-RU')} ₽</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{(s.total||0).toLocaleString('ru-RU')} ₽</td>
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap',fontSize:13}}>
                     {s.prepaid > 0 && <div>{t('prepaid')}: {(s.prepaid||0).toLocaleString('ru-RU')} ₽</div>}
                     {s.paid > 0 && <div>{t('fullPayment')}: {(s.paid||0).toLocaleString('ru-RU')} ₽</div>}
