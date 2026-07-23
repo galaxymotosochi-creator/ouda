@@ -206,7 +206,7 @@ export default function Admin() {
     setShipOrder(order)
     setShipForm({
       client: { name: order.name, phone: order.phone, city: order.city || '', transport: order.transport || '' },
-      items, prepaid: 0, paid: 0,
+      items, prepaid: 0, paid: items.reduce((s, i) => s + (i.price || 0) * (i.qty || 0), 0),
     })
     setShipOrderNum(orderNum)
     setShowShipModal(true)
@@ -1028,15 +1028,15 @@ export default function Admin() {
               <h4 style={{marginTop:20,marginBottom:10,fontSize:14,color:'#666'}}>Оплата</h4>
               <div className="ship-payment">
                 <div className="ship-payment-row">
-                  <label>{t('prepaidAmount')}</label>
-                  <input className="ship-input-pay" type="number" min="0" value={shipForm.prepaid}
-                    onChange={e => setShipForm(prev => ({...prev, prepaid: e.target.value}))} />
-                  <span>₽</span>
-                </div>
-                <div className="ship-payment-row">
                   <label>{t('paidAmount')}</label>
                   <input className="ship-input-pay" type="number" min="0" value={shipForm.paid}
                     onChange={e => setShipForm(prev => ({...prev, paid: e.target.value}))} />
+                  <span>₽</span>
+                </div>
+                <div className="ship-payment-row">
+                  <label>{t('prepaidAmount')}</label>
+                  <input className="ship-input-pay" type="number" min="0" value={shipForm.prepaid}
+                    onChange={e => setShipForm(prev => ({...prev, prepaid: e.target.value}))} />
                   <span>₽</span>
                 </div>
               </div>
