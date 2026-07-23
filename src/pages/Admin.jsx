@@ -565,7 +565,7 @@ export default function Admin() {
 
           {/* Основное */}
           <div className="v2-st">Основное</div>
-          <div className="v2-card" style={{overflow:"hidden"}}>
+          <div className="v2-card">
             <div className="v2-field full-w">
               <label>Название *</label>
               <input className="v2-input" placeholder={lang === 'zh' ? '名称 *' : 'Название *'} value={lang === 'zh' ? (newProduct.name_zh || newProduct.name_ru) : (newProduct.name_ru || newProduct.name_zh)} onChange={e => {
