@@ -122,7 +122,7 @@ img { max-width: 100%; display: block; }
 .product-add {
   background: var(--accent); color: #fff; padding: 10px 24px;
   border-radius: 50px; font-size: 13px; font-weight: 600;
-  transition: background 0.2s;
+  transition: background 0.2s; width: fit-content;
 }
 .product-add:hover { background: var(--accent-hover); }
 .product-add.in-cart { background: var(--accent); opacity: 0.6; }
