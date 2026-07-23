@@ -626,7 +626,7 @@ img { max-width: 100%; display: block; }
 .color-picker-item .cart-item-qty button { width: 28px; height: 28px; border-radius: 50%; background: var(--bg-hover); color: var(--text); font-size: 16px; border: none; cursor: pointer; transition: background 0.2s; }
 .color-picker-item .cart-item-qty button:hover { background: var(--border); }
 .color-picker-item .cart-item-qty span { font-size: 15px; font-weight: 700; min-width: 20px; text-align: center; }
-.color-modal .product-add { width: 100%; margin-bottom: 8px; }
+.color-modal .product-add { width: fit-content; margin: 0 auto 8px; }
 
 /* Hero glass buttons */
 .hero-btn {
