@@ -767,7 +767,7 @@ img { max-width: 100%; display: block; }
 .v2-products-section .v2-btn-cancel { background: none; color: #999; }
 .v2-products-section .v2-btn-cancel:hover { color: #333; }
 .v2-st { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #667eea; font-weight: 600; margin-bottom: 10px; }
-.v2-card { background: #fff; border-radius: 14px; padding: 16px; box-shadow: 0 2px 8px rgba(102,126,234,0.08); margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
+.v2-card { background: #fff; border-radius: 14px; padding: 16px; box-shadow: 0 2px 8px rgba(102,126,234,0.08); margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; }
 .v2-field { display: flex; flex-direction: column; gap: 4px; }
 .v2-field.full-w { grid-column: 1/-1; }
 .v2-field.half { display: flex; flex-direction: column; gap: 4px; }
