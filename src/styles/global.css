@@ -439,6 +439,15 @@ img { max-width: 100%; display: block; }
 .ship-input-pay:focus { border-color: var(--accent); outline: none; }
 .ship-payment-row span { font-size: 14px; color: var(--text-muted); }
 
+/* Shipment date */
+.ship-date-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.ship-date-row label { font-size: 13px; color: var(--text-muted); white-space: nowrap; }
+.ship-input-date {
+  padding: 6px 10px; border: 1px solid var(--border);
+  border-radius: 8px; font-size: 13px; background: #fff;
+}
+.ship-input-date:focus { border-color: var(--accent); outline: none; }
+
 .admin-btn-primary {
   background: var(--accent); color: #fff; padding: 10px 24px;
   border-radius: 50px; font-size: 13px; font-weight: 600;

@@ -36,7 +36,7 @@ export default function Admin() {
   const [showShipModal, setShowShipModal] = useState(false)
   const [shipOrder, setShipOrder] = useState(null)
   const [shipOrderNum, setShipOrderNum] = useState(0)
-  const [shipForm, setShipForm] = useState({ client: { name: '', phone: '', city: '', transport: '' }, items: [], prepaid: 0, paid: 0 })
+  const [shipForm, setShipForm] = useState({ client: { name: '', phone: '', city: '', transport: '' }, items: [], prepaid: 0, paid: 0, date: new Date().toISOString().slice(0, 10) })
 
   // Invoice modal
   const [invoiceShip, setInvoiceShip] = useState(null)
@@ -207,6 +207,7 @@ export default function Admin() {
     setShipForm({
       client: { name: order.name, phone: order.phone, city: order.city || '', transport: order.transport || '' },
       items, prepaid: 0, paid: items.reduce((s, i) => s + (i.price || 0) * (i.qty || 0), 0),
+      date: new Date().toISOString().slice(0, 10),
     })
     setShipOrderNum(orderNum)
     setShowShipModal(true)
@@ -214,7 +215,7 @@ export default function Admin() {
 
   const openShipManual = () => {
     setShipOrder(null)
-    setShipForm({ client: { name: '', phone: '', city: '', transport: '' }, items: [{ product_id: 0, product_name: '', color: '', price: 0, qty: 0, subtotal: 0 }], prepaid: 0, paid: 0 })
+    setShipForm({ client: { name: '', phone: '', city: '', transport: '' }, items: [{ product_id: 0, product_name: '', color: '', price: 0, qty: 0, subtotal: 0 }], prepaid: 0, paid: 0, date: new Date().toISOString().slice(0, 10) })
     setShowShipModal(true)
   }
 
@@ -266,6 +267,7 @@ export default function Admin() {
       client: shipForm.client,
       items,
       total: items.reduce((s, i) => s + i.subtotal, 0),
+      date: shipForm.date || new Date().toISOString().slice(0, 10),
       prepaid: Number(shipForm.prepaid) || 0,
       paid: Number(shipForm.paid) || 0,
     }
@@ -991,6 +993,12 @@ export default function Admin() {
                   onChange={e => setShipForm(prev => ({...prev, client: {...prev.client, city: e.target.value}}))} />
                 <input className="ship-input" placeholder="Транспортная компания" value={shipForm.client.transport}
                   onChange={e => setShipForm(prev => ({...prev, client: {...prev.client, transport: e.target.value}}))} />
+              </div>
+
+                            <div className="ship-date-row">
+                <label>Дата отгрузки:</label>
+                <input type="date" className="ship-input-date" value={shipForm.date}
+                  onChange={e => setShipForm(prev => ({...prev, date: e.target.value}))} />
               </div>
 
               <h4 style={{marginBottom:12,fontSize:14,color:'#666'}}>{t('product')}</h4>

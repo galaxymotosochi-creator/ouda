@@ -236,7 +236,7 @@ app.post('/api/shipments', (req, res) => {
     ? 'OUDA-' + String(req.body.order_number).padStart(3, '0')
     : (shipmentCounter++ , 'OUDA-' + String(shipmentCounter).padStart(3, '0'))
   const s = {
-    id: nextId++, number, created_at: new Date().toISOString(),
+    id: nextId++, number, created_at: req.body.date ? new Date(req.body.date + 'T12:00:00Z').toISOString() : new Date().toISOString(),
     status: 'оформлено', prepaid: 0, paid: 0, ...req.body,
   }
   if (s.order_id) {
