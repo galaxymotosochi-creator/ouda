@@ -94,12 +94,26 @@ export default function Catalog() {
 
   const handleAddColorsToCart = () => {
     if (!colorModal) return
-    Object.entries(colorQtys).forEach(([name, qty]) => {
-      if (qty > 0) {
-        for (let i = 0; i < qty; i++) {
-          addToCart(colorModal.product, name, '')
+    setCart(prev => {
+      let updated = [...prev]
+      const product = colorModal.product
+      Object.entries(colorQtys).forEach(([name, qty]) => {
+        if (qty <= 0) return
+        const avail = (product.available_colors || {})[name] || 0
+        const key = `${product.id}_${name}`
+        const inCart = updated.filter(i => i.cartKey === key).reduce((s, i) => s + i.qty, 0)
+        const canAdd = Math.max(0, Math.min(qty, avail - inCart))
+        if (canAdd <= 0) return
+        const exist = updated.find(item => item.cartKey === key)
+        if (exist) {
+          updated = updated.map(item =>
+            item.cartKey === key ? { ...item, qty: item.qty + canAdd } : item
+          )
+        } else {
+          updated = [{ ...product, cartKey: key, selectedColor: name, selectedHex: '', qty: canAdd }, ...updated]
         }
-      }
+      })
+      return updated
     })
     setColorModal(null)
   }
