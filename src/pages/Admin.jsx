@@ -200,8 +200,8 @@ export default function Admin() {
       product_name: item.name,
       color: item.color || '',
       price: item.price || 0,
-      qty: 0,
-      subtotal: 0,
+      qty: item.qty || 0,
+      subtotal: (item.price || 0) * (item.qty || 0),
     }))
     setShipOrder(order)
     setShipForm({
