@@ -414,8 +414,8 @@ img { max-width: 100%; display: block; }
 .ship-col-color { text-align: left; }
 .ship-table-header .ship-col-color { padding-left: 7px; }
 .ship-col-qty { text-align: center; }
-.ship-col-price { text-align: right; }
-.ship-col-sum { text-align: right; font-weight: 600; }
+.ship-col-price { text-align: right; padding: 0 6px; }
+.ship-col-sum { text-align: right; font-weight: 600; padding: 0 6px; }
 
 .ship-select-sm {
   width: 100%; padding: 4px 6px; border: 1px solid var(--border);
