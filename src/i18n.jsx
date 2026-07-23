@@ -24,6 +24,7 @@ const translations = {
     phone: 'Номер телефона *',
     cash: 'Наличные',
     usdt: 'USDT',
+    discuss: 'Хочу обсудить',
     submit: 'Оформить заказ',
     sending: 'Отправка...',
     // Toast
@@ -138,6 +139,7 @@ const translations = {
     phone: '电话号码 *',
     cash: '现金',
     usdt: 'USDT',
+    discuss: '想讨论',
     submit: '下订单',
     sending: '发送中...',
     successMsg: '谢谢！订单已发送，我们会与您联系 🏍️',
