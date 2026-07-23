@@ -239,7 +239,7 @@ export default function Catalog() {
                             disabled={qty >= remaining}>+</button>
                         </div>
                         {remaining > 0 ? (
-                          <span className="color-picker-remain">можно {remaining} шт</span>
+                          <span className="color-picker-remain">в наличии {remaining} шт</span>
                         ) : (
                           <span className="color-picker-remain">всё в корзине</span>
                         )}
