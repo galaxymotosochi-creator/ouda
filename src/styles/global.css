@@ -303,24 +303,19 @@ img { max-width: 100%; display: block; }
 /* Color picker list */
 .color-picker-list { display: flex; flex-direction: column; gap: 8px; }
 .color-picker-item {
-  display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+  display: flex; flex-wrap: nowrap; align-items: center; gap: 8px; padding: 8px 12px;
   border-radius: 10px; cursor: pointer; transition: background 0.2s;
   border: 1px solid var(--border);
 }
 .color-picker-item:hover { background: var(--bg-hover); border-color: var(--accent); }
 .color-picker-circle { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; border: 1px solid var(--border); overflow: hidden; }
-.color-picker-name { font-size: 15px; font-weight: 500; color: var(--text); flex: 1; min-width: 0; }
+.color-picker-name { font-size: 15px; font-weight: 500; color: var(--text); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; }
 .color-picker-controls {
   display: flex;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: 10px;
-  margin-left: auto;
+  gap: 6px;
   flex-shrink: 0;
-}
-.color-picker-remain {
-  font-size: 11px;
-  color: #999;
-  white-space: nowrap;
 }
 
 /* Responsive */
