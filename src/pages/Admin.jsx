@@ -554,101 +554,174 @@ export default function Admin() {
 
         {/* === PRODUCTS TAB === */}
         {tab === 'products' && (<>
-          <form className="admin-add-form" onSubmit={addProduct}>
-            <h3>{t('addProduct')}</h3>
-            <div className="form-grid">
-              <input placeholder={lang === 'zh' ? '名称 *' : 'Название *'} value={lang === 'zh' ? (newProduct.name_zh || newProduct.name_ru) : (newProduct.name_ru || newProduct.name_zh)} onChange={e => {
-                const val = e.target.value
-                if (lang === 'zh') {
-                  setNewProduct(prev => ({...prev, name_zh: val}))
-                } else {
-                  setNewProduct(prev => ({...prev, name_ru: val}))
-                }
-              }} required />
-              <input placeholder={t('retailPrice')} type="number" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} required />
-              <input placeholder={t('wholesalePrice')} type="number" value={newProduct.wholesale_price} onChange={e => setNewProduct({...newProduct, wholesale_price: e.target.value})} />
-              <select value={newProduct.power} onChange={e => setNewProduct({...newProduct, power: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
-                <option value="">{t('power')}</option>
-                <option value="125">125</option>
-                <option value="150">150</option>
-                <option value="180">180</option>
-              </select>
-              <select value={newProduct.fuel} onChange={e => setNewProduct({...newProduct, fuel: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
-                <option value="">{t('fuel')}</option>
-                <option value="Карбюратор">{t('carburetor')}</option>
-                <option value="Инжектор">{t('injector')}</option>
-              </select>
-              <select value={newProduct.cooling} onChange={e => setNewProduct({...newProduct, cooling: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
-                <option value="">{t('cooling')}</option>
-                <option value="Воздушное">{t('airCooled')}</option>
-                <option value="Жидкостное">{t('liquidCooled')}</option>
-              </select>
-              <select value={newProduct.max_speed} onChange={e => setNewProduct({...newProduct, max_speed: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
-                <option value="">{t('max_speed')}</option>
-                <option value="95">95</option>
-                <option value="100">100</option>
-                <option value="105">105</option>
-                <option value="110">110</option>
-              </select>
-              <select value={newProduct.wheels} onChange={e => setNewProduct({...newProduct, wheels: e.target.value})} style={{padding:'10px 14px',borderRadius:'10px',border:'1px solid var(--border)',background:'var(--bg)',fontSize:14,outline:'none',cursor:'pointer'}}>
-                <option value="">{t('wheels')}</option>
-                <option value="10/10">10/10</option>
-                <option value="12/12">12/12</option>
-                <option value="13/13">13/13</option>
-                <option value="13/14">13/14</option>
-                <option value="14/14">14/14</option>
-              </select>
-              <div className="full-width photo-upload-area"
-                onDragOver={handleDragOver}
-                onDrop={handleDropFiles}
-              >
-                <label className="photo-upload-label">
-                  {uploading ? t('uploading') : t('uploadPhotos')}
-                  <input type="file" accept="image/*" multiple onChange={handlePhotos} disabled={uploading} hidden />
-                </label>
-                {photos.length > 0 && (
-                  <div className="photo-previews">
-                    {photos.map((p, i) => (
-                      <div key={i}
-                        className="photo-preview"
-                        draggable
-                        onDragStart={(e) => handleDragStart(i, e)}
-                        onDragOver={handleDragOver}
-                        onDrop={(e) => handleDrop(i, e)}
-                        onDragEnd={(e) => { e.currentTarget.classList.remove('dragging') }}
-                      >
-                        <img src={p.url} alt="" />
-                        <button type="button" className="photo-remove" onClick={() => removePhoto(i)}>×</button>
-                        <div className="photo-order">{i + 1}</div>
-                        <div style={{position:'absolute',bottom:4,left:4,display:'flex',gap:2}}>
-                          {i > 0 && <button type="button" style={{background:'rgba(0,0,0,0.5)',color:'#fff',border:'none',borderRadius:4,padding:'2px 6px',fontSize:11,cursor:'pointer',lineHeight:1}} onClick={() => movePhoto(i, i-1)}>‹</button>}
-                          {i < photos.length - 1 && <button type="button" style={{background:'rgba(0,0,0,0.5)',color:'#fff',border:'none',borderRadius:4,padding:'2px 6px',fontSize:11,cursor:'pointer',lineHeight:1}} onClick={() => movePhoto(i, i+1)}>›</button>}
-                        </div>
-                      </div>
-                    ))}
+          <div className="v2-products-section">
+          
+          {/* Form card */}
+          <div className="v2-card v2-card-form">
+          <form className="admin-add-form" onSubmit={addProduct} style={{border:'none',padding:0,background:'transparent',boxShadow:'none'}}>
+            <div style={{fontSize:14,fontWeight:600,color:'#667eea',padding:'20px 24px 0',textTransform:'uppercase',letterSpacing:'0.5px'}}>{t('addProduct')}</div>
+            <div className="form-grid" style={{padding:'16px 24px 20px'}}>
+              
+              {/* Main info */}
+              <div style={{marginBottom:16}}>
+                <div className="v2-section-title">Основное</div>
+                <div className="v2-inner-card">
+                  <div className="v2-field-full">
+                    <span className="v2-field-label">Название *</span>
+                    <input className="v2-field-input" placeholder={lang === 'zh' ? '名称 *' : 'Название *'} value={lang === 'zh' ? (newProduct.name_zh || newProduct.name_ru) : (newProduct.name_ru || newProduct.name_zh)} onChange={e => {
+                      const val = e.target.value
+                      if (lang === 'zh') {
+                        setNewProduct(prev => ({...prev, name_zh: val}))
+                      } else {
+                        setNewProduct(prev => ({...prev, name_ru: val}))
+                      }
+                    }} required />
                   </div>
-                )}
+                  <div className="v2-field-row">
+                    <div className="v2-field-half">
+                      <span className="v2-field-label">Розничная цена *</span>
+                      <input className="v2-field-input" placeholder={t('retailPrice')} type="number" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} required />
+                    </div>
+                    <div className="v2-field-half">
+                      <span className="v2-field-label">Оптовая цена</span>
+                      <input className="v2-field-input" placeholder={t('wholesalePrice')} type="number" value={newProduct.wholesale_price} onChange={e => setNewProduct({...newProduct, wholesale_price: e.target.value})} />
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="full-width"><textarea placeholder={lang === 'zh' ? '描述' : 'Описание'} value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})} /></div>
-              <button type="submit">{t('addProduct')}</button>
+              
+              {/* Specs */}
+              <div style={{marginBottom:16}}>
+                <div className="v2-section-title">Характеристики</div>
+                <div className="v2-inner-card">
+                  <div className="v2-field-row">
+                    <div className="v2-field-half">
+                      <span className="v2-field-label">Мощность</span>
+                      <select className="v2-field-input" value={newProduct.power} onChange={e => setNewProduct({...newProduct, power: e.target.value})}>
+                        <option value="">{t('power')}</option>
+                        <option value="125">125</option>
+                        <option value="150">150</option>
+                        <option value="180">180</option>
+                      </select>
+                    </div>
+                    <div className="v2-field-half">
+                      <span className="v2-field-label">Подача топлива</span>
+                      <select className="v2-field-input" value={newProduct.fuel} onChange={e => setNewProduct({...newProduct, fuel: e.target.value})}>
+                        <option value="">{t('fuel')}</option>
+                        <option value="Карбюратор">{t('carburetor')}</option>
+                        <option value="Инжектор">{t('injector')}</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="v2-field-row v2-field-row-3">
+                    <div className="v2-field-third">
+                      <span className="v2-field-label">Охлаждение</span>
+                      <select className="v2-field-input" value={newProduct.cooling} onChange={e => setNewProduct({...newProduct, cooling: e.target.value})}>
+                        <option value="">{t('cooling')}</option>
+                        <option value="Воздушное">{t('airCooled')}</option>
+                        <option value="Жидкостное">{t('liquidCooled')}</option>
+                      </select>
+                    </div>
+                    <div className="v2-field-third">
+                      <span className="v2-field-label">Макс. скорость</span>
+                      <select className="v2-field-input" value={newProduct.max_speed} onChange={e => setNewProduct({...newProduct, max_speed: e.target.value})}>
+                        <option value="">{t('max_speed')}</option>
+                        <option value="95">95</option>
+                        <option value="100">100</option>
+                        <option value="105">105</option>
+                        <option value="110">110</option>
+                      </select>
+                    </div>
+                    <div className="v2-field-third">
+                      <span className="v2-field-label">Колёса</span>
+                      <select className="v2-field-input" value={newProduct.wheels} onChange={e => setNewProduct({...newProduct, wheels: e.target.value})}>
+                        <option value="">{t('wheels')}</option>
+                        <option value="10/10">10/10</option>
+                        <option value="12/12">12/12</option>
+                        <option value="13/13">13/13</option>
+                        <option value="13/14">13/14</option>
+                        <option value="14/14">14/14</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="v2-field-full">
+                    <span className="v2-field-label">Описание</span>
+                    <textarea className="v2-field-input" style={{resize:'vertical',minHeight:60}} placeholder={lang === 'zh' ? '描述' : 'Описание'} value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})} />
+                  </div>
+                </div>
+              </div>
+              
+              {/* Photos */}
+              <div style={{marginBottom:16}}>
+                <div className="v2-section-title">Фото</div>
+                <div className="v2-inner-card">
+                  <div className="full-width photo-upload-area"
+                    onDragOver={handleDragOver}
+                    onDrop={handleDropFiles}
+                    style={{border:'2px dashed #e0e7ff',borderRadius:12,padding:30,textAlign:'center',color:'#667eea',fontSize:13}}
+                  >
+                    <label className="photo-upload-label">
+                      {uploading ? t('uploading') : t('uploadPhotos')}
+                      <input type="file" accept="image/*" multiple onChange={handlePhotos} disabled={uploading} hidden />
+                    </label>
+                    {photos.length > 0 && (
+                      <div className="photo-previews" style={{display:'flex',gap:10,marginTop:12,flexWrap:'wrap',justifyContent:'center'}}>
+                        {photos.map((p, i) => (
+                          <div key={i}
+                            className="photo-preview"
+                            draggable
+                            onDragStart={(e) => handleDragStart(i, e)}
+                            onDragOver={handleDragOver}
+                            onDrop={(e) => handleDrop(i, e)}
+                            onDragEnd={(e) => { e.currentTarget.classList.remove('dragging') }}
+                            style={{width:80,height:80,borderRadius:12,overflow:'hidden',position:'relative'}}
+                          >
+                            <img src={p.url} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}} />
+                            <button type="button" className="photo-remove" onClick={() => removePhoto(i)}>×</button>
+                            <div className="photo-order" style={{position:'absolute',bottom:2,left:2,background:'rgba(0,0,0,0.5)',color:'#fff',fontSize:10,padding:'1px 6px',borderRadius:4}}>{i + 1}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Footer buttons */}
+              <div style={{display:'flex',justifyContent:'flex-end',gap:10,paddingTop:8}}>
+                <button type="button" className="v2-btn-cancel" onClick={() => {/* cancel */}}>Отмена</button>
+                <button type="submit" className="v2-btn-primary">Добавить товар</button>
+              </div>
+              
             </div>
           </form>
-          <div style={{margin:'0 24px 24px'}}>
-          <div style={{overflowX:'auto',borderRadius:'var(--radius)'}}>
-          <table className="admin-table" style={{margin:0}}>
-            <thead><tr>
-              <th>{t('nameLabel')}</th><th>Розница</th><th>Опт</th><th>{t('power')}</th><th>{t('fuel')}</th><th>{t('wheels')}</th><th></th>
+          </div>
+          
+          {/* Table */}
+          <div className="v2-section-title" style={{marginTop:8}}>Товары</div>
+          <div className="v2-card v2-card-table" style={{overflow:'hidden',padding:0}}>
+          <div style={{overflowX:'auto'}}>
+          <table className="admin-table" style={{margin:0,border:'none',boxShadow:'none'}}>
+            <thead><tr style={{background:'#f8f9ff',textTransform:'uppercase',letterSpacing:'.5px',fontSize:11,color:'#667ea',fontWeight:600}}>
+              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap'}}>{t('nameLabel')}</th>
+              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap'}}>Розница</th>
+              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap'}}>Опт</th>
+              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap'}}>{t('power')}</th>
+              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap'}}>{t('fuel')}</th>
+              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap'}}>{t('wheels')}</th>
+              <th style={{padding:'12px 16px',textAlign:'left',whiteSpace:'nowrap'}}></th>
             </tr></thead>
             <tbody>
               {products.map(p => (
-                <tr key={p.id} style={{cursor:'pointer'}} onClick={() => openEditProduct(p)}>
-                  <td><strong>{lang === 'zh' ? (p.name_zh || p.name) : (p.name_ru || p.name)}</strong></td>
-                  <td>{p.price.toLocaleString('ru-RU')} ₽</td>
-                  <td>{p.wholesale_price ? Number(p.wholesale_price).toLocaleString('ru-RU') + ' ₽' : '—'}</td>
-                  <td>{p.power||'—'}</td>
-                  <td>{p.fuel||'—'}</td>
-                  <td>{p.wheels||'—'}</td>
-                  <td><button className="admin-btn admin-btn-done" onClick={(e) => { e.stopPropagation(); deleteProduct(p.id) }} style={{color:'#ef4444'}}>{t('delete')}</button></td>
+                <tr key={p.id} style={{cursor:'pointer',borderTop:'1px solid #f0f2ff',transition:'background .15s'}} onClick={() => openEditProduct(p)}
+                  onMouseOver={e => e.currentTarget.style.background='#fafbff'} onMouseOut={e => e.currentTarget.style.background=''}>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap',fontWeight:500}}>{lang === 'zh' ? (p.name_zh || p.name) : (p.name_ru || p.name)}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{p.price.toLocaleString('ru-RU')} ₽</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{p.wholesale_price ? Number(p.wholesale_price).toLocaleString('ru-RU') + ' ₽' : '—'}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{p.power||'—'}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{p.fuel||'—'}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{p.wheels||'—'}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}><button className="admin-btn admin-btn-done" onClick={(e) => { e.stopPropagation(); deleteProduct(p.id) }} style={{background:'linear-gradient(135deg,#667eea,#764ba2)',color:'#fff',padding:'5px 14px',borderRadius:8,fontSize:11,border:'none',cursor:'pointer',fontWeight:500}}>{t('delete')}</button></td>
                 </tr>
               ))}
               {products.length===0 && <tr><td colSpan={7} style={{textAlign:'center',color:'#666',padding:40}}>{t('noProducts')}</td></tr>}
@@ -656,9 +729,11 @@ export default function Admin() {
           </table>
           </div>
           </div>
+          
+          </div>
         </>)}
 
-        {/* === STOCK TAB === */}
+        {/* === STOCK TAB === */}        {/* === STOCK TAB === */}
         {tab === 'stock' && (<>
           <form className="admin-add-form" onSubmit={addStock}>
             <h3>{t('addStock')}</h3>
