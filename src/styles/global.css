@@ -307,8 +307,9 @@ img { max-width: 100%; display: block; }
 .color-modal .palette { justify-content: center; }
 .color-modal .palette-color { width: 40px; height: 40px; border-width: 3px; }
 .color-modal .palette-color.selected { border-color: var(--accent); box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--accent); }
-.color-modal-cancel { background: none; color: var(--text-muted); padding: 10px 20px; border-radius: 50px; font-size: 13px; margin-top: 16px; transition: all 0.2s; }
+.color-modal-cancel { background: none; color: var(--text-muted); padding: 10px 20px; border-radius: 50px; font-size: 13px; transition: all 0.2s; }
 .color-modal-cancel:hover { color: var(--text); background: var(--bg-hover); }
+
 
 /* Color picker list */
 .color-picker-list { display: flex; flex-direction: column; gap: 8px; }
@@ -637,7 +638,7 @@ img { max-width: 100%; display: block; }
 .color-picker-item .cart-item-qty button:hover { background: #e8e8e8; }
 .color-picker-item .cart-item-qty button:active { background: #ddd; }
 .color-picker-item .cart-item-qty span { font-size: 15px; font-weight: 700; min-width: 20px; text-align: center; }
-.color-modal .product-add { width: fit-content; margin: 0 auto 8px; }
+.color-modal .product-add { width: fit-content; margin: 12px auto 0; }
 
 /* Hero glass buttons */
 .hero-btn {

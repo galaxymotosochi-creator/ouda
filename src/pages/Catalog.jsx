@@ -245,12 +245,12 @@ export default function Catalog() {
                 })}
             </div>
             <div style={{marginTop:16,borderTop:'1px solid var(--border)',paddingTop:16}}>
+              <button className="color-modal-cancel" onClick={() => setColorModal(null)}>
+                Отмена
+              </button>
               <button className="product-add" onClick={handleAddColorsToCart}
                 disabled={Object.values(colorQtys).reduce((s, v) => s + v, 0) === 0}>
                 Добавить в корзину
-              </button>
-              <button className="color-modal-cancel" onClick={() => setColorModal(null)}>
-                Отмена
               </button>
             </div>
           </div>
