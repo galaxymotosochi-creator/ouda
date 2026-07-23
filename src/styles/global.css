@@ -109,7 +109,7 @@ img { max-width: 100%; display: block; }
 .product-body { padding: 20px; display: flex; flex-direction: column; flex: 1; }
 .product-name { font-size: 16px; font-weight: 600; margin-bottom: 10px; }
 .product-colors { margin-bottom: 8px; font-size: 13px; }
-.color-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.color-pills { display: flex; flex-wrap: wrap; gap: 6px; min-height: 46px; align-content: flex-start; }
 .color-pill {
   background: var(--bg-hover); color: var(--text-muted);
   padding: 3px 12px; border-radius: 20px; font-size: 12px;
