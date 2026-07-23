@@ -415,16 +415,13 @@ img { max-width: 100%; display: block; }
 .ship-col-price { text-align: right; }
 .ship-col-sum { text-align: right; font-weight: 600; }
 .ship-select-sm {
-  width: 100%; padding: 0; border: none; border-radius: 0;
-  font-size: 13px; background: transparent; color: inherit;
+  width: 100%; padding: 4px 6px; border: 1px solid var(--border);
+  border-radius: 6px; font-size: 12px; background: #fff;
 }
 .ship-input-qty {
-  width: 100%; padding: 0; border: none; border-radius: 0;
-  font-size: 13px; text-align: center; background: transparent; color: inherit;
-  -moz-appearance: textfield;
+  width: 100%; padding: 4px 6px; border: 1px solid var(--border);
+  border-radius: 6px; font-size: 12px; text-align: center; background: #fff;
 }
-.ship-input-qty::-webkit-inner-spin-button,
-.ship-input-qty::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 .ship-remove-sm { background: none; border: none; color: #ccc; cursor: pointer; font-size: 16px; padding: 0; line-height: 1; }
 .ship-remove-sm:hover { color: var(--red); }
 
