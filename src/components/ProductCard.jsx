@@ -59,12 +59,7 @@ export default function ProductCard({ product, onAdd, inCart, cartQtys }) {
         <div className="product-colors">
           {hasColors ? (
             <><span className="spec-label">{t('color')}:</span>
-            <strong>{colorNames.map(name => {
-              const stock = avail[name] || 0
-              const inCartQty = (cartQtys || {})[`${product.id}_${name}`] || 0
-              const remaining = stock - inCartQty
-              return `${translateColor(name)} (${remaining}/${stock})`
-            }).join(', ')}</strong></>
+            <strong>{colorNames.map(name => translateColor(name)).join(', ')}</strong></>
           ) : (
             <span style={{visibility:'hidden'}}> </span>
           )}
