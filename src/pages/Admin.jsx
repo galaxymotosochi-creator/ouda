@@ -1046,7 +1046,7 @@ export default function Admin() {
                 <span>{shipTotal().toLocaleString('ru-RU')} ₽</span>
               </div>
 
-              <div className="modal-actions">
+              <div className="modal-actions" style={{justifyContent:"flex-end"}}>
                 <button className="admin-btn admin-btn-cancel" onClick={closeShipModal}>Отмена</button>
                 <button className="admin-btn-primary" onClick={createShipment}>Создать отгрузку</button>
               </div>
