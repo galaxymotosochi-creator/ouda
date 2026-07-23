@@ -108,7 +108,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
               onChange={e => setForm({ ...form, name: e.target.value })} required />
             <input placeholder="Город *" value={form.city}
               onChange={e => setForm({ ...form, city: e.target.value })} required />
-            <input placeholder="Транспортная компания и адрес *" value={form.transport}
+            <input placeholder="Транспортная компания и адрес терминала *" value={form.transport}
               onChange={e => setForm({ ...form, transport: e.target.value })} required />
             <input placeholder="Номер телефона *" type="tel" value={form.phone}
               onChange={e => setForm({ ...form, phone: e.target.value })} required />
