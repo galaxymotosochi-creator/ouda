@@ -232,8 +232,8 @@ app.get('/api/shipments/:id', (req, res) => {
 })
 app.post('/api/shipments', (req, res) => {
   // Use order id as number when created from order, otherwise use counter
-  const number = req.body.order_id
-    ? 'OUDA-' + String(req.body.order_id).padStart(3, '0')
+  const number = req.body.order_number
+    ? 'OUDA-' + String(req.body.order_number).padStart(3, '0')
     : (shipmentCounter++ , 'OUDA-' + String(shipmentCounter).padStart(3, '0'))
   const s = {
     id: nextId++, number, created_at: new Date().toISOString(),

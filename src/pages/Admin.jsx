@@ -35,6 +35,7 @@ export default function Admin() {
   // Create shipment modal
   const [showShipModal, setShowShipModal] = useState(false)
   const [shipOrder, setShipOrder] = useState(null)
+  const [shipOrderNum, setShipOrderNum] = useState(0)
   const [shipForm, setShipForm] = useState({ client: { name: '', phone: '', city: '', transport: '' }, items: [], prepaid: 0, paid: 0 })
 
   // Invoice modal
@@ -193,7 +194,7 @@ export default function Admin() {
     return map[s] || ''
   }
 
-  const openShipFromOrder = (order) => {
+  const openShipFromOrder = (order, orderNum) => {
     const items = (order.items || []).map(item => ({
       product_id: item.product_id,
       product_name: item.name,
@@ -207,6 +208,7 @@ export default function Admin() {
       client: { name: order.name, phone: order.phone, city: order.city || '', transport: order.transport || '' },
       items, prepaid: 0, paid: 0,
     })
+    setShipOrderNum(orderNum)
     setShowShipModal(true)
   }
 
@@ -216,7 +218,7 @@ export default function Admin() {
     setShowShipModal(true)
   }
 
-  const closeShipModal = () => { setShowShipModal(false); setShipOrder(null) }
+  const closeShipModal = () => { setShowShipModal(false); setShipOrder(null); setShipOrderNum(0) }
 
   const updateShipItem = (idx, field, value) => {
     setShipForm(prev => {
@@ -260,6 +262,7 @@ export default function Admin() {
     if (items.length === 0) return
     const payload = {
       order_id: shipOrder?.id || null,
+      order_number: shipOrderNum || 0,
       client: shipForm.client,
       items,
       total: items.reduce((s, i) => s + i.subtotal, 0),
@@ -274,7 +277,7 @@ export default function Admin() {
         const n = parseInt((s.number || '').replace(/\D/g, ''), 10)
         return n > max ? n : max
       }, 0)
-      const nextNum = payload.order_id ? payload.order_id : (maxNum + 1)
+      const nextNum = payload.order_number ? payload.order_number : (maxNum + 1)
       list.push({ id: Date.now(), number: 'OUDA-' + String(nextNum).padStart(3, '0'), ...payload, status: 'оформлено', created_at: new Date().toISOString() })
       setLocal(LS_SHIPMENTS, list)
     })
@@ -831,7 +834,7 @@ export default function Admin() {
                     <div className="admin-actions">
                       {o.status==='new' && <button className="admin-btn admin-btn-accept" onClick={() => updateStatus(o.id,'accepted')}>{t('accept')}</button>}
                       {o.status!=='done' && <button className="admin-btn admin-btn-done" onClick={() => updateStatus(o.id,'done')}>{t('done')}</button>}
-                      <button className="admin-btn admin-btn-ship" onClick={() => openShipFromOrder(o)}>Отгрузить</button>
+                      <button className="admin-btn admin-btn-ship" onClick={() => openShipFromOrder(o, i+1)}>Отгрузить</button>
                     </div>
                   </td>
                 </tr>
@@ -974,7 +977,7 @@ export default function Admin() {
         <div className="modal-overlay" onClick={closeShipModal}>
           <div className="modal modal-wide" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>{shipOrder ? `${t('shipmentFromOrder')} #${shipOrder.id}` : t('newShipment')}</h3>
+              <h3>{shipOrder ? `${t('shipmentFromOrder')} #${shipOrderNum}` : t('newShipment')}</h3>
               <button className="modal-close" onClick={closeShipModal}>×</button>
             </div>
             <div className="modal-body">
