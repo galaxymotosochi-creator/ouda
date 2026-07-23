@@ -55,16 +55,24 @@ export default function ProductCard({ product, onAdd, inCart, cartQtys }) {
       <div className="product-body">
         <div className="product-name">{lang === 'zh' ? (product.name_zh || product.name) : (product.name_ru || product.name)}</div>
 
-        {/* Colors from stock — comma separated with quantities */}
+        {/* Colors from stock — pill badges */}
         <div className="product-colors">
           {hasColors ? (
-            <><span className="spec-label">{t('color')}:</span>
-            <strong>{colorNames.map(name => {
-              const stock = avail[name] || 0
-              const inCartQty = (cartQtys || {})[`${product.id}_${name}`] || 0
-              const remaining = stock - inCartQty
-              return `${translateColor(name)} (${remaining} шт)`
-            }).join(', ')}</strong></>
+            <>
+              <span className="spec-label" style={{marginBottom:6,display:'inline-block'}}>{t('color')}:</span>
+              <div className="color-pills">
+                {colorNames.map(name => {
+                  const stock = avail[name] || 0
+                  const inCartQty = (cartQtys || {})[`${product.id}_${name}`] || 0
+                  const remaining = stock - inCartQty
+                  return (
+                    <span key={name} className="color-pill">
+                      {translateColor(name)} {remaining} шт
+                    </span>
+                  )
+                })}
+              </div>
+            </>
           ) : (
             <span style={{visibility:'hidden'}}> </span>
           )}
