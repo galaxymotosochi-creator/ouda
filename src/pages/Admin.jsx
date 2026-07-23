@@ -691,6 +691,7 @@ export default function Admin() {
           {/* Таблица товаров */}
           <div className="v2-st">Товары</div>
           <div className="v2-card">
+          <div style={{borderRadius:12,overflow:'hidden',border:'1px solid #f0f2ff'}}>
           <div style={{overflowX:'auto'}}>
           <table className="admin-table" style={{margin:0,border:'none',boxShadow:'none',width:'100%',borderCollapse:'collapse'}}>
             <thead><tr>
@@ -718,6 +719,7 @@ export default function Admin() {
               {products.length===0 && <tr><td colSpan={7} style={{textAlign:'center',color:'#666',padding:40}}>{t('noProducts')}</td></tr>}
             </tbody>
           </table>
+          </div>
           </div>
           </div>
 
@@ -910,6 +912,7 @@ export default function Admin() {
           </table>
           </div>
           </div>
+          </div>
         </>)}
 
         {/* === SHIPMENTS TAB === */}
@@ -958,6 +961,7 @@ export default function Admin() {
               {shipments.length===0 && <tr><td colSpan={9} style={{textAlign:'center',color:'#666',padding:40}}>{t('noShipments')}</td></tr>}
             </tbody>
           </table>
+          </div>
           </div>
           </div>
         </>)}
