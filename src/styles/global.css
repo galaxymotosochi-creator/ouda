@@ -244,6 +244,7 @@ img { max-width: 100%; display: block; }
 .admin-add-form .full-width { grid-column: 1 / -1; }
 .admin-add-form button { grid-column: 1 / -1; padding: 10px 24px; background: var(--bg-hover); color: var(--text); border-radius: 50px; font-size: 13px; font-weight: 500; transition: all 0.2s; justify-self: end; border: 1px solid #999; width: auto; }
 .admin-add-form button:hover { background: var(--border); }
+.admin-add-form button.v2-btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; border: none; padding: 10px 24px; border-radius: 12px; font-size: 13px; font-weight: 500; justify-self: end; cursor: pointer; }
 .stock-list { display: grid; gap: 12px; }
 .stock-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow); }
 .stock-item-info { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
