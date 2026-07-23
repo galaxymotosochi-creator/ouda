@@ -291,7 +291,6 @@ export default function Admin() {
         // Update order locally
         const localOrders = getLocal(LS_ORDERS).map(o => o.id === payload.order_id ? { ...o, status: 'done' } : o)
         setLocal(LS_ORDERS, localOrders)
-        setOrders(localOrders)
       }
     })
     setShowShipModal(false)
