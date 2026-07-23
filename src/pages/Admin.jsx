@@ -987,7 +987,7 @@ export default function Admin() {
                       {s.status === 'отгружено' && <>
                         <button className="admin-btn admin-btn-done" onClick={() => updateShipment(s.id,{status:'доставлено'})}>Доставлено</button>
                       </>}
-                      <button className="admin-btn admin-btn-invoice" onClick={() => setInvoiceShip(s)}>Накладная</button>
+                      <button className="admin-btn admin-btn-invoice" onClick={() => setInvoiceShip(s)} style={{background:"none",color:"#667eea",padding:"5px 10px",borderRadius:8,fontSize:12,border:"1px solid #667eea",cursor:"pointer"}}>Накладная</button>
                     </div>
                   </td>
                 </tr>
