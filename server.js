@@ -126,7 +126,7 @@ function getEnrichedProducts() {
 app.get('/api/products', (req, res) => res.json(getEnrichedProducts()))
 app.post('/api/products', (req, res) => {
   const p = { id: nextId++, ...req.body, colors: [] }
-  products.push(p)
+  products.unshift(p)
   saveAll()
   res.json(p)
 })
@@ -162,7 +162,7 @@ app.patch('/api/orders/:id', (req, res) => {
 app.get('/api/stock', (req, res) => res.json(stock))
 app.post('/api/stock', (req, res) => {
   const s = { id: nextId++, ...req.body }
-  stock.push(s)
+  stock.unshift(s)
   saveAll()
   res.json(s)
 })
@@ -218,7 +218,7 @@ app.patch('/api/stock/:id/receive', (req, res) => {
     expected_date: null,
     colors: receivedColors,
   }
-  stock.push(newEntry)
+  stock.unshift(newEntry)
   saveAll()
   res.json({ action: 'partial', transit: entry, received: newEntry })
 })
@@ -245,7 +245,7 @@ app.post('/api/shipments', (req, res) => {
       s.client = { name: order.name, phone: order.phone, city: order.city || '' }
     }
   }
-  shipments.push(s)
+  shipments.unshift(s)
   saveAll()
   res.json(s)
 })
