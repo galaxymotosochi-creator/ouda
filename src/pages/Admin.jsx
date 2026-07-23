@@ -554,8 +554,16 @@ export default function Admin() {
 
         {/* === PRODUCTS TAB === */}
         {tab === 'products' && (<>
-          <form className="admin-add-form" onSubmit={addProduct}>
-            <h3>{t('addProduct')}</h3>
+          <div style={{
+            background: 'linear-gradient(135deg, #667eea, #764ba2)',
+            color: '#fff', padding: '20px 24px',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            borderRadius: '14px 14px 0 0'
+          }}>
+            <h3 style={{fontSize:16,fontWeight:600,margin:0,padding:0}}>{t('addProduct')}</h3>
+            <span style={{fontSize:11,background:'rgba(255,255,255,0.2)',padding:'4px 12px',borderRadius:8}}>Новый товар</span>
+          </div>
+          <form className="admin-add-form" onSubmit={addProduct} style={{borderRadius:'0 0 14px 14px',borderTop:'none'}}>
             <div className="form-grid">
               <input placeholder={lang === 'zh' ? '名称 *' : 'Название *'} value={lang === 'zh' ? (newProduct.name_zh || newProduct.name_ru) : (newProduct.name_ru || newProduct.name_zh)} onChange={e => {
                 const val = e.target.value
