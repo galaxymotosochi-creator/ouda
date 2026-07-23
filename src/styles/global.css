@@ -388,7 +388,7 @@ img { max-width: 100%; display: block; }
 
 /* V2 Shipment Modal */
 .v2-modal { border-radius: 20px; }
-.v2-header { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; border-radius: 14px 14px 0 0; }
+.v2-header { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; }
 .v2-header h3 { font-size: 16px; font-weight: 600; }
 .v2-header span { font-size: 11px; background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 8px; }
 .v2-header-right { display: flex; align-items: center; gap: 12px; }
