@@ -49,7 +49,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
       <div className={`cart-overlay ${open ? 'open' : ''}`} onClick={onClose} />
       <div className={`cart-sidebar ${open ? 'open' : ''}`}>
         <div className="cart-header">
-          <h3>🛒 {t('cartTitle')}</h3>
+          <h3>{t('cartTitle')}</h3>
           <button className="cart-close" onClick={onClose}>✕</button>
         </div>
         <div className="cart-items">
