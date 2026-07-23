@@ -244,7 +244,7 @@ export default function Catalog() {
                   )
                 })}
             </div>
-            <div style={{marginTop:16,borderTop:'1px solid var(--border)',paddingTop:16}}>
+            <div style={{marginTop:16,borderTop:'1px solid var(--border)',paddingTop:16,textAlign:'right'}}>
               <button className="color-modal-cancel" onClick={() => setColorModal(null)}>
                 Отмена
               </button>
