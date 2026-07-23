@@ -813,13 +813,13 @@ export default function Admin() {
               {orders.map((o, i) => (
                 <tr key={o.id}>
                   <td>{i+1}</td>
-                  <td style={{fontSize:13,color:'#999'}}>{formatDate(o.created_at)}</td>
-                  <td><strong>{o.name}</strong></td>
+                  <td>{formatDate(o.created_at)}</td>
+                  <td>{o.name}</td>
                   <td>{o.city||'—'}</td>
                   <td>{o.transport||'—'}</td>
                   <td>{o.phone}</td>
-                  <td style={{fontSize:13}}>{o.items?.map(item => `${item.name} ×${item.qty}`).join(', ')||'—'}</td>
-                  <td><strong>{(o.total||0).toLocaleString('ru-RU')} ₽</strong></td>
+                  <td>{o.items?.map(item => `${item.name} ×${item.qty}${item.color ? ' ('+item.color+')' : ''}`).join(', ')||'—'}</td>
+                  <td>{(o.total||0).toLocaleString('ru-RU')} ₽</td>
                   <td><span className="admin-badge">{o.payment==='usdt'?'USDT':o.payment==='discuss'?'Хочу обсудить':t('cash')}</span></td>
                   <td><span className={`status ${statusClass(o.status)}`}>{statusLabel(o.status)}</span></td>
                   <td>
