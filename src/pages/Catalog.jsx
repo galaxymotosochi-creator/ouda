@@ -43,12 +43,11 @@ export default function Catalog() {
 
   const addToCart = useCallback((product, colorName, colorHex) => {
     const key = `${product.id}_${colorName}`
-    // Check if still can add (avail > inCart)
-    const avail = (product.available_colors || {})[colorName] || 0
-    const inCart = cartQtys[key] || 0
-    if (avail <= inCart) return
-
     setCart(prev => {
+      const avail = (product.available_colors || {})[colorName] || 0
+      const inCart = prev.filter(i => i.cartKey === key).reduce((s, i) => s + i.qty, 0)
+      if (avail <= inCart) return prev
+
       const exists = prev.find(item => item.cartKey === key)
       if (exists) {
         return prev.map(item =>
@@ -63,7 +62,7 @@ export default function Catalog() {
         qty: 1,
       }, ...prev]
     })
-  }, [cartQtys])
+  }, [])
 
   const handleAddClick = (product, needsColor) => {
     const avail = product.available_colors || {}
@@ -87,14 +86,9 @@ export default function Catalog() {
   }
 
   const handleColorQty = (name, delta) => {
-    const product = colorModal?.product
-    if (!product) return
-    const avail = (product.available_colors || {})[name] || 0
-    const inCart = cartQtys[`${product.id}_${name}`] || 0
-    const maxRemaining = avail - inCart
     setColorQtys(prev => ({
       ...prev,
-      [name]: Math.max(0, Math.min(maxRemaining, (prev[name] || 0) + delta))
+      [name]: Math.max(0, (prev[name] || 0) + delta)
     }))
   }
 
@@ -235,8 +229,7 @@ export default function Catalog() {
                         <div className="cart-item-qty">
                           <button onClick={() => handleColorQty(name, -1)}>−</button>
                           <span>{qty}</span>
-                          <button onClick={() => handleColorQty(name, 1)}
-                            disabled={qty >= remaining}>+</button>
+                          <button onClick={() => handleColorQty(name, 1)}>+</button>
                         </div>
                         {remaining > 0 ? (
                           <span className="color-picker-remain">в наличии {remaining} шт</span>
