@@ -385,6 +385,56 @@ img { max-width: 100%; display: block; }
 .ship-remove:hover { color: var(--red); background: var(--bg-hover); }
 .ship-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: 700; margin-top: 16px; padding-top: 12px; border-top: 2px solid var(--accent); }
 
+/* Shipment table (new) */
+.ship-table { border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+.ship-table-header {
+  display: grid;
+  grid-template-columns: 1fr 120px 70px 100px 100px 30px;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--bg-hover);
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.ship-table-row {
+  display: grid;
+  grid-template-columns: 1fr 120px 70px 100px 100px 30px;
+  gap: 8px;
+  padding: 10px 14px;
+  align-items: center;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+}
+.ship-table-row:hover { background: var(--bg-hover); }
+.ship-col-color { text-align: center; }
+.ship-col-qty { text-align: center; }
+.ship-col-price { text-align: right; }
+.ship-col-sum { text-align: right; font-weight: 600; }
+.ship-select-sm {
+  width: 100%; padding: 4px 6px; border: 1px solid var(--border);
+  border-radius: 6px; font-size: 12px; background: #fff;
+}
+.ship-input-qty {
+  width: 100%; padding: 4px 6px; border: 1px solid var(--border);
+  border-radius: 6px; font-size: 12px; text-align: center; background: #fff;
+}
+.ship-remove-sm { background: none; border: none; color: #ccc; cursor: pointer; font-size: 16px; padding: 0; line-height: 1; }
+.ship-remove-sm:hover { color: var(--red); }
+
+/* Payment section (new) */
+.ship-payment { display: flex; gap: 24px; }
+.ship-payment-row { display: flex; align-items: center; gap: 8px; }
+.ship-payment-row label { font-size: 13px; color: var(--text-muted); white-space: nowrap; }
+.ship-input-pay {
+  width: 120px; padding: 8px 12px; border: 1px solid var(--border);
+  border-radius: 8px; font-size: 14px; text-align: right; background: #fff;
+}
+.ship-input-pay:focus { border-color: var(--accent); outline: none; }
+.ship-payment-row span { font-size: 14px; color: var(--text-muted); }
+
 .admin-btn-primary {
   background: var(--accent); color: #fff; padding: 10px 24px;
   border-radius: 50px; font-size: 13px; font-weight: 600;

@@ -994,48 +994,50 @@ export default function Admin() {
               </div>
 
               <h4 style={{marginBottom:12,fontSize:14,color:'#666'}}>{t('product')}</h4>
-              {shipForm.items.map((item, idx) => (
-                <div key={idx} className="ship-item-row">
-                  <select className="ship-select" value={item.product_id} onChange={e => onProductSelect(idx, e.target.value)}>
-                    <option value="0">{t('selectProductPlaceholder')}</option>
-                    {products.filter(p => {
-                      const usedInOther = shipForm.items.some((it, i) => i !== idx && it.product_id === p.id)
-                      return true // allow same product multiple times (different colors)
-                    }).map(p => (
-                      <option key={p.id} value={p.id}>{lang === 'zh' ? (p.name_zh || p.name) : (p.name_ru || p.name)} — {p.price.toLocaleString('ru-RU')} ₽</option>
-                    ))}
-                  </select>
-                  {item.product_id > 0 && (
-                    <>
-                      <select className="ship-select ship-color" value={item.color} onChange={e => updateShipItem(idx, 'color', e.target.value)}>
-                        <option value="">Цвет</option>
+              <div className="ship-table">
+                <div className="ship-table-header">
+                  <span className="ship-col-name">{t('product')}</span>
+                  <span className="ship-col-color">Цвет</span>
+                  <span className="ship-col-qty">{t('qty')}</span>
+                  <span className="ship-col-price">{t('unitPrice')}</span>
+                  <span className="ship-col-sum">{t('sum')}</span>
+                </div>
+                {shipForm.items.map((item, idx) => (
+                  <div key={idx} className="ship-table-row">
+                    <span className="ship-col-name">{item.product_name || '—'}</span>
+                    <span className="ship-col-color">
+                      <select className="ship-select-sm" value={item.color} onChange={e => updateShipItem(idx, 'color', e.target.value)}>
+                        <option value="">—</option>
                         {(products.find(p => p.id === item.product_id)?.available_colors ? Object.entries(products.find(p => p.id === item.product_id).available_colors).filter(([,qty]) => qty > 0).map(([color, qty]) => (
-                          <option key={color} value={color}>{color} ({qty})</option>
+                          <option key={color} value={color}>{color}</option>
                         )) : [])}
                       </select>
-                      <input className="ship-input ship-qty" type="number" min="0" value={item.qty}
+                    </span>
+                    <span className="ship-col-qty">
+                      <input className="ship-input-qty" type="number" min="0" value={item.qty}
                         onChange={e => updateShipItem(idx, 'qty', Number(e.target.value))} />
-                      <span className="ship-subtotal">{(item.subtotal||0).toLocaleString('ru-RU')} ₽</span>
-                    </>
-                  )}
-                  {shipForm.items.length > 1 && (
-                    <button className="ship-remove" onClick={() => removeShipItem(idx)}>×</button>
-                  )}
-                </div>
-              ))}
-              <button className="admin-btn admin-btn-add-item" onClick={addShipItem}>+ {t('addProduct')}</button>
+                    </span>
+                    <span className="ship-col-price">{(item.price||0).toLocaleString('ru-RU')} ₽</span>
+                    <span className="ship-col-sum">{(item.subtotal||0).toLocaleString('ru-RU')} ₽</span>
+                    <button className="ship-remove-sm" onClick={() => removeShipItem(idx)}>×</button>
+                  </div>
+                ))}
+              </div>
+              {!shipOrder && <button className="admin-btn admin-btn-add-item" onClick={addShipItem}>+ {t('addProduct')}</button>}
 
               <h4 style={{marginTop:20,marginBottom:10,fontSize:14,color:'#666'}}>Оплата</h4>
-              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
-                <div>
-                  <label style={{fontSize:12,color:'#999',display:'block',marginBottom:4}}>{t('prepaidAmount')}</label>
-                  <input className="ship-input" type="number" min="0" value={shipForm.prepaid}
+              <div className="ship-payment">
+                <div className="ship-payment-row">
+                  <label>{t('prepaidAmount')}</label>
+                  <input className="ship-input-pay" type="number" min="0" value={shipForm.prepaid}
                     onChange={e => setShipForm(prev => ({...prev, prepaid: e.target.value}))} />
+                  <span>₽</span>
                 </div>
-                <div>
-                  <label style={{fontSize:12,color:'#999',display:'block',marginBottom:4}}>{t('paidAmount')}</label>
-                  <input className="ship-input" type="number" min="0" value={shipForm.paid}
+                <div className="ship-payment-row">
+                  <label>{t('paidAmount')}</label>
+                  <input className="ship-input-pay" type="number" min="0" value={shipForm.paid}
                     onChange={e => setShipForm(prev => ({...prev, paid: e.target.value}))} />
+                  <span>₽</span>
                 </div>
               </div>
 
