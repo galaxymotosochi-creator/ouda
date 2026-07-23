@@ -681,8 +681,8 @@ export default function Admin() {
 
           {/* Кнопки */}
           <div style={{display:'flex',justifyContent:'flex-end',gap:10,margin:'16px 0'}}>
-            <button type="button" className="v2-btn v2-btn-cancel">Отмена</button>
-            <button type="submit" className="v2-btn v2-btn-primary">{t('addProduct')}</button>
+            <button type="button" className="v2-btn-cancel">Отмена</button>
+            <button type="submit" className="v2-btn-primary">{t('addProduct')}</button>
           </div>
 
           </form>

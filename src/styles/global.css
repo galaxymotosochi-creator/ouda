@@ -768,3 +768,7 @@ img { max-width: 100%; display: block; }
 .v2-field label { font-size: 11px; color: #999; font-weight: 500; }
 .v2-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .v2-row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.v2-btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; padding: 10px 24px; border-radius: 12px; font-size: 13px; font-weight: 500; border: none; cursor: pointer; }
+.v2-btn-cancel { background: transparent; color: #999; padding: 10px 20px; border-radius: 12px; font-size: 13px; border: none; cursor: pointer; }
+.v2-btn-cancel:hover { color: #333; }
+.v2-btn-primary:hover { opacity: 0.9; }
