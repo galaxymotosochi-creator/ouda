@@ -104,13 +104,13 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
               <span>{t('total')}</span>
               <span>{items.reduce((s, i) => s + getItemPrice(i, items) * i.qty, 0).toLocaleString('ru-RU')} {t('rub')}</span>
             </div>
-            <input placeholder={t('name')} value={form.name}
+            <input placeholder="Имя *" value={form.name}
               onChange={e => setForm({ ...form, name: e.target.value })} required />
-            <input placeholder={t('city')} value={form.city}
+            <input placeholder="Город *" value={form.city}
               onChange={e => setForm({ ...form, city: e.target.value })} required />
-            <input placeholder="Транспортная компания и адрес" value={form.transport}
+            <input placeholder="Транспортная компания и адрес *" value={form.transport}
               onChange={e => setForm({ ...form, transport: e.target.value })} required />
-            <input placeholder={t('phone')} type="tel" value={form.phone}
+            <input placeholder="Номер телефона *" type="tel" value={form.phone}
               onChange={e => setForm({ ...form, phone: e.target.value })} required />
             <select value={form.payment}
               onChange={e => setForm({ ...form, payment: e.target.value })}>
