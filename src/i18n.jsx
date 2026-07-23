@@ -28,7 +28,7 @@ const translations = {
     submit: 'Оформить заказ',
     sending: 'Отправка...',
     // Toast
-    successMsg: 'Спасибо! Заказ отправлен, мы свяжемся с вами 🏍️',
+    successMsg: 'Спасибо! Заказ отправлен, мы свяжемся с вами',
     // Product specs
     color: 'Цвет',
     power: 'Мощность',
@@ -142,7 +142,7 @@ const translations = {
     discuss: '想讨论',
     submit: '下订单',
     sending: '发送中...',
-    successMsg: '谢谢！订单已发送，我们会与您联系 🏍️',
+    successMsg: '谢谢！订单已发送，我们会与您联系',
     color: '颜色',
     power: '功率',
     fuel: '燃油供给',

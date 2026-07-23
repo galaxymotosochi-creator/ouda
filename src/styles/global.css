@@ -173,8 +173,8 @@ img { max-width: 100%; display: block; }
 .cart-submit { width: 100%; padding: 14px; background: var(--accent); color: #fff; border-radius: 50px; font-size: 14px; font-weight: 600; transition: background 0.2s; }
 .cart-submit:hover { background: var(--accent-hover); }
 .cart-submit:disabled { opacity: 0.4; cursor: not-allowed; }
-.success-toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #fff; padding: 14px 28px; border-radius: 50px; font-size: 13px; font-weight: 500; z-index: 300; animation: fadeInUp 0.3s ease; }
-@keyframes fadeInUp { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+.success-toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--accent); color: #fff; padding: 20px 32px; border-radius: 16px; font-size: 15px; font-weight: 500; z-index: 300; box-shadow: 0 10px 40px rgba(0,0,0,0.2); animation: fadeIn 0.25s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
 
 /* Login */
 .login-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
