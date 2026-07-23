@@ -938,16 +938,16 @@ export default function Admin() {
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{formatDate(s.created_at)}</td>
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{s.client?.name || '—'}</td>
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{s.client?.phone || '—'}</td>
-                  <td style={{padding:'12px 16px',whiteSpace:'nowrap',fontSize:12}}>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>
                     {(s.items || []).map(item => `${item.product_name}${item.color ? ' ('+item.color+')' : ''} ×${item.qty}`).join(', ')}
                   </td>
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{(s.total||0).toLocaleString('ru-RU')} ₽</td>
-                  <td style={{padding:'12px 16px',whiteSpace:'nowrap',fontSize:13}}>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>
                     {s.prepaid > 0 && <div>{t('prepaid')}: {(s.prepaid||0).toLocaleString('ru-RU')} ₽</div>}
                     {s.paid > 0 && <div>{t('fullPayment')}: {(s.paid||0).toLocaleString('ru-RU')} ₽</div>}
                     {!s.prepaid && !s.paid && <span style={{color:'#999'}}>—</span>}
                   </td>
-                  <td style={{padding:'12px 16px',whiteSpace:'nowrap',fontSize:13}}>{statusShipLabel(s.status)}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{statusShipLabel(s.status)}</td>
                   <td>
                     <div className="admin-actions">
                       {s.status === 'оформлено' && <>
