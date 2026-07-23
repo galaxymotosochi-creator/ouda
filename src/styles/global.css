@@ -399,19 +399,7 @@ img { max-width: 100%; display: block; }
 .v2-client-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px; }
 .v2-client-row:last-child { margin-bottom: 0; }
 .v2-client-field { display: flex; flex-direction: column; gap: 4px; }
-.v2-field-label { font-size: 11px; color: #999; font-weight: 500; display: block; margin-bottom: 4px; }
-.v2-field-input { width: 100%; padding: 9px 12px; border: 1px solid #e8e8e8; border-radius: 10px; font-size: 13px; background: #fff; transition: border .2s; outline: none; }
-.v2-field-input:focus { border-color: #667eea; }
-.v2-inner-card { background: #fff; border-radius: 14px; padding: 16px; box-shadow: 0 2px 8px rgba(102,126,234,0.08); display: flex; flex-direction: column; gap: 12px; }
-.v2-field-full { display: flex; flex-direction: column; gap: 4px; }
-.v2-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.v2-field-row-3 { grid-template-columns: 1fr 1fr 1fr; }
-.v2-field-half { display: flex; flex-direction: column; gap: 4px; }
-.v2-field-third { display: flex; flex-direction: column; gap: 4px; }
-.v2-btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; padding: 10px 24px; border-radius: 12px; font-size: 13px; font-weight: 500; border: none; cursor: pointer; }
-.v2-btn-cancel { background: transparent; color: #999; padding: 10px 20px; border-radius: 12px; font-size: 13px; border: none; cursor: pointer; }
-.v2-btn-cancel:hover { color: #333; }
-.v2-btn-primary:hover { opacity: .9; }
+.v2-field-label { font-size: 11px; color: #999; font-weight: 500; }
 .v2-input { width: 100%; padding: 8px 12px; border: 1px solid #e8e8e8; border-radius: 10px; font-size: 13px; background: #fff; transition: border 0.2s; }
 .v2-input:focus { border-color: #667eea; outline: none; }
 
@@ -442,6 +430,10 @@ img { max-width: 100%; display: block; }
 
 .v2-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 24px 20px; border-top: 1px solid #e0e7ff; background: #fff; }
 .v2-btn { padding: 10px 24px; border-radius: 12px; font-size: 13px; cursor: pointer; border: none; font-weight: 500; }
+.v2-btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; }
+.v2-btn-primary:hover { opacity: 0.9; }
+.v2-btn-cancel { background: none; color: #999; }
+.v2-btn-cancel:hover { color: #333; }
 
 
 
