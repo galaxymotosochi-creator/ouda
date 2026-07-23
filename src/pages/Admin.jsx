@@ -273,6 +273,11 @@ export default function Admin() {
     }
     fetch(`${API}/api/shipments`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
+    }).then(() => {
+      // Update order status to done after shipment
+      if (payload.order_id) {
+        updateStatus(payload.order_id, 'done')
+      }
     }).catch(() => {
       const list = getLocal(LS_SHIPMENTS)
       const maxNum = list.reduce((max, s) => {
@@ -282,6 +287,12 @@ export default function Admin() {
       const nextNum = payload.order_number ? payload.order_number : (maxNum + 1)
       list.push({ id: Date.now(), number: 'OUDA-' + String(nextNum).padStart(3, '0'), ...payload, status: 'оформлено', created_at: new Date().toISOString() })
       setLocal(LS_SHIPMENTS, list)
+      if (payload.order_id) {
+        // Update order locally
+        const localOrders = getLocal(LS_ORDERS).map(o => o.id === payload.order_id ? { ...o, status: 'done' } : o)
+        setLocal(LS_ORDERS, localOrders)
+        setOrders(localOrders)
+      }
     })
     setShowShipModal(false)
     setShipOrder(null)
@@ -544,7 +555,7 @@ export default function Admin() {
             { key: 'products', label: `${t('products')} (${products.length})` },
             { key: 'stock', label: `${t('stock')}` },
             { key: 'inventory', label: t('inventory') },
-            { key: 'orders', label: `${t('orders')} (${orders.length})` },
+            { key: 'orders', label: `${t('orders')} (${orders.filter(o => o.status === 'new').length})` },
             { key: 'shipments', label: `${t('shipments')} (${shipments.length})` },
           ].map(tabItem => (
             <button key={tabItem.key} className={`admin-tab ${tab === tabItem.key ? 'active' : ''}`}
