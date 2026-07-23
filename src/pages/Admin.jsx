@@ -692,7 +692,7 @@ export default function Admin() {
 
           {/* Таблица товаров */}
           <div className="v2-st">Товары</div>
-          <div className="v2-card" style={{overflow:'hidden',padding:0}}>
+          <div className="v2-card">
           <div style={{overflowX:'auto'}}>
           <table className="admin-table" style={{margin:0,border:'none',boxShadow:'none',width:'100%',borderCollapse:'collapse'}}>
             <thead><tr>
