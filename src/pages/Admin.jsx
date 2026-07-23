@@ -980,6 +980,11 @@ export default function Admin() {
           <div className="modal modal-wide" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h3>{shipOrder ? `${t('shipmentFromOrder')} #${shipOrderNum}` : t('newShipment')}</h3>
+              <div className="ship-header-date">
+                <span>Дата отгрузки:</span>
+                <input type="date" className="ship-input-date-sm" value={shipForm.date}
+                  onChange={e => setShipForm(prev => ({...prev, date: e.target.value}))} />
+              </div>
               <button className="modal-close" onClick={closeShipModal}>×</button>
             </div>
             <div className="modal-body">
@@ -993,12 +998,6 @@ export default function Admin() {
                   onChange={e => setShipForm(prev => ({...prev, client: {...prev.client, city: e.target.value}}))} />
                 <input className="ship-input" placeholder="Транспортная компания" value={shipForm.client.transport}
                   onChange={e => setShipForm(prev => ({...prev, client: {...prev.client, transport: e.target.value}}))} />
-              </div>
-
-                            <div className="ship-date-row">
-                <label>Дата отгрузки:</label>
-                <input type="date" className="ship-input-date" value={shipForm.date}
-                  onChange={e => setShipForm(prev => ({...prev, date: e.target.value}))} />
               </div>
 
               <h4 style={{marginBottom:12,fontSize:14,color:'#666'}}>{t('product')}</h4>

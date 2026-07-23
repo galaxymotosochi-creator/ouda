@@ -447,6 +447,12 @@ img { max-width: 100%; display: block; }
   border-radius: 8px; font-size: 13px; background: #fff;
 }
 .ship-input-date:focus { border-color: var(--accent); outline: none; }
+.ship-header-date { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); }
+.ship-input-date-sm {
+  padding: 4px 8px; border: 1px solid var(--border);
+  border-radius: 6px; font-size: 12px; background: #fff;
+}
+.ship-input-date-sm:focus { border-color: var(--accent); outline: none; }
 
 .admin-btn-primary {
   background: var(--accent); color: #fff; padding: 10px 24px;
