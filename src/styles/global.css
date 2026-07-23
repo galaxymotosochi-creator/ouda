@@ -755,3 +755,32 @@ img { max-width: 100%; display: block; }
 }
 .stock-chip-chameleon { background: linear-gradient(135deg, #8b5cf6, #6366f1, #3b82f6) !important; }
 .admin-section { background: var(--bg-card); border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); padding: 24px; margin-bottom: 24px; }
+
+
+/* V2 Products Section */
+.v2-products-section { padding: 24px; background: #f8f9ff; }
+.v2-card { background: #fff; border-radius: 16px; box-shadow: 0 2px 12px rgba(102,126,234,0.08); overflow: hidden; margin-bottom: 20px; }
+.v2-add-card { margin-bottom: 20px; }
+.v2-add-card h3 { font-size: 14px; font-weight: 600; color: #667eea; padding: 20px 24px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+.v2-add-card .form-grid { padding: 16px 24px 20px; }
+.v2-add-card button[type=submit] { 
+  background: linear-gradient(135deg, #667eea, #764ba2); color: #fff;
+  padding: 10px 24px; border-radius: 12px; font-size: 13px; font-weight: 500;
+  border: none; cursor: pointer; margin-top: 8px;
+}
+.v2-table-card { border-radius: 16px; }
+.v2-table-card .admin-table { border: none !important; box-shadow: none !important; margin: 0 !important; }
+.v2-table-card .admin-table thead th { 
+  background: #f8f9ff; color: #667eea; font-size: 11px !important;
+  text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 20px !important;
+}
+.v2-table-card .admin-table tbody td { padding: 14px 20px !important; background: #fff; }
+.v2-table-card .admin-table tbody tr { transition: background 0.15s; }
+.v2-table-card .admin-table tbody tr:hover td { background: #fafbff; }
+.v2-table-card .admin-table tbody tr:last-child td { border-bottom: none !important; }
+.v2-table-card .admin-btn-done { background: linear-gradient(135deg, #667eea, #764ba2) !important; color: #fff !important; padding: 6px 16px !important; border-radius: 8px !important; font-size: 11px !important; border: none !important; }
+.v2-table-card .admin-btn-accept { background: #e8f5e9; color: #2e7d32; padding: 6px 16px; border-radius: 8px; font-size: 11px; border: none; cursor: pointer; }
+.v2-table-card .admin-actions { display: flex; gap: 4px; }
+.v2-table-card .admin-badge { 
+  padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 500; display: inline-block;
+}
