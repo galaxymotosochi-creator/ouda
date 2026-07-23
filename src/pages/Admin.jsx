@@ -1009,7 +1009,7 @@ export default function Admin() {
               <h3>Редактировать товар</h3>
               <button className="modal-close" onClick={closeEditProduct} style={{color:'#fff'}}>×</button>
             </div>
-            <div style={{padding:24,background:'#f8f9ff',display:'flex',flexDirection:'column',gap:16}}>
+            <div style={{padding:24,background:'#f8f9ff',display:'flex',flexDirection:'column'}}>
 
               <div className="v2-st">Основное</div>
               <div className="v2-card">
