@@ -920,7 +920,7 @@ export default function Admin() {
         {tab === 'shipments' && (<>
           <div className="v2-products-section">
           <div className="v2-card" style={{overflow:'hidden',padding:0}}>
-          <div style={{marginBottom:16}}>
+          <div style={{display:'flex',justifyContent:'flex-end',marginBottom:16}}>
             <button onClick={openShipManual} style={{background:'linear-gradient(135deg,#667eea,#764ba2)',color:'#fff',padding:'10px 24px',borderRadius:12,fontSize:13,fontWeight:500,border:'none',cursor:'pointer'}}>Новая отгрузка</button>
           </div>
           <div style={{margin:'0 24px 24px'}}>
