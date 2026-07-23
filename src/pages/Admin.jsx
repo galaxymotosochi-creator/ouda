@@ -884,7 +884,7 @@ export default function Admin() {
           <div style={{overflowX:'auto',borderRadius:'var(--radius)'}}>
           <table className="admin-table" style={{margin:0}}>
             <thead><tr>
-              <th>№</th><th>{t('date')}</th><th>{t('name')}</th><th>{t('city')}</th><th>ТК</th><th>{t('phone')}</th>
+              <th>№</th><th>{t('date')}</th><th>Имя</th><th>{t('city')}</th><th>Транспортная компания</th><th>Номер телефона</th>
               <th>{t('products')}</th><th>{t('total')}</th><th>{t('payment')}</th><th>{t('status')}</th><th></th>
             </tr></thead>
             <tbody>
