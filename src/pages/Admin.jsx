@@ -561,8 +561,9 @@ export default function Admin() {
             <span>Новый товар</span>
           </div>
 
-          <form className="admin-add-form" onSubmit={addProduct} style={{border:'none',padding:'24px',background:'transparent',boxShadow:'none'}}>
+          <form className="admin-add-form" onSubmit={addProduct} style={{border:'none',padding:0,background:'transparent',boxShadow:'none'}}>
 
+          <div className="v2-form-body">
           <div className="v2-st">Основное</div>
           <div className="v2-card">
             <div className="v2-field full-w">
@@ -681,6 +682,7 @@ export default function Admin() {
             </div>
           </div>
 
+          </div>
           <div style={{display:'flex',justifyContent:'flex-end',gap:10,margin:'16px 0'}}>
             <button type="button" className="v2-btn v2-btn-cancel">Отмена</button>
             <button type="submit" className="v2-btn v2-btn-primary">{t('addProduct')}</button>
@@ -690,8 +692,8 @@ export default function Admin() {
 
           {/* Таблица товаров */}
           <div className="v2-st">Товары</div>
-          <div className="v2-card">
-          <div style={{borderRadius:12,overflow:'hidden',border:'1px solid #f0f2ff'}}>
+          <div className="v2-card" style={{padding:0}}>
+          <div style={{margin:16,borderRadius:12,overflow:'hidden',border:'1px solid #f0f2ff'}}>
           <div style={{overflowX:'auto'}}>
           <table className="admin-table" style={{margin:0,border:'none',boxShadow:'none',width:'100%',borderCollapse:'collapse'}}>
             <thead><tr>
@@ -912,7 +914,6 @@ export default function Admin() {
           </table>
           </div>
           </div>
-          </div>
         </>)}
 
         {/* === SHIPMENTS TAB === */}
@@ -961,7 +962,6 @@ export default function Admin() {
               {shipments.length===0 && <tr><td colSpan={9} style={{textAlign:'center',color:'#666',padding:40}}>{t('noShipments')}</td></tr>}
             </tbody>
           </table>
-          </div>
           </div>
           </div>
         </>)}
