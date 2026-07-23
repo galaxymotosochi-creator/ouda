@@ -1009,7 +1009,7 @@ export default function Admin() {
               <h3 style={{fontSize:16,fontWeight:600}}>Редактировать товар</h3>
               <button className="modal-close" onClick={closeEditProduct} style={{color:'#fff',fontSize:20}}>×</button>
             </div>
-            <div style={{padding:24,background:'#f8f9ff',display:'flex',flexDirection:'column',gap:12}}">
+            <div style={{padding:24,background:'#f8f9ff',display:'flex',flexDirection:'column',gap:12}}>
                 <input className="full-width" placeholder={lang === 'zh' ? '名称 *' : 'Название *'} value={lang === 'zh' ? (editForm.name_zh || editForm.name_ru) : (editForm.name_ru || editForm.name_zh)} onChange={e => {
                   const val = e.target.value
                   if (lang === 'zh') { setEditForm(prev => ({...prev, name_zh: val})) }
