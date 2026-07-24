@@ -168,11 +168,11 @@ export default function Catalog() {
           <div className="hero-contacts">
             <a href="https://max.ru/u/f9LHodD0cOKl_rlTV9a9EsXejDlc-Be7NLdhMcpCfu16AH6yJIUX5j9q9SM" target="_blank" className="glass-btn">
               <img src="/manager-sapa.jpg" alt="MAX" className="glass-avatar" />
-              <span>MAX</span>
+              <span>{t('contactManager')}</span>
             </a>
             <a href="https://t.me/iuliiashimanskaia" target="_blank" className="glass-btn">
               <img src="/manager-tg.jpg" alt="Telegram" className="glass-avatar" />
-              <span>Telegram</span>
+              <span>{t('contactTelegram')}</span>
             </a>
           </div>
         </div>
