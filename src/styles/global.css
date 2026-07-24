@@ -735,8 +735,8 @@ img { max-width: 100%; display: block; }
   align-items: center;
 }
 .bottom-nav-sep {
-  color: #ccc;
-  font-size: 14px;
+  color: #ddd;
+  font-size: 13px;
   font-weight: 200;
   user-select: none;
   line-height: 1;
@@ -744,8 +744,8 @@ img { max-width: 100%; display: block; }
 .bottom-nav-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px 14px;
+  gap: 5px;
+  padding: 10px 8px;
   border-radius: 10px;
   font-size: 13px;
   font-weight: 500;
@@ -768,14 +768,14 @@ img { max-width: 100%; display: block; }
 }
 
 .bottom-nav {
-  padding: 5px;
+  padding: 5px 12px;
 }
 
 @media (max-width: 500px) {
   .bottom-nav-item {
-    padding: 8px 10px;
+    padding: 8px 6px;
     font-size: 12px;
-    gap: 4px;
+    gap: 3px;
   }
   .bottom-nav-item svg {
     width: 15px;
