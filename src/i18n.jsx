@@ -13,6 +13,7 @@ const translations = {
     heroGlass: 'Скутера оптом и в розницу напрямую от завода-изготовителя. Склад в Москве. Доставка по всей России.',
     officeSochi: 'Офис г. Сочи: Пластунская 52"З"/2',
     officeMoscow: 'Офис г. Москва: ТК "Южные ворота"',
+    heroPhone: 'Телефон: +7(900)000-80-23',
     // Catalog
     catalogTitle: 'Каталог',
     addToCart: 'В корзину',
@@ -174,6 +175,7 @@ const translations = {
     heroGlass: '批发和零售踏板车，直接从制造商工厂。莫斯科仓库。全俄配送。',
     officeSochi: '索契办公室: Plastunskaya 52"З"/2',
     officeMoscow: '莫斯科办公室: ТК "南门"',
+    heroPhone: '电话: +7(900)000-80-23',
     catalogTitle: '产品目录',
     addToCart: '加入购物车',
     inCart: '✓ 已在购物车',
