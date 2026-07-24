@@ -27,7 +27,7 @@ const translations = {
     phone: 'Номер телефона *',
     cash: 'Наличные',
     usdt: 'USDT',
-    discuss: 'Хочу обсудить',
+    discuss: 'Хочу обсудить дополнительно',
     submit: 'Оформить заказ',
     sending: 'Отправка...',
     pickupLabel: 'Самовывоз г. Москва',

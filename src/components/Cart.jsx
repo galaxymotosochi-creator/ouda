@@ -139,6 +139,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
               onChange={e => setForm({ ...form, payment: e.target.value })}>
               <option value="cash">{t('cash')}</option>
               <option value="usdt">{t('usdt')}</option>
+              <option value="discuss">{t('discuss')}</option>
             </select>
             <button className="cart-submit" type="submit" disabled={sending}>
               {sending ? t('sending') : t('submit')}
