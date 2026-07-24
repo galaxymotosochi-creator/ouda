@@ -229,7 +229,7 @@ export default function Catalog() {
 
       {toast && <div className="success-toast">{toast}</div>}
 
-      <BottomNav />
+      <BottomNav onCartClick={() => setCartOpen(true)} />
 
       {/* Color picker modal */}
       {colorModal && (
