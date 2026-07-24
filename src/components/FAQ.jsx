@@ -96,7 +96,7 @@ export default function FAQ() {
   }
 
   return (
-    <section className="faq">
+    <section className="faq" id="faq">
       <h2 className="faq-title">Часто задаваемые вопросы</h2>
 
       {/* Map across all (block, question) pairs with a flat index */}

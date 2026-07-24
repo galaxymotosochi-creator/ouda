@@ -5,6 +5,7 @@ import Header from '../components/Header'
 import Cart from '../components/Cart'
 import ProductCard from '../components/ProductCard'
 import FAQ from '../components/FAQ'
+import BottomNav from '../components/BottomNav'
 
 const API = import.meta.env.VITE_API_URL || ''
 
@@ -227,6 +228,8 @@ export default function Catalog() {
       />
 
       {toast && <div className="success-toast">{toast}</div>}
+
+      <BottomNav />
 
       {/* Color picker modal */}
       {colorModal && (
