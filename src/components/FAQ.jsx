@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 const blocks = [
   {
-    title: '🚚 Доставка',
+    title: 'Доставка',
     questions: [
       {
         q: 'В какие города доставляете?',
@@ -23,7 +23,7 @@ const blocks = [
     ]
   },
   {
-    title: '💰 Оплата',
+    title: 'Оплата',
     questions: [
       {
         q: 'Какие способы оплаты?',
@@ -40,7 +40,7 @@ const blocks = [
     ]
   },
   {
-    title: '📦 Оптом',
+    title: 'Оптом',
     questions: [
       {
         q: 'Скольки штук начинается опт?',
@@ -57,7 +57,7 @@ const blocks = [
     ]
   },
   {
-    title: '📝 Оформление заказа',
+    title: 'Оформление заказа',
     questions: [
       {
         q: 'Как оформить заказ на сайте?',
@@ -70,7 +70,7 @@ const blocks = [
     ]
   },
   {
-    title: '📄 Документы',
+    title: 'Документы',
     questions: [
       {
         q: 'Сертификаты прилагаются?',
