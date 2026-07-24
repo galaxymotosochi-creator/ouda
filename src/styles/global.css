@@ -775,7 +775,7 @@ img { max-width: 100%; display: block; }
 @media (max-width: 500px) {
   .bottom-nav-item {
     padding: 6px 10px;
-    font-size: 10px;
+    font-size: 11px;
     gap: 2px;
   }
   .bottom-nav-item svg {
@@ -783,7 +783,7 @@ img { max-width: 100%; display: block; }
     height: 20px;
   }
   .bottom-nav-sep {
-    font-size: 12px;
+    font-size: 13px;
   }
 }
 
