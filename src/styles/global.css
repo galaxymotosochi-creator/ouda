@@ -743,11 +743,12 @@ img { max-width: 100%; display: block; }
 }
 .bottom-nav-item {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 5px;
-  padding: 10px 8px;
+  gap: 2px;
+  padding: 6px 12px;
   border-radius: 10px;
-  font-size: 13px;
+  font-size: 10px;
   font-weight: 500;
   color: #444;
   transition: all 0.2s;
@@ -763,26 +764,26 @@ img { max-width: 100%; display: block; }
 }
 .bottom-nav-item svg {
   flex-shrink: 0;
-  width: 17px;
-  height: 17px;
+  width: 20px;
+  height: 20px;
 }
 
 .bottom-nav {
-  padding: 5px 12px;
+  padding: 4px 8px;
 }
 
 @media (max-width: 500px) {
   .bottom-nav-item {
-    padding: 8px 6px;
-    font-size: 12px;
-    gap: 3px;
+    padding: 4px 8px;
+    font-size: 9px;
+    gap: 1px;
   }
   .bottom-nav-item svg {
-    width: 15px;
-    height: 15px;
+    width: 18px;
+    height: 18px;
   }
   .bottom-nav-sep {
-    font-size: 12px;
+    font-size: 10px;
   }
 }
 
