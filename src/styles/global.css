@@ -735,7 +735,7 @@ img { max-width: 100%; display: block; }
   align-items: center;
 }
 .bottom-nav-sep {
-  color: var(--border);
+  color: #ccc;
   font-size: 14px;
   font-weight: 200;
   user-select: none;
@@ -749,7 +749,7 @@ img { max-width: 100%; display: block; }
   border-radius: 12px;
   font-size: 13px;
   font-weight: 500;
-  color: var(--text-muted);
+  color: #444;
   transition: all 0.2s;
   text-decoration: none;
   white-space: nowrap;
@@ -758,8 +758,8 @@ img { max-width: 100%; display: block; }
   font-family: inherit;
 }
 .bottom-nav-item:hover {
-  background: rgba(0,0,0,0.05);
-  color: var(--text);
+  background: rgba(0,0,0,0.08);
+  color: #111;
 }
 .bottom-nav-item svg {
   flex-shrink: 0;
