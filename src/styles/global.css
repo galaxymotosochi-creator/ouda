@@ -765,6 +765,18 @@ img { max-width: 100%; display: block; }
   flex-shrink: 0;
 }
 
+@media (max-width: 650px) {
+  .bottom-nav-label {
+    display: none;
+  }
+  .bottom-nav-item {
+    padding: 8px 10px;
+  }
+  .bottom-nav-sep {
+    font-size: 12px;
+  }
+}
+
 /* FAQ accordion */
 .faq {
   max-width: 800px;
