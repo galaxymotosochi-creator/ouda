@@ -118,13 +118,17 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
               onChange={e => setForm({ ...form, city: e.target.value })} required />
             <input placeholder="Транспортная компания и адрес терминала *" value={pickup ? 'Самовывоз (Москва)' : form.transport}
               onChange={e => setForm({ ...form, transport: e.target.value })} disabled={pickup} required />
-            <label className="cart-pickup">
-              <input type="checkbox" checked={pickup} onChange={e => {
-                setPickup(e.target.checked)
-                if (e.target.checked) setForm({ ...form, city: 'Москва', transport: 'Самовывоз (Москва)' })
-              }} />
+            <div className="cart-pickup" onClick={() => {
+              setPickup(v => {
+                if (!v) setForm(f => ({ ...f, city: 'Москва', transport: 'Самовывоз (Москва)' }))
+                return !v
+              })
+            }}>
+              <div className={`cart-toggle-track ${pickup ? 'active' : ''}`}>
+                <div className="cart-toggle-thumb" />
+              </div>
               <span>{t('pickupLabel')}</span>
-            </label>
+            </div>
             <input placeholder="Номер телефона *" type="tel" value={form.phone}
               onChange={e => {
                 const v = e.target.value.replace(/[^0-9]/g, '')
