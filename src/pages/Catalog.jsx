@@ -162,7 +162,6 @@ export default function Catalog() {
           <div className="hero-desc-glass">
             <p>{t('heroGlass')}</p>
             <p className="hero-offices">{t('officeSochi')}</p>
-            <p className="hero-offices">{t('officeMoscow')}</p>
             <p className="hero-phone">{t('heroPhone')}</p>
           </div>
           <a href="#catalog" className="hero-btn">{t('heroBtn')}</a>
