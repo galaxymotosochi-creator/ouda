@@ -744,10 +744,10 @@ img { max-width: 100%; display: block; }
 .bottom-nav-item {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 8px 12px;
+  gap: 6px;
+  padding: 10px 14px;
   border-radius: 10px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   color: #444;
   transition: all 0.2s;
@@ -763,26 +763,26 @@ img { max-width: 100%; display: block; }
 }
 .bottom-nav-item svg {
   flex-shrink: 0;
-  width: 16px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
 }
 
 .bottom-nav {
-  padding: 4px;
+  padding: 5px;
 }
 
 @media (max-width: 500px) {
   .bottom-nav-item {
-    padding: 6px 8px;
-    font-size: 11px;
-    gap: 3px;
+    padding: 8px 10px;
+    font-size: 12px;
+    gap: 4px;
   }
   .bottom-nav-item svg {
-    width: 14px;
-    height: 14px;
+    width: 15px;
+    height: 15px;
   }
   .bottom-nav-sep {
-    font-size: 11px;
+    font-size: 12px;
   }
 }
 
