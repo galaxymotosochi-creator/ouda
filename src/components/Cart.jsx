@@ -17,6 +17,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
   const { t } = useLang()
   const [form, setForm] = useState({ name: '', city: '', phone: '+7', transport: '', payment: 'cash' })
   const [sending, setSending] = useState(false)
+  const [pickup, setPickup] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -24,14 +25,18 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
     setSending(true)
     try {
       const effectiveTotal = items.reduce((s, i) => s + getItemPrice(i, items) * i.qty, 0)
+      const orderData = {
+        ...form,
+        city: pickup ? 'Москва' : form.city,
+        transport: pickup ? 'Самовывоз (Москва)' : form.transport,
+        pickup,
+        items: items.map(i => ({ product_id: i.id, name: i.name, price: getItemPrice(i, items), qty: i.qty, color: i.selectedColor || '' })),
+        total: effectiveTotal,
+      }
       await fetch(`${api}/api/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...form,
-          items: items.map(i => ({ product_id: i.id, name: i.name, price: getItemPrice(i, items), qty: i.qty, color: i.selectedColor || '' })),
-          total: effectiveTotal,
-        }),
+        body: JSON.stringify(orderData),
       })
       onSuccess()
     } catch {
@@ -39,6 +44,9 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
       const localOrders = JSON.parse(localStorage.getItem('ouda_orders') || '[]')
       localOrders.push({
         id: Date.now(), ...form,
+        city: pickup ? 'Москва' : form.city,
+        transport: pickup ? 'Самовывоз (Москва)' : form.transport,
+        pickup,
         items: items.map(i => ({ product_id: i.id, name: i.name, price: getItemPrice(i, items), qty: i.qty, color: i.selectedColor || '' })),
         total: effectiveTotal, status: 'new', created_at: new Date().toISOString(),
       })
@@ -108,8 +116,15 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
               onChange={e => setForm({ ...form, name: e.target.value })} required />
             <input placeholder="Город *" value={form.city}
               onChange={e => setForm({ ...form, city: e.target.value })} required />
-            <input placeholder="Транспортная компания и адрес терминала *" value={form.transport}
-              onChange={e => setForm({ ...form, transport: e.target.value })} required />
+            <input placeholder="Транспортная компания и адрес терминала *" value={pickup ? 'Самовывоз (Москва)' : form.transport}
+              onChange={e => setForm({ ...form, transport: e.target.value })} disabled={pickup} required />
+            <label className="cart-pickup">
+              <input type="checkbox" checked={pickup} onChange={e => {
+                setPickup(e.target.checked)
+                if (e.target.checked) setForm({ ...form, city: 'Москва', transport: 'Самовывоз (Москва)' })
+              }} />
+              <span>{t('pickupLabel')}</span>
+            </label>
             <input placeholder="Номер телефона *" type="tel" value={form.phone}
               onChange={e => {
                 const v = e.target.value.replace(/[^0-9]/g, '')

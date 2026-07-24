@@ -223,6 +223,7 @@ export default function Admin() {
     const fakeShip = {
       number: 'Заказ #' + orderNum,
       created_at: order.created_at,
+      pickup: order.pickup,
       client: { name: order.name, phone: order.phone, city: order.city || '', transport: order.transport || '' },
       items: (order.items || []).map(item => ({
         product_name: item.name,
@@ -922,8 +923,8 @@ export default function Admin() {
                   <td>{i+1}</td>
                   <td>{formatDate(o.created_at)}</td>
                   <td>{o.name}</td>
-                  <td>{o.city||'—'}</td>
-                  <td>{o.transport||'—'}</td>
+                  <td>{o.pickup ? 'Москва' : (o.city||'—')}</td>
+                  <td>{o.pickup ? 'Самовывоз (Москва)' : (o.transport||'—')}</td>
                   <td>{o.phone}</td>
                   <td>{o.items?.map(item => `${item.name} ×${item.qty}${item.color ? ' ('+item.color+')' : ''}`).join(', ')||'—'}</td>
                   <td>{(o.total||0).toLocaleString('ru-RU')} ₽</td>
@@ -1306,7 +1307,7 @@ export default function Admin() {
                 <p><strong>{invoiceShip.client?.name || '—'}</strong></p>
                 <p>{t('phoneLabel')}: {invoiceShip.client?.phone || '—'}</p>
                 <p>Город: {invoiceShip.client?.city || '—'}</p>
-                {invoiceShip.client?.transport && <p>Транспортная компания: {invoiceShip.client.transport}</p>}
+                {invoiceShip.pickup ? <p>Самовывоз (Москва)</p> : invoiceShip.client?.transport && <p>Транспортная компания: {invoiceShip.client.transport}</p>}
               </div>
 
               <table className="invoice-table">
