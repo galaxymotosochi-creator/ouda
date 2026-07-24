@@ -4,6 +4,7 @@ import { useLang } from '../i18n'
 import Header from '../components/Header'
 import Cart from '../components/Cart'
 import ProductCard from '../components/ProductCard'
+import FAQ from '../components/FAQ'
 
 const API = import.meta.env.VITE_API_URL || ''
 
@@ -190,6 +191,8 @@ export default function Catalog() {
           })}
         </div>
       </section>
+
+      <FAQ />
 
       <Cart
         open={cartOpen}
