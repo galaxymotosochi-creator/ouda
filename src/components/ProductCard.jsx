@@ -95,7 +95,7 @@ export default function ProductCard({ product, onAdd, inCart, cartQtys }) {
         <div className="product-price">
           <div><span className="price-label">Розничная:</span> <span className="price-value">{product.price.toLocaleString('ru-RU')} {t('rub')}</span></div>
           <div><span className="price-label">Оптовая:</span> <span className="price-value">{product.wholesale_price ? Number(product.wholesale_price).toLocaleString('ru-RU') + ' ' + t('rub') : '—'}</span></div>
-          <div className="wholesale-pill">Оптовая цена от 2 шт</div>
+          <div className="wholesale-pill">Оптовая цена от 3 шт</div>
         </div>
         <div style={{textAlign:'right', marginTop:'auto'}}>
           <button
