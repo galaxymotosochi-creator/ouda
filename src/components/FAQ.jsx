@@ -25,6 +25,7 @@ export default function FAQ() {
         { q: t('faqQ5'), a: t('faqA5') },
         { q: t('faqQ6'), a: t('faqA6') },
         { q: t('faqQ7'), a: t('faqA7') },
+        { q: t('faqQ16'), a: t('faqA16') },
       ]
     },
     {
