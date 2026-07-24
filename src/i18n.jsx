@@ -77,8 +77,6 @@ const translations = {
     faqQ15: 'Всё ли растаможено?',
     faqA15: 'Да, наши скутеры ввозятся официально («в белую»). Все таможенные пошлины уже учтены в цене.',
 
-    pickupLabel: '自提 莫斯科',
-
     // Product specs
     color: 'Цвет',
     power: 'Мощность',
@@ -196,6 +194,7 @@ const translations = {
     submit: '下订单',
     sending: '发送中...',
     successMsg: '谢谢！订单已发送，我们会与您联系',
+    pickupLabel: '自提 莫斯科',
     color: '颜色',
     power: '功率',
     fuel: '燃油供给',
