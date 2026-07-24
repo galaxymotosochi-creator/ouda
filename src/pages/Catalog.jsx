@@ -160,7 +160,9 @@ export default function Catalog() {
         <div className="hero-overlay">
           <h1>{t('heroTitle')}</h1>
           <div className="hero-desc-glass">
-            {t('heroGlass')}
+            <p>{t('heroGlass')}</p>
+            <p className="hero-offices">{t('officeSochi')}</p>
+            <p className="hero-offices">{t('officeMoscow')}</p>
           </div>
           <a href="#catalog" className="hero-btn">{t('heroBtn')}</a>
           <div className="hero-contacts">

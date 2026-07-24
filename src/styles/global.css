@@ -917,6 +917,9 @@ img { max-width: 100%; display: block; }
   border: 1px solid rgba(255,255,255,0.2);
   text-shadow: 0 0 20px rgba(255,255,255,0.15);
 }
+.hero-desc-glass p { margin-bottom: 4px; }
+.hero-desc-glass p:last-child { margin-bottom: 0; }
+.hero-offices { font-size: 13px; opacity: 0.85; }
 .stock-chip-chameleon { background: linear-gradient(135deg, #8b5cf6, #6366f1, #3b82f6) !important; }
 .admin-section { background: var(--bg-card); border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); padding: 24px; margin-bottom: 24px; }
 

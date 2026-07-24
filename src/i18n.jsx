@@ -11,6 +11,8 @@ const translations = {
     heroDesc: 'Стильные и надёжные скутеры для города. Качество, скорость, доступная цена.',
     heroBtn: 'Смотреть каталог',
     heroGlass: 'Скутера оптом и в розницу напрямую от завода-изготовителя. Склад в Москве. Доставка по всей России.',
+    officeSochi: 'Офис г. Сочи: Пластунская 52"З"/2',
+    officeMoscow: 'Офис г. Москва: ТК "Южные ворота"',
     // Catalog
     catalogTitle: 'Каталог',
     addToCart: 'В корзину',
@@ -128,6 +130,8 @@ const translations = {
     heroDesc: '时尚可靠的城市摩托车。品质、速度、实惠的价格。',
     heroBtn: '查看目录',
     heroGlass: '批发和零售踏板车，直接从制造商工厂。莫斯科仓库。全俄配送。',
+    officeSochi: '索契办事处: Plastunskaya 52"З"/2',
+    officeMoscow: '莫斯科办事处: TC "南门"',
     catalogTitle: '产品目录',
     addToCart: '加入购物车',
     inCart: '✓ 已在购物车',
