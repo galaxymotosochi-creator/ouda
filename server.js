@@ -321,6 +321,70 @@ app.post('/api/upload', upload.array('photos', 7), async (req, res) => {
 
 app.get('/api/stock/available', (req, res) => res.json(computeAvailableStock()))
 
+// === Delivery calculation via TK KIT ===
+const KIT_TOKEN = 'BxN1JrdgdTqIiWj8BIio4UR9lIRxJkrr'
+const KIT_API = 'https://capi.tk-kit.com'
+
+app.post('/api/search-city', async (req, res) => {
+  const { name } = req.body
+  if (!name) return res.status(400).json({ error: 'no name' })
+  try {
+    const response = await fetch(KIT_API + '/1.0/tdd/search/by-name', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + KIT_TOKEN,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ title: name })
+    })
+    const data = await response.json()
+    if (Array.isArray(data) && data.length > 0) {
+      res.json({ code: data[0].code, name: data[0].name })
+    } else {
+      res.json({ error: 'not found' })
+    }
+  } catch (e) {
+    res.status(500).json({ error: e.message })
+  }
+})
+
+app.post('/api/calculate-delivery', async (req, res) => {
+  const { city_code, items } = req.body
+  if (!items || items.length === 0) return res.status(400).json({ error: 'no items' })
+
+  const places = items.map(item => ({
+    count_place: item.qty || 1,
+    weight: Number(item.weight) || 1,
+    length: Number(item.length) || 10,
+    width: Number(item.width) || 10,
+    height: Number(item.height) || 10,
+    cargo_type: 'Z01'
+  }))
+
+  const totalPrice = items.reduce((s, i) => s + (Number(i.price) || 0) * (i.qty || 1), 0)
+
+  try {
+    const response = await fetch(KIT_API + '/2.0/order/calculate', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + KIT_TOKEN,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        city_pickup_code: '770000000000',
+        city_delivery_code: city_code,
+        declared_price: totalPrice,
+        profile_id: 426320,
+        places: places
+      })
+    })
+    const data = await response.json()
+    res.json(data)
+  } catch (e) {
+    res.status(500).json({ error: e.message })
+  }
+})
+
 // === Writeoffs ===
 app.get('/api/writeoffs', (req, res) => res.json(writeoffs))
 app.post('/api/writeoffs', (req, res) => {

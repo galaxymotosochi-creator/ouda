@@ -50,13 +50,13 @@ export default function Admin() {
 
   // New product form
   const [newProduct, setNewProduct] = useState({
-    name_ru: '', name_zh: '', price: '', wholesale_price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', images: []
+    name_ru: '', name_zh: '', price: '', wholesale_price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', images: [], weight: '', length: '', width: '', height: ''
   })
   const [photos, setPhotos] = useState([]) // file previews
   const [uploading, setUploading] = useState(false)
   // Edit product modal
   const [editingProduct, setEditingProduct] = useState(null)
-  const [editForm, setEditForm] = useState({ name_ru: '', name_zh: '', price: '', wholesale_price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '' })
+  const [editForm, setEditForm] = useState({ name_ru: '', name_zh: '', price: '', wholesale_price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', weight: '', length: '', width: '', height: '' })
   const [editPhotos, setEditPhotos] = useState([])
 
   const openEditProduct = (p) => {
@@ -65,6 +65,10 @@ export default function Admin() {
       name_zh: p.name_zh || '',
       price: p.price || '',
       wholesale_price: p.wholesale_price || '',
+      weight: p.weight || '',
+      length: p.length || '',
+      width: p.width || '',
+      height: p.height || '',
       power: p.power || '',
       fuel: p.fuel || '',
       cooling: p.cooling || '',
@@ -101,6 +105,10 @@ export default function Admin() {
           name_zh: editForm.name_zh,
           price: Number(editForm.price) || 0,
           wholesale_price: Number(editForm.wholesale_price) || 0,
+          weight: Number(editForm.weight) || 0,
+          length: Number(editForm.length) || 0,
+          width: Number(editForm.width) || 0,
+          height: Number(editForm.height) || 0,
           power: editForm.power,
           fuel: editForm.fuel,
           cooling: editForm.cooling,
@@ -524,7 +532,7 @@ export default function Admin() {
     fetch(`${API}/api/products`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(product) })
       .then(r => { if (r.ok) setTimeout(loadData, 300) })
       .catch(() => {})
-    setNewProduct({ name_ru: '', name_zh: '', price: '', wholesale_price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', images: [] })
+    setNewProduct({ name_ru: '', name_zh: '', price: '', wholesale_price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', images: [], weight: '', length: '', width: '', height: '' })
     setPhotos([])
   }
 
@@ -1395,6 +1403,24 @@ export default function Admin() {
                       <option value="13/14">13/14</option>
                       <option value="14/14">14/14</option>
                     </select>
+                  </div>
+                </div>
+                <div className="v2-field half">
+                  <label>Вес (кг)</label>
+                  <input className="v2-input" type="number" value={editForm.weight} onChange={e => setEditForm({...editForm, weight: e.target.value})} />
+                </div>
+                <div className="v2-row3">
+                  <div className="v2-field third">
+                    <label>Длина (см)</label>
+                    <input className="v2-input" type="number" value={editForm.length} onChange={e => setEditForm({...editForm, length: e.target.value})} />
+                  </div>
+                  <div className="v2-field third">
+                    <label>Ширина (см)</label>
+                    <input className="v2-input" type="number" value={editForm.width} onChange={e => setEditForm({...editForm, width: e.target.value})} />
+                  </div>
+                  <div className="v2-field third">
+                    <label>Высота (см)</label>
+                    <input className="v2-input" type="number" value={editForm.height} onChange={e => setEditForm({...editForm, height: e.target.value})} />
                   </div>
                 </div>
                 <div className="v2-field full-w">

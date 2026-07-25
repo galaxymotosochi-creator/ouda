@@ -16,6 +16,10 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
   const [form, setForm] = useState({ name: '', city: '', phone: '+7', transport: '', payment: 'cash' })
   const [sending, setSending] = useState(false)
   const [pickup, setPickup] = useState(false)
+  const [deliveryCost, setDeliveryCost] = useState(null)
+  const [deliveryDays, setDeliveryDays] = useState(null)
+  const [deliveryLoading, setDeliveryLoading] = useState(false)
+  const [deliveryError, setDeliveryError] = useState('')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -113,6 +117,64 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
               onChange={e => setForm({ ...form, city: e.target.value })} required />
             <input placeholder="Транспортная компания и адрес терминала *" value={pickup ? 'Самовывоз (Москва)' : form.transport}
               onChange={e => setForm({ ...form, transport: e.target.value })} disabled={pickup} required />
+
+            {!pickup && form.city && form.city !== 'Москва' && (
+              <div style={{marginBottom:12}}>
+                <button type="button" className="cart-delivery-btn" onClick={async function() {
+                  setDeliveryLoading(true)
+                  setDeliveryError('')
+                  try {
+                    // Search city code
+                    var cityRes = await fetch(api + '/api/search-city', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ name: form.city })
+                    })
+                    var cityData = await cityRes.json()
+                    if (!cityData.code) { setDeliveryError('Город не найден'); setDeliveryLoading(false); return }
+
+                    // Calculate delivery
+                    var calcRes = await fetch(api + '/api/calculate-delivery', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        city_code: cityData.code,
+                        items: items.map(function(item) {
+                          return {
+                            qty: item.qty,
+                            price: item.price,
+                            weight: item.weight,
+                            length: item.length,
+                            width: item.width,
+                            height: item.height
+                          }
+                        })
+                      })
+                    })
+                    var calcData = await calcRes.json()
+                    if (calcData[0] && calcData[0]['01']) {
+                      setDeliveryCost(calcData[0]['01'].cost)
+                      setDeliveryDays(calcData[0]['01'].time)
+                    } else {
+                      setDeliveryError('Не удалось рассчитать')
+                    }
+                  } catch(e) {
+                    setDeliveryError('Ошибка соединения')
+                  }
+                  setDeliveryLoading(false)
+                }}>
+                  {deliveryLoading ? 'Расчёт...' : 'Рассчитать доставку'}
+                </button>
+                {deliveryError && <div style={{fontSize:12,color:'#e53e3e',marginTop:4}}>{deliveryError}</div>}
+                {deliveryCost !== null && (
+                  <div style={{marginTop:8,padding:'10px 14px',background:'#f0fdf4',borderRadius:10,border:'1px solid #bbf7d0'}}>
+                    <div style={{fontSize:14,fontWeight:600,color:'#065f46'}}>Доставка: {deliveryCost.toLocaleString('ru-RU')} ₽</div>
+                    {deliveryDays && <div style={{fontSize:12,color:'#888',marginTop:2}}>Срок: {deliveryDays} дня</div>}
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="cart-pickup" onClick={() => {
               setPickup(v => {
                 if (!v) setForm(f => ({ ...f, city: 'Москва', transport: 'Самовывоз (Москва)' }))

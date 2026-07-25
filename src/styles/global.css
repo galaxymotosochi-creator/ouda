@@ -995,6 +995,9 @@ img { max-width: 100%; display: block; }
 .supplier-banner-text strong { display: block; margin-bottom: 2px; font-weight: 600; }
 .supplier-banner-text p { margin: 0; opacity: 0.9; }
 
+.cart-delivery-btn { display: block; width: 100%; padding: 10px 16px; border-radius: 12px; background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; font-size: 13px; font-weight: 500; border: none; cursor: pointer; }
+.cart-delivery-btn:hover { opacity: 0.9; }
+
 .stock-chip-chameleon { background: linear-gradient(135deg, #8b5cf6, #6366f1, #3b82f6) !important; }
 .admin-section { background: var(--bg-card); border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); padding: 24px; margin-bottom: 24px; }
 
