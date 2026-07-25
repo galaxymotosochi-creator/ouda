@@ -861,15 +861,15 @@ export default function Admin() {
             <div className="modal-overlay" onClick={function() { setDeleteStockItem(null) }}>
               <div className="modal" style={{maxWidth:380}} onClick={function(e) { e.stopPropagation() }}>
                 <div style={{padding:24,textAlign:'center'}}>
-                  <h3 style={{margin:'0 0 16px',fontSize:18,fontWeight:600}}>Вы хотите удалить это?</h3>
+                  <h3 style={{margin:'0 0 16px',fontSize:18,fontWeight:600}}>{t('deleteConfirm')}</h3>
                   <div style={{display:'flex',gap:12,justifyContent:'center'}}>
-                    <button className="admin-btn" style={{padding:'8px 24px'}} onClick={function() { setDeleteStockItem(null) }}>Отмена</button>
+                    <button className="admin-btn" style={{padding:'8px 24px'}} onClick={function() { setDeleteStockItem(null) }}>{t('cancelText')}</button>
                     <button className="admin-btn admin-btn-danger" style={{padding:'8px 24px'}} onClick={async function() {
                       await fetch(API + '/api/stock/' + deleteStockItem, { method: 'DELETE' })
                       setDeleteStockItem(null)
                       fetch(API + '/api/stock').then(function(r) { return r.json() }).then(setStock).catch(function() {})
                       fetch(API + '/api/products').then(function(r) { return r.json() }).then(setProducts).catch(function() {})
-                    }}>Да</button>
+                    }}>{t('yes')}</button>
                   </div>
                 </div>
               </div>
