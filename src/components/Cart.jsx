@@ -189,7 +189,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
 
                     {terminals.length > 0 && (
                       <div style={{marginTop:8}}>
-                        <label style={{fontSize:11,color:'#888',display:'block',marginBottom:4}}>Терминал получения:</label>
+                        <label style={{fontSize:11,color:'#888',display:'block',marginBottom:4}}>Терминал получения ТК &quot;КИТ&quot;:</label>
                         <select className="v2-input" style={{width:'100%',padding:'8px 12px',borderRadius:8,border:'1px solid #ccc',fontSize:13}}
                           value={selectedTerminal}
                           onChange={function(e) {
