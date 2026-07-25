@@ -26,7 +26,6 @@ export default function PreorderModal({ product, onClose, api }) {
       })
       setDone(true)
     } catch {
-      // Save locally if API fails
       const local = JSON.parse(localStorage.getItem('ouda_preorders') || '[]')
       local.push({
         id: Date.now(),
@@ -51,24 +50,24 @@ export default function PreorderModal({ product, onClose, api }) {
           <>
             <div className="preorder-success">
               <span className="preorder-success-icon">✅</span>
-              <h3>Спасибо!</h3>
-              <p>Мы свяжемся с вами, как только товар появится в наличии.</p>
-              <button className="product-add" onClick={onClose}>Закрыть</button>
+              <h3>{t('preorderThankYou')}</h3>
+              <p>{t('preorderText')}</p>
+              <button className="product-add" onClick={onClose}>{t('preorderClose')}</button>
             </div>
           </>
         ) : (
           <>
-            <h3>Сообщить о наличии</h3>
+            <h3>{t('preorderTitle')}</h3>
             <p className="preorder-product-name">{product.name}</p>
             <form className="preorder-form" onSubmit={handleSubmit}>
               <input
-                placeholder="Имя *"
+                placeholder={t('preorderName')}
                 value={form.name}
                 onChange={e => setForm({ ...form, name: e.target.value })}
                 required
               />
               <input
-                placeholder="Номер телефона *"
+                placeholder={t('preorderPhone')}
                 type="tel"
                 value={form.phone}
                 onChange={e => {
@@ -79,7 +78,7 @@ export default function PreorderModal({ product, onClose, api }) {
                 required
               />
               <div className="preorder-qty-row">
-                <label>Количество:</label>
+                <label>{t('preorderQty')}</label>
                 <div className="cart-item-qty">
                   <button type="button" onClick={() => setForm(f => ({ ...f, qty: Math.max(1, f.qty - 1) }))}>−</button>
                   <span>{form.qty}</span>
@@ -87,15 +86,15 @@ export default function PreorderModal({ product, onClose, api }) {
                 </div>
               </div>
               <input
-                placeholder="Город доставки *"
+                placeholder={t('preorderCity')}
                 value={form.city}
                 onChange={e => setForm({ ...form, city: e.target.value })}
                 required
               />
               <div className="preorder-actions">
-                <button type="button" className="color-modal-cancel" onClick={onClose}>Отмена</button>
+                <button type="button" className="color-modal-cancel" onClick={onClose}>{t('preorderCancel')}</button>
                 <button type="submit" className="product-add" disabled={sending}>
-                  {sending ? 'Отправка...' : 'Отправить'}
+                  {sending ? t('preorderSending') : t('preorderSubmit')}
                 </button>
               </div>
             </form>

@@ -67,8 +67,8 @@ export default function ProductCard({ product, onAdd, inCart, cartQtys, onPreord
           <div className="out-of-stock-badge">
             <span>📦</span>
             <div className="out-of-stock-text">
-              Ожидаем поставку, отслеживайте наличие
-              {earliestDate && <span className="out-of-stock-date">Ожидается до {new Date(earliestDate).toLocaleDateString('ru-RU')}</span>}
+              {t('outOfStock')}
+              {earliestDate && <span className="out-of-stock-date">{t('outOfStockDate')} {new Date(earliestDate).toLocaleDateString(lang === 'zh' ? 'zh-CN' : 'ru-RU')}</span>}
             </div>
           </div>
         )}
@@ -123,7 +123,7 @@ export default function ProductCard({ product, onAdd, inCart, cartQtys, onPreord
         <div style={{textAlign:'right', marginTop:'auto'}}>
           {isOutOfStock ? (
             <button className="product-add preorder-btn" onClick={() => onPreorder(product)}>
-              Сообщить о наличии
+              {t('preorderBtn')}
             </button>
           ) : (
             <button
