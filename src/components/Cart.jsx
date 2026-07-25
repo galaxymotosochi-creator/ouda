@@ -36,6 +36,8 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
         pickup,
         items: items.map(i => ({ product_id: i.id, name: i.name, price: getItemPrice(i, items), qty: i.qty, color: i.selectedColor || '' })),
         total: effectiveTotal,
+        delivery_cost: deliveryCost,
+        delivery_terminal: selectedTerminal || form.transport,
       }
       await fetch(`${api}/api/orders`, {
         method: 'POST',
@@ -53,6 +55,8 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
         pickup,
         items: items.map(i => ({ product_id: i.id, name: i.name, price: getItemPrice(i, items), qty: i.qty, color: i.selectedColor || '' })),
         total: effectiveTotal, status: 'new', created_at: new Date().toISOString(),
+        delivery_cost: deliveryCost,
+        delivery_terminal: selectedTerminal || form.transport,
       })
       localStorage.setItem('ouda_orders', JSON.stringify(localOrders))
       onSuccess()

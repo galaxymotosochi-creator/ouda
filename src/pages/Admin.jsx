@@ -973,7 +973,7 @@ export default function Admin() {
           <div style={{overflowX:'auto',borderRadius:'var(--radius)'}}>
           <table className="admin-table" style={{margin:0}}>
             <thead><tr>
-              <th>№</th><th>{t('date')}</th><th>Имя</th><th>{t('city')}</th><th>Транспортная компания</th><th>Номер телефона</th>
+              <th>№</th><th>{t('date')}</th><th>Имя</th><th>{t('city')}</th><th>Терминал / ТК</th><th>Доставка</th><th>Номер телефона</th>
               <th>{t('products')}</th><th>{t('total')}</th><th>{t('payment')}</th><th>{t('status')}</th><th></th>
             </tr></thead>
             <tbody>
@@ -987,7 +987,8 @@ export default function Admin() {
                   <td>{formatDate(o.created_at)}</td>
                   <td>{o.name}</td>
                   <td>{o.pickup ? 'Москва' : (o.city||'—')}</td>
-                  <td>{o.pickup ? 'Самовывоз (Москва)' : (o.transport||'—')}</td>
+                  <td>{o.pickup ? 'Самовывоз (Москва)' : (o.delivery_terminal || o.transport || '—')}</td>
+                  <td>{o.delivery_cost ? Number(o.delivery_cost).toLocaleString('ru-RU') + ' ₽' : '—'}</td>
                   <td>{o.phone}</td>
                   <td>{o.items?.map(item => `${item.name} ×${item.qty}${item.color ? ' ('+item.color+')' : ''}`).join(', ')||'—'}</td>
                   <td>{(o.total||0).toLocaleString('ru-RU')} ₽</td>
@@ -1002,7 +1003,7 @@ export default function Admin() {
                   </td>
                 </tr>
               ))}
-              {orders.length===0 && <tr><td colSpan={11} style={{textAlign:'center',color:'#666',padding:40}}>{t('noOrders')}</td></tr>}
+              {orders.length===0 && <tr><td colSpan={12} style={{textAlign:'center',color:'#666',padding:40}}>{t('noOrders')}</td></tr>}
             </tbody>
           </table>
           </div>
