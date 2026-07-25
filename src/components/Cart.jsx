@@ -213,7 +213,11 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
 
             <div className="cart-pickup" onClick={() => {
               setPickup(v => {
-                if (!v) setForm(f => ({ ...f, city: 'Москва', transport: 'Самовывоз (Москва)' }))
+                if (!v) {
+                  setForm(f => ({ ...f, city: 'Москва', transport: 'Самовывоз (Москва)' }))
+                } else {
+                  setForm(f => ({ ...f, city: '', transport: '' }))
+                }
                 return !v
               })
             }}>
