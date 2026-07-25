@@ -25,7 +25,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.name || !form.phone || form.phone === '+7' || !form.city || !form.transport) return
+    if (!form.name || !form.phone || form.phone === '+7' || !form.city) return
     setSending(true)
     try {
       const effectiveTotal = items.reduce((s, i) => s + getItemPrice(i, items) * i.qty, 0)
@@ -117,8 +117,8 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
               onChange={e => setForm({ ...form, name: e.target.value })} required />
             <input placeholder="Город *" value={form.city}
               onChange={e => setForm({ ...form, city: e.target.value })} required />
-            <input placeholder="Транспортная компания и адрес терминала *" value={pickup ? 'Самовывоз (Москва)' : form.transport}
-              onChange={e => setForm({ ...form, transport: e.target.value })} disabled={pickup} required />
+            <input placeholder="Терминал / ТК" value={pickup ? 'Самовывоз (Москва)' : form.transport}
+              onChange={e => setForm({ ...form, transport: e.target.value })} disabled={pickup} />
 
             {!pickup && form.city && form.city !== 'Москва' && (
               <div style={{marginBottom:12}}>
