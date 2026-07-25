@@ -138,7 +138,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
                     var termRes = await fetch(api + '/api/search-terminals', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ city_code: '' })
+                      body: JSON.stringify({ city_code: cityData.code })
                     })
                     var termData = await termRes.json()
                     var filtered = (Array.isArray(termData) ? termData : []).filter(function(t) {
