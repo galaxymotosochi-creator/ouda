@@ -348,6 +348,25 @@ app.post('/api/search-city', async (req, res) => {
   }
 })
 
+app.post('/api/search-terminals', async (req, res) => {
+  const { city_code } = req.body
+  if (!city_code) return res.status(400).json({ error: 'no city_code' })
+  try {
+    const response = await fetch(KIT_API + '/1.1/geography/address/get-list', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + KIT_TOKEN,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ city_code: city_code })
+    })
+    const data = await response.json()
+    res.json(Array.isArray(data) ? data : [])
+  } catch (e) {
+    res.status(500).json({ error: e.message })
+  }
+})
+
 app.post('/api/calculate-delivery', async (req, res) => {
   const { city_code, items } = req.body
   if (!items || items.length === 0) return res.status(400).json({ error: 'no items' })

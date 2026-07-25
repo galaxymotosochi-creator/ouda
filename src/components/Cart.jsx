@@ -20,6 +20,8 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
   const [deliveryDays, setDeliveryDays] = useState(null)
   const [deliveryLoading, setDeliveryLoading] = useState(false)
   const [deliveryError, setDeliveryError] = useState('')
+  const [terminals, setTerminals] = useState([])
+  const [selectedTerminal, setSelectedTerminal] = useState('')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -124,7 +126,6 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
                   setDeliveryLoading(true)
                   setDeliveryError('')
                   try {
-                    // Search city code
                     var cityRes = await fetch(api + '/api/search-city', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
@@ -132,6 +133,15 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
                     })
                     var cityData = await cityRes.json()
                     if (!cityData.code) { setDeliveryError('Город не найден'); setDeliveryLoading(false); return }
+
+                    // Fetch terminals in this city
+                    var termRes = await fetch(api + '/api/search-terminals', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ city_code: cityData.code })
+                    })
+                    var termData = await termRes.json()
+                    setTerminals(Array.isArray(termData) ? termData : [])
 
                     // Calculate delivery
                     var calcRes = await fetch(api + '/api/calculate-delivery', {
@@ -169,7 +179,27 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
                 {deliveryCost !== null && (
                   <div style={{marginTop:8,padding:'10px 14px',background:'#f0fdf4',borderRadius:10,border:'1px solid #bbf7d0'}}>
                     <div style={{fontSize:14,fontWeight:600,color:'#065f46'}}>Доставка: {deliveryCost.toLocaleString('ru-RU')} ₽</div>
-                    {deliveryDays && <div style={{fontSize:12,color:'#888',marginTop:2}}>Срок: {deliveryDays} дня</div>}
+                    {deliveryDays && <div style={{fontSize:12,color:'#888',marginTop:2}}>Срок: ~{deliveryDays} дн.</div>}
+
+                    {terminals.length > 0 && (
+                      <div style={{marginTop:8}}>
+                        <label style={{fontSize:11,color:'#888',display:'block',marginBottom:4}}>Терминал получения:</label>
+                        <select className="v2-input" style={{width:'100%',padding:'8px 12px',borderRadius:8,border:'1px solid #ccc',fontSize:13}}
+                          value={selectedTerminal}
+                          onChange={function(e) {
+                            var val = e.target.value
+                            setSelectedTerminal(val)
+                            // Auto-fill transport field
+                            var addr = val || form.transport
+                            setForm({ ...form, transport: addr })
+                          }}>
+                          <option value="">— Выберите терминал —</option>
+                          {terminals.map(function(t, i) {
+                            return <option key={i} value={t.value}>{t.value}</option>
+                          })}
+                        </select>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
