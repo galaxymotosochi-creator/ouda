@@ -699,6 +699,10 @@ img { max-width: 100%; display: block; }
 /* Stock form — palette tiles + selected colors */
 .stock-color-picker { border: 1px solid var(--border); border-radius: 12px; padding: 16px; background: var(--bg-card); }
 .stock-color-picker .palette { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+@media (max-width: 640px) {
+  .stock-color-picker .palette { gap: 6px; }
+  .stock-color-picker .palette-color { width: calc(33.33% - 6px); min-width: 0; }
+}
 .stock-color-picker .palette-color {
   width: 90px; border-radius: 10px; border: 2px solid var(--border);
   cursor: pointer; display: flex; flex-direction: column; align-items: center;
