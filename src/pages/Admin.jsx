@@ -931,7 +931,7 @@ export default function Admin() {
                   <td>{o.phone}</td>
                   <td>{o.items?.map(item => `${item.name} ×${item.qty}${item.color ? ' ('+item.color+')' : ''}`).join(', ')||'—'}</td>
                   <td>{(o.total||0).toLocaleString('ru-RU')} ₽</td>
-                  <td>{o.payment==='usdt'?'USDT':o.payment==='discuss'?'Хочу обсудить дополнительно':t('cash')}</td>
+                  <td>{o.payment==='usdt'?'USDT':o.payment==='credit'?'Кредит':o.payment==='discuss'?'Хочу обсудить дополнительно':t('cash')}</td>
                   <td>{statusLabel(o.status)}</td>
                   <td>
                     <div className="admin-actions">
