@@ -135,7 +135,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
                       body: JSON.stringify({ name: form.city })
                     })
                     var cityData = await cityRes.json()
-                    if (!cityData.code) { setDeliveryError('Город не найден'); setDeliveryLoading(false); return }
+                    if (!cityData.code) { setDeliveryError(t('deliveryNotFoundCity')); setDeliveryLoading(false); return }
 
                     // Fetch ALL terminals, then filter by city name
                     var termRes = await fetch(api + '/api/search-terminals', {
