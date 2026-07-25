@@ -231,7 +231,7 @@ export default function Catalog() {
             const init = {}
             availColors.forEach(name => {
               const remaining = (product.available_colors[name] || 0) - (cartQtys[`${product.id}_${name}`] || 0)
-              init[name] = remaining > 0 ? 0 : -1
+              if (remaining > 0) init[name] = 0
             })
             setColorQtys(init)
             setColorModal({ product })
