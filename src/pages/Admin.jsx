@@ -31,6 +31,7 @@ export default function Admin() {
   const [products, setProducts] = useState([])
   const [stock, setStock] = useState([])
   const [shipments, setShipments] = useState([])
+  const [preorders, setPreorders] = useState([])
 
   // Create shipment modal
   const [showShipModal, setShowShipModal] = useState(false)
@@ -172,6 +173,7 @@ export default function Admin() {
       .then(data => { setLocal(LS_SHIPMENTS, data); setShipments(data) })
       .catch(() => setShipments(getLocal(LS_SHIPMENTS)))
     fetch(`${API}/api/stock/details`).then(r => r.json()).then(setInventory).catch(() => {})
+    fetch(`${API}/api/preorders`).then(r => r.json()).then(setPreorders).catch(() => {})
   }
 
   const updateStatus = (id, status) => {
@@ -576,6 +578,7 @@ export default function Admin() {
             { key: 'inventory', label: t('inventory') },
             { key: 'orders', label: `${t('orders')} (${orders.filter(o => o.status === 'new').length})` },
             { key: 'shipments', label: `${t('shipments')} (${shipments.length})` },
+            { key: 'preorders', label: `Предзаказы (${preorders.length})` },
           ].map(tabItem => (
             <button key={tabItem.key} className={`admin-tab ${tab === tabItem.key ? 'active' : ''}`}
               onClick={() => setTab(tabItem.key)}>{tabItem.label}</button>
@@ -993,6 +996,45 @@ export default function Admin() {
                 </tr>
               ))}
               {shipments.length===0 && <tr><td colSpan={9} style={{textAlign:'center',color:'#666',padding:40}}>{t('noShipments')}</td></tr>}
+            </tbody>
+          </table>
+          </div>
+          </div>
+          </div>
+          </div>
+        </>)}
+
+        {/* === PREORDERS TAB === */}
+        {tab === 'preorders' && (<>
+          <div className="v2-products-section">
+          <div className="v2-card" style={{overflow:'hidden',padding:0}}>
+          <div style={{margin:'0 24px 24px'}}>
+          <div style={{overflowX:'auto',borderRadius:'var(--radius)'}}>
+          <table className="admin-table" style={{margin:0}}>
+            <thead><tr>
+              <th>№</th><th>Дата</th><th>Модель</th><th>Имя</th><th>Телефон</th><th>Кол-во</th><th>Город</th><th></th>
+            </tr></thead>
+            <tbody>
+              {preorders.map((p, i) => (
+                <tr key={p.id} style={{borderTop:'1px solid #f0f2ff',transition:'background .15s'}}
+                  onMouseOver={e => e.currentTarget.style.background='#fafbff'} onMouseOut={e => e.currentTarget.style.background=''}>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{i+1}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{new Date(p.created_at).toLocaleDateString('ru-RU')}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap',fontWeight:500}}>{p.product_name}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{p.name}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{p.phone}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{p.qty}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{p.city}</td>
+                  <td>
+                    <button className="admin-btn admin-btn-danger" onClick={async () => {
+                      if (!confirm('Удалить предзаказ?')) return
+                      await fetch(`${API}/api/preorders/${p.id}`, {method:'DELETE'})
+                      setPreorders(prev => prev.filter(x => x.id !== p.id))
+                    }} style={{padding:'5px 10px',fontSize:12}}>✕</button>
+                  </td>
+                </tr>
+              ))}
+              {preorders.length===0 && <tr><td colSpan={8} style={{textAlign:'center',color:'#666',padding:40}}>Нет предзаказов</td></tr>}
             </tbody>
           </table>
           </div>

@@ -4,6 +4,7 @@ import { useLang } from '../i18n'
 import Header from '../components/Header'
 import Cart from '../components/Cart'
 import ProductCard from '../components/ProductCard'
+import PreorderModal from '../components/PreorderModal'
 import FAQ from '../components/FAQ'
 import BottomNav from '../components/BottomNav'
 
@@ -15,6 +16,9 @@ export default function Catalog() {
   const [cart, setCart] = useState([])
   const [cartOpen, setCartOpen] = useState(false)
   const [toast, setToast] = useState(null)
+
+  // Preorder modal state
+  const [preorderModal, setPreorderModal] = useState(null) // product or null
 
   // Color picker modal state
   const [colorModal, setColorModal] = useState(null) // { product }
@@ -197,6 +201,7 @@ export default function Catalog() {
                 onAdd={handleAddClick}
                 inCart={inCart}
                 cartQtys={cartQtys}
+                onPreorder={(p) => setPreorderModal(p)}
               />
             )
           })}
@@ -240,6 +245,15 @@ export default function Catalog() {
       {toast && <div className="success-toast">{toast}</div>}
 
       <BottomNav onCartClick={() => setCartOpen(true)} />
+
+      {/* Preorder modal */}
+      {preorderModal && (
+        <PreorderModal
+          product={preorderModal}
+          api={API}
+          onClose={() => setPreorderModal(null)}
+        />
+      )}
 
       {/* Color picker modal */}
       {colorModal && (

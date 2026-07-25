@@ -64,12 +64,14 @@ let stock = loadData('stock', [
 let shipments = loadData('shipments', [])
 let nextId = loadData('nextId', 100)
 let shipmentCounter = loadData('shipmentCounter', 0)
+let preorders = loadData('preorders', [])
 
 function saveAll() {
   saveData('products', products)
   saveData('orders', orders)
   saveData('stock', stock)
   saveData('shipments', shipments)
+  saveData('preorders', preorders)
   saveData('nextId', nextId)
   saveData('shipmentCounter', shipmentCounter)
 }
@@ -286,6 +288,19 @@ app.post('/api/upload', upload.array('photos', 7), async (req, res) => {
 })
 
 app.get('/api/stock/available', (req, res) => res.json(computeAvailableStock()))
+// === Preorders ===
+app.get('/api/preorders', (req, res) => res.json(preorders))
+app.post('/api/preorders', (req, res) => {
+  const p = { id: nextId++, ...req.body, created_at: new Date().toISOString() }
+  preorders.unshift(p)
+  saveAll()
+  res.json(p)
+})
+app.delete('/api/preorders/:id', (req, res) => {
+  preorders = preorders.filter(p => p.id != req.params.id)
+  saveAll()
+  res.json({ ok: true })
+})
 
 const PORT = process.env.PORT || 3002
 app.listen(PORT, '127.0.0.1', () => console.log('OUDA API on port', PORT))

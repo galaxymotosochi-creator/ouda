@@ -998,3 +998,57 @@ img { max-width: 100%; display: block; }
 .v2-field label { font-size: 11px; color: #999; font-weight: 500; }
 .v2-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .v2-row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+/* Out of stock badge */
+.out-of-stock-badge {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 14px; margin-bottom: 12px;
+  border-radius: 12px;
+  background: rgba(255, 193, 7, 0.08);
+  border: 1px solid rgba(255, 193, 7, 0.2);
+  font-size: 13px; line-height: 1.5;
+}
+.out-of-stock-badge span { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+.out-of-stock-text { color: #a68c00; font-weight: 500; }
+.out-of-stock-date { display: block; font-size: 11px; font-weight: 400; color: #888; margin-top: 4px; }
+
+/* Preorder button */
+.preorder-btn { background: linear-gradient(135deg, #f59e0b, #d97706) !important; }
+.preorder-btn:hover { opacity: 0.9 !important; transform: translateY(-2px); }
+
+/* Preorder modal */
+.preorder-modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; padding: 20px;
+}
+.preorder-modal {
+  background: #fff; border-radius: 20px; padding: 32px;
+  max-width: 400px; width: 100%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+.preorder-modal h3 { font-size: 20px; font-weight: 600; margin: 0 0 4px; color: #222; }
+.preorder-product-name { font-size: 14px; color: #888; margin: 0 0 20px; }
+.preorder-form { display: flex; flex-direction: column; gap: 12px; }
+.preorder-form input,
+.preorder-form select {
+  padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border);
+  font-size: 14px; outline: none; transition: border-color 0.2s;
+}
+.preorder-form input:focus { border-color: var(--primary); }
+.preorder-qty-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 16px; border-radius: 12px; border: 1px solid var(--border);
+}
+.preorder-qty-row label { font-size: 14px; color: #555; }
+.preorder-qty-row .cart-item-qty { margin-left: auto; }
+.preorder-actions {
+  display: flex; gap: 12px; justify-content: flex-end;
+  margin-top: 8px;
+}
+.preorder-actions .product-add { padding: 10px 24px; }
+.preorder-success { text-align: center; padding: 20px 0; }
+.preorder-success-icon { font-size: 48px; display: block; margin-bottom: 16px; }
+.preorder-success h3 { font-size: 22px; margin-bottom: 8px; }
+.preorder-success p { color: #666; font-size: 14px; margin: 0 0 24px; line-height: 1.5; }
+.preorder-success .product-add { padding: 10px 32px; }

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useLang } from '../i18n'
 import { PRESET_COLORS, getColorHex } from '../colors'
 
-export default function ProductCard({ product, onAdd, inCart, cartQtys }) {
+export default function ProductCard({ product, onAdd, inCart, cartQtys, onPreorder }) {
   const { t, lang, translateColor } = useLang()
   const avail = product.available_colors || {}
   const colorNames = Object.keys(avail).filter(name => avail[name] > 0)
@@ -20,9 +20,16 @@ export default function ProductCard({ product, onAdd, inCart, cartQtys }) {
     .filter(([key]) => key.startsWith(`${product.id}_`))
     .reduce((s, [, qty]) => s + qty, 0)
 
-  const handleClick = () => {
-    if (!canAddAny) return // no stock left, do nothing
+  // Check if product has ANY stock at all (received, not just in transit)
+  const totalAvailable = Object.values(avail).reduce((s, v) => s + v, 0)
+  const isOutOfStock = totalAvailable === 0 && totalInCart === 0
 
+  // Incoming shipments info
+  const hasIncoming = product.incoming && product.incoming.length > 0
+  const earliestDate = product.expected_date
+
+  const handleClick = () => {
+    if (!canAddAny) return
     if (hasColors && colorNames.length > 1) {
       onAdd(product, true)
     } else {
@@ -38,8 +45,8 @@ export default function ProductCard({ product, onAdd, inCart, cartQtys }) {
   }
 
   const getButtonText = () => {
+    if (isOutOfStock) return 'Сообщить о наличии'
     if (!canAddAny && totalInCart > 0) return '✓ ' + t('inCart')
-    if (!canAddAny && totalInCart === 0) return 'Нет в наличии'
     if (totalInCart > 0) return `+1 (в корзине ${totalInCart})`
     return t('addToCart')
   }
@@ -55,29 +62,41 @@ export default function ProductCard({ product, onAdd, inCart, cartQtys }) {
       <div className="product-body">
         <div className="product-name">{lang === 'zh' ? (product.name_zh || product.name) : (product.name_ru || product.name)}</div>
 
-        {/* Colors from stock — pill badges */}
-        <div className="product-colors">
-          {hasColors ? (
-            <>
-              <span className="spec-label" style={{marginBottom:6,display:'inline-block'}}>{t('color')}:</span>
-              <div className="color-pills">
-                {colorNames.map(name => {
-                  const stock = avail[name] || 0
-                  const inCartQty = (cartQtys || {})[`${product.id}_${name}`] || 0
-                  const remaining = stock - inCartQty
-                  return (
-                    <span key={name} className="color-pill">
-                      {translateColor(name)} {remaining} шт
-                    </span>
-                  )
-                })}
-              </div>
+        {/* Out of stock badge */}
+        {isOutOfStock && (
+          <div className="out-of-stock-badge">
+            <span>📦</span>
+            <div className="out-of-stock-text">
+              Ожидаем поставку, отслеживайте наличие
+              {earliestDate && <span className="out-of-stock-date">Ожидается до {new Date(earliestDate).toLocaleDateString('ru-RU')}</span>}
+            </div>
+          </div>
+        )}
 
-            </>
-          ) : (
-            <span style={{visibility:'hidden'}}> </span>
-          )}
-        </div>
+        {/* Colors from stock — pill badges */}
+        {!isOutOfStock && (
+          <div className="product-colors">
+            {hasColors ? (
+              <>
+                <span className="spec-label" style={{marginBottom:6,display:'inline-block'}}>{t('color')}:</span>
+                <div className="color-pills">
+                  {colorNames.map(name => {
+                    const stock = avail[name] || 0
+                    const inCartQty = (cartQtys || {})[`${product.id}_${name}`] || 0
+                    const remaining = stock - inCartQty
+                    return (
+                      <span key={name} className="color-pill">
+                        {translateColor(name)} {remaining} шт
+                      </span>
+                    )
+                  })}
+                </div>
+              </>
+            ) : (
+              <span style={{visibility:'hidden'}}> </span>
+            )}
+          </div>
+        )}
 
         {/* Specs list */}
         <div className="product-specs">
@@ -93,18 +112,28 @@ export default function ProductCard({ product, onAdd, inCart, cartQtys }) {
         )}
 
         <div className="product-price">
-          <div><span className="price-label">Розничная:</span> <span className="price-value">{product.price.toLocaleString('ru-RU')} {t('rub')}</span></div>
-          <div><span className="price-label">Оптовая:</span> <span className="price-value">{product.wholesale_price ? Number(product.wholesale_price).toLocaleString('ru-RU') + ' ' + t('rub') : '—'}</span></div>
-          <div className="wholesale-pill">Оптовая цена от 3 шт</div>
+          {!isOutOfStock && (
+            <>
+              <div><span className="price-label">Розничная:</span> <span className="price-value">{product.price.toLocaleString('ru-RU')} {t('rub')}</span></div>
+              <div><span className="price-label">Оптовая:</span> <span className="price-value">{product.wholesale_price ? Number(product.wholesale_price).toLocaleString('ru-RU') + ' ' + t('rub') : '—'}</span></div>
+              <div className="wholesale-pill">Оптовая цена от 3 шт</div>
+            </>
+          )}
         </div>
         <div style={{textAlign:'right', marginTop:'auto'}}>
-          <button
-            className={`product-add ${(inCart || totalInCart > 0) && canAddAny ? 'in-cart' : ''} ${!canAddAny ? 'disabled' : ''}`}
-            onClick={handleClick}
-            disabled={!canAddAny}
-          >
-            {getButtonText()}
-          </button>
+          {isOutOfStock ? (
+            <button className="product-add preorder-btn" onClick={() => onPreorder(product)}>
+              Сообщить о наличии
+            </button>
+          ) : (
+            <button
+              className={`product-add ${(inCart || totalInCart > 0) && canAddAny ? 'in-cart' : ''} ${!canAddAny ? 'disabled' : ''}`}
+              onClick={handleClick}
+              disabled={!canAddAny}
+            >
+              {getButtonText()}
+            </button>
+          )}
         </div>
       </div>
     </div>
