@@ -25,6 +25,7 @@ export default function ProductCard({ product, onAdd, inCart, cartQtys, onPreord
   const isOutOfStock = totalAvailable === 0 && totalInCart === 0
 
   // Incoming shipments info
+  const hasIncoming = product.incoming && product.incoming.length > 0
   const earliestDate = product.expected_date
 
   const handleClick = () => {
@@ -61,42 +62,41 @@ export default function ProductCard({ product, onAdd, inCart, cartQtys, onPreord
       <div className="product-body">
         <div className="product-name">{lang === 'zh' ? (product.name_zh || product.name) : (product.name_ru || product.name)}</div>
 
-        {/* Colors or last prices — same position, same pill style */}
-        <div className="product-colors">
-          {!isOutOfStock && hasColors ? (
-            <>
-              <span className="spec-label" style={{marginBottom:6,display:'inline-block'}}>{t('color')}:</span>
-              <div className="color-pills">
-                {colorNames.map(name => {
-                  const stock = avail[name] || 0
-                  const inCartQty = (cartQtys || {})[`${product.id}_${name}`] || 0
-                  const remaining = stock - inCartQty
-                  return (
-                    <span key={name} className="color-pill">
-                      {translateColor(name)} {remaining} шт
-                    </span>
-                  )
-                })}
-              </div>
-            </>
-          ) : !isOutOfStock ? (
-            <span style={{visibility:'hidden'}}> </span>
-          ) : (
-            <>
-              <div style={{marginBottom:6,fontSize:12,color:'#a68c00',fontWeight:500}}>
-                📦 {t('outOfStock')}{earliestDate && <> · {t('outOfStockDate')} {new Date(earliestDate).toLocaleDateString(lang === 'zh' ? 'zh-CN' : 'ru-RU')}</>}
-              </div>
-              <div className="color-pills">
-                <span className="color-pill" style={{background:'rgba(255,193,7,0.1)',borderColor:'rgba(255,193,7,0.3)'}}>
-                  {t('priceLastRetail')} {product.price.toLocaleString('ru-RU')} {t('rub')}
-                </span>
-                <span className="color-pill" style={{background:'rgba(255,193,7,0.1)',borderColor:'rgba(255,193,7,0.3)'}}>
-                  {t('priceLastWholesale')} {product.wholesale_price ? Number(product.wholesale_price).toLocaleString('ru-RU') + ' ' + t('rub') : '—'}
-                </span>
-              </div>
-            </>
-          )}
-        </div>
+        {/* Out of stock badge */}
+        {isOutOfStock && (
+          <div className="out-of-stock-badge">
+            <span>📦</span>
+            <div className="out-of-stock-text">
+              {t('outOfStock')}
+              {earliestDate && <span className="out-of-stock-date">{t('outOfStockDate')} {new Date(earliestDate).toLocaleDateString(lang === 'zh' ? 'zh-CN' : 'ru-RU')}</span>}
+            </div>
+          </div>
+        )}
+
+        {/* Colors from stock — pill badges */}
+        {!isOutOfStock && (
+          <div className="product-colors">
+            {hasColors ? (
+              <>
+                <span className="spec-label" style={{marginBottom:6,display:'inline-block'}}>{t('color')}:</span>
+                <div className="color-pills">
+                  {colorNames.map(name => {
+                    const stock = avail[name] || 0
+                    const inCartQty = (cartQtys || {})[`${product.id}_${name}`] || 0
+                    const remaining = stock - inCartQty
+                    return (
+                      <span key={name} className="color-pill">
+                        {translateColor(name)} {remaining} шт
+                      </span>
+                    )
+                  })}
+                </div>
+              </>
+            ) : (
+              <span style={{visibility:'hidden'}}> </span>
+            )}
+          </div>
+        )}
 
         {/* Specs list */}
         <div className="product-specs">
@@ -112,9 +112,13 @@ export default function ProductCard({ product, onAdd, inCart, cartQtys, onPreord
         )}
 
         <div className="product-price">
-          <div><span className="price-label">Розничная:</span> <span className="price-value">{product.price.toLocaleString('ru-RU')} {t('rub')}</span></div>
-          <div><span className="price-label">Оптовая:</span> <span className="price-value">{product.wholesale_price ? Number(product.wholesale_price).toLocaleString('ru-RU') + ' ' + t('rub') : '—'}</span></div>
-          <div className="wholesale-pill">Оптовая цена от 3 шт</div>
+          {!isOutOfStock && (
+            <>
+              <div><span className="price-label">Розничная:</span> <span className="price-value">{product.price.toLocaleString('ru-RU')} {t('rub')}</span></div>
+              <div><span className="price-label">Оптовая:</span> <span className="price-value">{product.wholesale_price ? Number(product.wholesale_price).toLocaleString('ru-RU') + ' ' + t('rub') : '—'}</span></div>
+              <div className="wholesale-pill">Оптовая цена от 3 шт</div>
+            </>
+          )}
         </div>
         <div style={{textAlign:'right', marginTop:'auto'}}>
           {isOutOfStock ? (
