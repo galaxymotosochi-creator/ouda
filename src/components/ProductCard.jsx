@@ -112,11 +112,16 @@ export default function ProductCard({ product, onAdd, inCart, cartQtys, onPreord
         )}
 
         <div className="product-price">
-          {!isOutOfStock && (
+          {!isOutOfStock ? (
             <>
               <div><span className="price-label">Розничная:</span> <span className="price-value">{product.price.toLocaleString('ru-RU')} {t('rub')}</span></div>
               <div><span className="price-label">Оптовая:</span> <span className="price-value">{product.wholesale_price ? Number(product.wholesale_price).toLocaleString('ru-RU') + ' ' + t('rub') : '—'}</span></div>
               <div className="wholesale-pill">Оптовая цена от 3 шт</div>
+            </>
+          ) : (
+            <>
+              <div><span className="price-label">{t('priceLastRetail')}</span> <span className="price-value">{product.price.toLocaleString('ru-RU')} {t('rub')}</span></div>
+              <div><span className="price-label">{t('priceLastWholesale')}</span> <span className="price-value">{product.wholesale_price ? Number(product.wholesale_price).toLocaleString('ru-RU') + ' ' + t('rub') : '—'}</span></div>
             </>
           )}
         </div>
