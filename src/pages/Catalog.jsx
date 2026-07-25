@@ -178,6 +178,16 @@ export default function Catalog() {
         </div>
       </section>
 
+      <section className="supplier-banner">
+        <div className="supplier-banner-inner">
+          <span className="supplier-banner-icon">⚠️</span>
+          <div className="supplier-banner-text">
+            <strong>{t('supplierBannerTitle')}</strong>
+            <p>{t('supplierBannerText')}</p>
+          </div>
+        </div>
+      </section>
+
       <section className="catalog" id="catalog">
         <div className="catalog-grid">
           {products.map(product => {
