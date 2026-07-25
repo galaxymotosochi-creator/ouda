@@ -33,7 +33,7 @@ export default function Admin() {
   const [shipments, setShipments] = useState([])
   const [preorders, setPreorders] = useState([])
   const [writeoffs, setWriteoffs] = useState([])
-  const [writeoffForm, setWriteoffForm] = useState({ product_id: '', product_name: '', color: '', qty: 1, reason: 'sale', comment: '' })
+  const [writeoffForm, setWriteoffForm] = useState({ product_id: '', product_name: '', colors: {}, reason: 'sale', comment: '' })
 
   // Create shipment modal
   const [showShipModal, setShowShipModal] = useState(false)
@@ -881,7 +881,15 @@ export default function Admin() {
                 </tr></thead>
                 <tbody>
                   {d.colors.filter(c => c.received > 0 || c.available > 0 || c.inTransit > 0).map(function(c) {
-                    const wCnt = writeoffs.reduce(function(s, w) { return s + (w.product_name === d.product_name && (!w.color || w.color === c.color) ? (w.qty || 0) : 0) }, 0)
+                    const wCnt = writeoffs.reduce(function(s, w) { 
+                      let cnt = 0
+                      if (w.colors && typeof w.colors === 'object') {
+                        cnt = Object.entries(w.colors).reduce(function(ss, e) { return ss + (e[1] || 0) }, 0)
+                      } else if (w.color) {
+                        cnt = w.qty || 0
+                      }
+                      return s + cnt
+                    }, 0)
                     return (
                     <tr key={c.color}>
                       <td>
@@ -1061,53 +1069,96 @@ export default function Admin() {
           <div className="v2-card" style={{overflow:'hidden',padding:0}}>
 
           {/* Form */}
-          <div style={{padding:'20px 24px',borderBottom:'1px solid var(--border)',display:'flex',gap:12,alignItems:'flex-end',flexWrap:'wrap'}}>
-            <div className="v2-field" style={{minWidth:200}}>
+          <div style={{padding:'20px 24px',borderBottom:'1px solid var(--border)'}}>
+            <div className="v2-field" style={{minWidth:250}}>
               <label>Товар</label>
               <select className="v2-input" value={writeoffForm.product_id}
                 onChange={e => {
                   const p = products.find(x => x.id == e.target.value)
-                  setWriteoffForm({ ...writeoffForm, product_id: e.target.value, product_name: p?.name || '', color: '' })
+                  if (p) {
+                    setWriteoffForm({ ...writeoffForm, product_id: e.target.value, product_name: p.name, colors: {} })
+                  } else {
+                    setWriteoffForm({ ...writeoffForm, product_id: '', product_name: '', colors: {} })
+                  }
                 }}>
                 <option value="">— Выберите товар —</option>
                 {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
             </div>
-            <div className="v2-field" style={{minWidth:120}}>
-              <label>Цвет</label>
-              <input className="v2-input" placeholder="Цвет" value={writeoffForm.color}
-                onChange={e => setWriteoffForm({ ...writeoffForm, color: e.target.value })} />
+
+            {writeoffForm.product_id > 0 && (function() {
+              const p = products.find(x => x.id == writeoffForm.product_id)
+              if (!p) return null
+              const avail = p.available_colors || {}
+              const colorsWithStock = Object.entries(avail).filter(function(e) { return e[1] > 0 })
+              if (colorsWithStock.length === 0) {
+                return <div style={{marginTop:16,color:'#888',fontSize:13}}>Нет товаров в наличии для списания</div>
+              }
+              return (
+                <>
+                  <div style={{marginTop:16,marginBottom:12,fontSize:13,color:'#666'}}>
+                    Укажите, сколько списать с каждого цвета:
+                  </div>
+                  <div className="stock-color-picker" style={{marginBottom:16}}>
+                    {colorsWithStock.map(function(e) {
+                      const color = e[0], stock = e[1]
+                      const wQty = writeoffForm.colors[color] || 0
+                      return (
+                        <div key={color} className="stock-color-row" style={{marginBottom:8}}>
+                          <div className="color-swatch" style={getColorHex(color) !== 'chameleon' ? {background:getColorHex(color),width:16,height:16,cursor:'default',borderRadius:'50%'} : {background:'linear-gradient(135deg,#8b5cf6,#6366f1,#3b82f6)',width:16,height:16,cursor:'default',borderRadius:'50%'}} />
+                          <span className="stock-color-name" style={{fontWeight:500}}>{color}</span>
+                          <span style={{fontSize:12,color:'#888',marginRight:12}}>в наличии: <b>{stock}</b> шт</span>
+                          <button type="button" className="stock-qty-btn" onClick={function() {
+                            setWriteoffForm(function(prev) {
+                              return { ...prev, colors: { ...prev.colors, [color]: Math.max(0, (prev.colors[color] || 0) - 1) } }
+                            })
+                          }}>−</button>
+                          <span className="stock-qty" style={wQty > 0 ? {color:'#e53e3e',fontWeight:700} : {}}>{wQty}</span>
+                          <button type="button" className="stock-qty-btn" onClick={function() {
+                            setWriteoffForm(function(prev) {
+                              return { ...prev, colors: { ...prev.colors, [color]: Math.min(stock, (prev.colors[color] || 0) + 1) } }
+                            })
+                          }}>+</button>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </>
+              )
+            })()}
+
+            <div style={{display:'flex',gap:12,alignItems:'flex-end',flexWrap:'wrap',marginTop:8}}>
+              <div className="v2-field" style={{minWidth:130}}>
+                <label>Причина</label>
+                <select className="v2-input" value={writeoffForm.reason}
+                  onChange={function(e) { setWriteoffForm({ ...writeoffForm, reason: e.target.value }) }}>
+                  <option value="sale">Продажа</option>
+                  <option value="error">Ошибка</option>
+                  <option value="damage">Брак</option>
+                  <option value="other">Другое</option>
+                </select>
+              </div>
+              <div className="v2-field" style={{minWidth:200}}>
+                <label>Комментарий</label>
+                <input className="v2-input" placeholder="Опционально" value={writeoffForm.comment}
+                  onChange={function(e) { setWriteoffForm({ ...writeoffForm, comment: e.target.value }) }} />
+              </div>
+              <button className="admin-btn admin-btn-accept" onClick={async function() {
+                const colors = {}
+                Object.entries(writeoffForm.colors).forEach(function(e) {
+                  if (e[1] > 0) colors[e[0]] = e[1]
+                })
+                const totalQty = Object.values(colors).reduce(function(s, v) { return s + v }, 0)
+                if (!writeoffForm.product_id || totalQty === 0) return
+                await fetch(API + '/api/writeoffs', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ ...writeoffForm, colors: colors }),
+                })
+                setWriteoffForm({ product_id: '', product_name: '', colors: {}, reason: 'sale', comment: '' })
+                fetch(API + '/api/writeoffs').then(function(r) { return r.json() }).then(setWriteoffs).catch(function() {})
+              }} style={{padding:'10px 20px'}}>Списать</button>
             </div>
-            <div className="v2-field" style={{minWidth:80}}>
-              <label>Количество</label>
-              <input className="v2-input" type="number" min="1" value={writeoffForm.qty}
-                onChange={e => setWriteoffForm({ ...writeoffForm, qty: Math.max(1, Number(e.target.value)) })} />
-            </div>
-            <div className="v2-field" style={{minWidth:130}}>
-              <label>Причина</label>
-              <select className="v2-input" value={writeoffForm.reason}
-                onChange={e => setWriteoffForm({ ...writeoffForm, reason: e.target.value })}>
-                <option value="sale">Продажа</option>
-                <option value="error">Ошибка</option>
-                <option value="damage">Брак</option>
-                <option value="other">Другое</option>
-              </select>
-            </div>
-            <div className="v2-field" style={{minWidth:150}}>
-              <label>Комментарий</label>
-              <input className="v2-input" placeholder="Опционально" value={writeoffForm.comment}
-                onChange={e => setWriteoffForm({ ...writeoffForm, comment: e.target.value })} />
-            </div>
-            <button className="admin-btn admin-btn-accept" onClick={async () => {
-              if (!writeoffForm.product_id || !writeoffForm.qty) return
-              await fetch(`${API}/api/writeoffs`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(writeoffForm),
-              })
-              setWriteoffForm({ product_id: '', product_name: '', color: '', qty: 1, reason: 'sale', comment: '' })
-              fetch(`${API}/api/writeoffs`).then(r => r.json()).then(setWriteoffs).catch(() => {})
-            }} style={{padding:'10px 20px'}}>Списать</button>
           </div>
 
           {/* Table */}
@@ -1124,8 +1175,16 @@ export default function Admin() {
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{i+1}</td>
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{new Date(w.created_at).toLocaleDateString('ru-RU')}</td>
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap',fontWeight:500}}>{w.product_name}</td>
-                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{w.color || '—'}</td>
-                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{w.qty}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{
+                    w.colors && typeof w.colors === 'object'
+                      ? Object.entries(w.colors).filter(function(e) { return e[1] > 0 }).map(function(e) { return e[0] }).join(', ')
+                      : (w.color || '—')
+                  }</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{
+                    w.colors && typeof w.colors === 'object'
+                      ? Object.values(w.colors).reduce(function(s, v) { return s + v }, 0)
+                      : (w.qty || 0)
+                  }</td>
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>
                     {w.reason === 'sale' ? 'Продажа' : w.reason === 'error' ? 'Ошибка' : w.reason === 'damage' ? 'Брак' : w.reason === 'other' ? 'Другое' : w.reason}
                   </td>

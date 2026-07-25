@@ -94,8 +94,17 @@ function computeAvailableStock() {
     })
   })
   writeoffs.forEach(w => {
-    const key = w.product_id + ':' + (w.color || '')
-    available[key] = (available[key] || 0) - (w.qty || 0)
+    if (w.colors && typeof w.colors === 'object') {
+      Object.entries(w.colors).forEach(([color, qty]) => {
+        const key = w.product_id + ':' + color
+        available[key] = (available[key] || 0) - (qty || 0)
+      })
+    }
+    // backward compat: old format with single color/qty
+    if (w.color) {
+      const key = w.product_id + ':' + w.color
+      available[key] = (available[key] || 0) - (w.qty || 0)
+    }
   })
   return available
 }
