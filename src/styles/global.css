@@ -1008,7 +1008,7 @@ img { max-width: 100%; display: block; }
   border: 1px solid rgba(255, 193, 7, 0.2);
   font-size: 13px; line-height: 1.5;
 }
-.out-of-stock-badge span { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+.out-of-stock-badge span { font-size: 22px; flex-shrink: 0; line-height: 1; margin-top: -3px; }
 .out-of-stock-text { color: #a68c00; font-weight: 500; }
 .out-of-stock-date { display: block; font-size: 11px; font-weight: 400; color: #888; margin-top: 4px; }
 
