@@ -117,8 +117,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
               onChange={e => setForm({ ...form, name: e.target.value })} required />
             <input placeholder="Город *" value={form.city}
               onChange={e => setForm({ ...form, city: e.target.value })} required />
-            <input placeholder="Терминал / ТК" value={pickup ? 'Самовывоз (Москва)' : form.transport}
-              onChange={e => setForm({ ...form, transport: e.target.value })} disabled={pickup} />
+            <input type="hidden" value={pickup ? 'Самовывоз (Москва)' : form.transport} />
 
             {!pickup && form.city && form.city !== 'Москва' && (
               <div style={{marginBottom:12}}>
