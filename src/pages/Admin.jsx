@@ -1081,7 +1081,7 @@ export default function Admin() {
                     setWriteoffForm({ ...writeoffForm, product_id: '', product_name: '', colors: {} })
                   }
                 }}>
-                <option value="">— Выберите товар —</option>
+                <option value="">{t('selectProductPlaceholder')}</option>
                 {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
             </div>
