@@ -26,7 +26,10 @@ function formatShortDate(dateStr) {
 export default function Admin() {
   const { t, lang, setLang, translateColor } = useLang()
   const navigate = useNavigate()
-  const [tab, setTab] = useState('orders')
+  const role = sessionStorage.getItem('ouda_admin') || ''
+  const isSupplier = role === 'supplier'
+  const defaultTab = isSupplier ? 'stock' : 'orders'
+  const [tab, setTab] = useState(defaultTab)
   const [orders, setOrders] = useState([])
   const [products, setProducts] = useState([])
   const [stock, setStock] = useState([])
@@ -576,14 +579,14 @@ export default function Admin() {
       <div className="admin-content">
         <div className="admin-tabs">
           {[
-            { key: 'products', label: `${t('products')} (${products.length})` },
-            { key: 'stock', label: `${t('stock')}` },
-            { key: 'inventory', label: t('inventory') },
-            { key: 'orders', label: `${t('orders')} (${orders.filter(o => o.status === 'new').length})` },
-            { key: 'shipments', label: `${t('shipments')} (${shipments.length})` },
-            { key: 'preorders', label: `${t('preordersTab')} (${preorders.length})` },
-            { key: 'writeoffs', label: `${t('writeoffsTab')} (${writeoffs.length})` },
-          ].map(tabItem => (
+            { key: 'products', label: `${t('products')} (${products.length})`, role: 'admin' },
+            { key: 'stock', label: `${t('stock')}`, role: 'all' },
+            { key: 'inventory', label: t('inventory'), role: 'all' },
+            { key: 'orders', label: `${t('orders')} (${orders.filter(o => o.status === 'new').length})`, role: 'admin' },
+            { key: 'shipments', label: `${t('shipments')} (${shipments.length})`, role: 'admin' },
+            { key: 'preorders', label: `${t('preordersTab')} (${preorders.length})`, role: 'admin' },
+            { key: 'writeoffs', label: `${t('writeoffsTab')} (${writeoffs.length})`, role: 'all' },
+          ].filter(tabItem => tabItem.role === 'all' || (tabItem.role === 'admin' && !isSupplier)).map(tabItem => (
             <button key={tabItem.key} className={`admin-tab ${tab === tabItem.key ? 'active' : ''}`}
               onClick={() => setTab(tabItem.key)}>{tabItem.label}</button>
           ))}

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-const ADMIN_PASS = '8888'
+const PASSWORDS = { '8888': 'admin', '7777': 'supplier' }
 
 export default function Login() {
   const [pin, setPin] = useState([])
@@ -17,8 +17,9 @@ export default function Login() {
     if (newPin.length === 4) {
       const fullPin = newPin.join('')
       setTimeout(() => {
-        if (fullPin === ADMIN_PASS) {
-          sessionStorage.setItem('ouda_admin', 'true')
+        const role = PASSWORDS[fullPin]
+        if (role) {
+          sessionStorage.setItem('ouda_admin', role)
           navigate('/admin')
         } else {
           setError(true)
