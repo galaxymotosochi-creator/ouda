@@ -969,10 +969,9 @@ img { max-width: 100%; display: block; }
   background: rgba(255, 193, 7, 0.10);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 193, 7, 0.25);
-  color: #fff;
+  color: #444;
   font-size: 14px;
   line-height: 1.5;
-  text-shadow: 0 0 20px rgba(255,255,255,0.10);
 }
 .supplier-banner-icon { font-size: 28px; flex-shrink: 0; }
 .supplier-banner-text strong { display: block; margin-bottom: 2px; font-weight: 600; }
