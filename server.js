@@ -65,6 +65,7 @@ let shipments = loadData('shipments', [])
 let nextId = loadData('nextId', 100)
 let shipmentCounter = loadData('shipmentCounter', 0)
 let preorders = loadData('preorders', [])
+let writeoffs = loadData('writeoffs', [])
 
 function saveAll() {
   saveData('products', products)
@@ -72,6 +73,7 @@ function saveAll() {
   saveData('stock', stock)
   saveData('shipments', shipments)
   saveData('preorders', preorders)
+  saveData('writeoffs', writeoffs)
   saveData('nextId', nextId)
   saveData('shipmentCounter', shipmentCounter)
 }
@@ -288,6 +290,21 @@ app.post('/api/upload', upload.array('photos', 7), async (req, res) => {
 })
 
 app.get('/api/stock/available', (req, res) => res.json(computeAvailableStock()))
+
+// === Writeoffs ===
+app.get('/api/writeoffs', (req, res) => res.json(writeoffs))
+app.post('/api/writeoffs', (req, res) => {
+  const w = { id: nextId++, ...req.body, created_at: new Date().toISOString() }
+  writeoffs.unshift(w)
+  saveAll()
+  res.json(w)
+})
+app.delete('/api/writeoffs/:id', (req, res) => {
+  writeoffs = writeoffs.filter(w => w.id != req.params.id)
+  saveAll()
+  res.json({ ok: true })
+})
+
 // === Preorders ===
 app.get('/api/preorders', (req, res) => res.json(preorders))
 app.post('/api/preorders', (req, res) => {

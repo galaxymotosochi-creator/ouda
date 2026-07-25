@@ -32,6 +32,8 @@ export default function Admin() {
   const [stock, setStock] = useState([])
   const [shipments, setShipments] = useState([])
   const [preorders, setPreorders] = useState([])
+  const [writeoffs, setWriteoffs] = useState([])
+  const [writeoffForm, setWriteoffForm] = useState({ product_id: '', product_name: '', color: '', qty: 1, reason: 'sale', comment: '' })
 
   // Create shipment modal
   const [showShipModal, setShowShipModal] = useState(false)
@@ -174,6 +176,7 @@ export default function Admin() {
       .catch(() => setShipments(getLocal(LS_SHIPMENTS)))
     fetch(`${API}/api/stock/details`).then(r => r.json()).then(setInventory).catch(() => {})
     fetch(`${API}/api/preorders`).then(r => r.json()).then(setPreorders).catch(() => {})
+    fetch(`${API}/api/writeoffs`).then(r => r.json()).then(setWriteoffs).catch(() => {})
   }
 
   const updateStatus = (id, status) => {
@@ -579,6 +582,7 @@ export default function Admin() {
             { key: 'orders', label: `${t('orders')} (${orders.filter(o => o.status === 'new').length})` },
             { key: 'shipments', label: `${t('shipments')} (${shipments.length})` },
             { key: 'preorders', label: `Предзаказы (${preorders.length})` },
+            { key: 'writeoffs', label: `Списания (${writeoffs.length})` },
           ].map(tabItem => (
             <button key={tabItem.key} className={`admin-tab ${tab === tabItem.key ? 'active' : ''}`}
               onClick={() => setTab(tabItem.key)}>{tabItem.label}</button>
@@ -873,10 +877,12 @@ export default function Admin() {
               </div>
               <table className="inv-table">
                 <thead><tr>
-                  <th>{t('color')}</th><th>{t('received')}</th><th>В пути</th><th>{t('shippedOut')}</th><th>{t('available')}</th><th></th>
+                  <th>{t('color')}</th><th>{t('received')}</th><th>В пути</th><th>Списано</th><th>{t('shippedOut')}</th><th>{t('available')}</th><th></th>
                 </tr></thead>
                 <tbody>
-                  {d.colors.filter(c => c.received > 0 || c.available > 0 || c.inTransit > 0).map(c => (
+                  {d.colors.filter(c => c.received > 0 || c.available > 0 || c.inTransit > 0).map(function(c) {
+                    const wCnt = writeoffs.reduce(function(s, w) { return s + (w.product_name === d.product_name && (!w.color || w.color === c.color) ? (w.qty || 0) : 0) }, 0)
+                    return (
                     <tr key={c.color}>
                       <td>
                         <div className="inv-color-cell">
@@ -887,6 +893,7 @@ export default function Admin() {
                       </td>
                       <td>{c.received}</td>
                       <td>{(c.inTransit || 0) > 0 ? `${c.inTransit} ${c.expected_date ? '(до ' + c.expected_date + ')' : ''}` : '—'}</td>
+                      <td>{wCnt || '—'}</td>
                       <td>{c.shipped}</td>
                       <td><strong className={c.available === 0 ? 'inv-zero' : 'inv-ok'}>{c.available}</strong></td>
                       <td>
@@ -900,7 +907,8 @@ export default function Admin() {
                         }
                       </td>
                     </tr>
-                  ))}
+                    )
+                  })}
                 </tbody>
               </table>
             </div>
@@ -1039,6 +1047,99 @@ export default function Admin() {
                 </tr>
               ))}
               {preorders.length===0 && <tr><td colSpan={8} style={{textAlign:'center',color:'#666',padding:40}}>Нет предзаказов</td></tr>}
+            </tbody>
+          </table>
+          </div>
+          </div>
+          </div>
+          </div>
+        </>)}
+
+        {/* === WRITEOFFS TAB === */}
+        {tab === 'writeoffs' && (<>
+          <div className="v2-products-section">
+          <div className="v2-card" style={{overflow:'hidden',padding:0}}>
+
+          {/* Form */}
+          <div style={{padding:'20px 24px',borderBottom:'1px solid var(--border)',display:'flex',gap:12,alignItems:'flex-end',flexWrap:'wrap'}}>
+            <div className="v2-field" style={{minWidth:200}}>
+              <label>Товар</label>
+              <select className="v2-input" value={writeoffForm.product_id}
+                onChange={e => {
+                  const p = products.find(x => x.id == e.target.value)
+                  setWriteoffForm({ ...writeoffForm, product_id: e.target.value, product_name: p?.name || '', color: '' })
+                }}>
+                <option value="">— Выберите товар —</option>
+                {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+            </div>
+            <div className="v2-field" style={{minWidth:120}}>
+              <label>Цвет</label>
+              <input className="v2-input" placeholder="Цвет" value={writeoffForm.color}
+                onChange={e => setWriteoffForm({ ...writeoffForm, color: e.target.value })} />
+            </div>
+            <div className="v2-field" style={{minWidth:80}}>
+              <label>Количество</label>
+              <input className="v2-input" type="number" min="1" value={writeoffForm.qty}
+                onChange={e => setWriteoffForm({ ...writeoffForm, qty: Math.max(1, Number(e.target.value)) })} />
+            </div>
+            <div className="v2-field" style={{minWidth:130}}>
+              <label>Причина</label>
+              <select className="v2-input" value={writeoffForm.reason}
+                onChange={e => setWriteoffForm({ ...writeoffForm, reason: e.target.value })}>
+                <option value="sale">Продажа</option>
+                <option value="error">Ошибка</option>
+                <option value="damage">Брак</option>
+                <option value="other">Другое</option>
+              </select>
+            </div>
+            <div className="v2-field" style={{minWidth:150}}>
+              <label>Комментарий</label>
+              <input className="v2-input" placeholder="Опционально" value={writeoffForm.comment}
+                onChange={e => setWriteoffForm({ ...writeoffForm, comment: e.target.value })} />
+            </div>
+            <button className="admin-btn admin-btn-accept" onClick={async () => {
+              if (!writeoffForm.product_id || !writeoffForm.qty) return
+              await fetch(`${API}/api/writeoffs`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(writeoffForm),
+              })
+              setWriteoffForm({ product_id: '', product_name: '', color: '', qty: 1, reason: 'sale', comment: '' })
+              fetch(`${API}/api/writeoffs`).then(r => r.json()).then(setWriteoffs).catch(() => {})
+            }} style={{padding:'10px 20px'}}>Списать</button>
+          </div>
+
+          {/* Table */}
+          <div style={{margin:'0 24px 24px'}}>
+          <div style={{overflowX:'auto',borderRadius:'var(--radius)'}}>
+          <table className="admin-table" style={{margin:0}}>
+            <thead><tr>
+              <th>№</th><th>Дата</th><th>Товар</th><th>Цвет</th><th>Кол-во</th><th>Причина</th><th>Комментарий</th><th></th>
+            </tr></thead>
+            <tbody>
+              {writeoffs.map((w, i) => (
+                <tr key={w.id} style={{borderTop:'1px solid #f0f2ff',transition:'background .15s'}}
+                  onMouseOver={e => e.currentTarget.style.background='#fafbff'} onMouseOut={e => e.currentTarget.style.background=''}>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{i+1}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{new Date(w.created_at).toLocaleDateString('ru-RU')}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap',fontWeight:500}}>{w.product_name}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{w.color || '—'}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{w.qty}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>
+                    {w.reason === 'sale' ? 'Продажа' : w.reason === 'error' ? 'Ошибка' : w.reason === 'damage' ? 'Брак' : w.reason === 'other' ? 'Другое' : w.reason}
+                  </td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap',color:'#888'}}>{w.comment || '—'}</td>
+                  <td>
+                    <button className="admin-btn admin-btn-danger" onClick={async () => {
+                      if (!confirm('Удалить списание?')) return
+                      await fetch(`${API}/api/writeoffs/${w.id}`, {method:'DELETE'})
+                      setWriteoffs(prev => prev.filter(x => x.id !== w.id))
+                    }} style={{padding:'5px 10px',fontSize:12}}>✕</button>
+                  </td>
+                </tr>
+              ))}
+              {writeoffs.length===0 && <tr><td colSpan={8} style={{textAlign:'center',color:'#666',padding:40}}>Нет списаний</td></tr>}
             </tbody>
           </table>
           </div>
