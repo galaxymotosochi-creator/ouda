@@ -1235,7 +1235,7 @@ export default function Admin() {
           <div style={{overflowX:'auto',borderRadius:'var(--radius)'}}>
           <table className="admin-table" style={{margin:0}}>
             <thead><tr>
-              <th>№</th><th>{t('date')}</th><th>{t('productLabel')}</th><th>{t('colorLabel')}</th><th>{t('qtyLabel')}</th><th>{t('reasonLabel')}</th><th>{t('commentLabel')}</th><th></th>
+              <th>№</th><th>{t('date')}</th><th>{t('productLabel')}</th><th>{t('colorLabel')}</th><th>{t('qtyLabel')}</th><th>{t('reasonLabel')}</th><th>{t('clientName')}</th><th>{t('phoneLabel')}</th><th>{t('priceLabel')}</th><th>{t('commentLabel')}</th><th></th>
             </tr></thead>
             <tbody>
               {writeoffs.map((w, i) => (
@@ -1267,6 +1267,9 @@ export default function Admin() {
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>
                     {w.reason === 'sale' ? t('saleReason') : w.reason === 'error' ? t('errorReason') : w.reason === 'damage' ? t('damageReason') : w.reason === 'other' ? t('otherReason') : w.reason}
                   </td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{w.client_name || '—'}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{w.client_phone || '—'}</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{w.price ? Number(w.price).toLocaleString('ru-RU') + ' ₽' : '—'}</td>
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap',color:'#888'}}>{w.comment || '—'}</td>
                   <td>
                     <button className="admin-btn admin-btn-danger" onClick={async () => {
@@ -1277,7 +1280,7 @@ export default function Admin() {
                   </td>
                 </tr>
               ))}
-              {writeoffs.length===0 && <tr><td colSpan={8} style={{textAlign:'center',color:'#666',padding:40}}>{t('noWriteoffs')}</td></tr>}
+              {writeoffs.length===0 && <tr><td colSpan={11} style={{textAlign:'center',color:'#666',padding:40}}>{t('noWriteoffs')}</td></tr>}
             </tbody>
           </table>
           </div>
