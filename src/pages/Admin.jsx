@@ -1143,7 +1143,7 @@ export default function Admin() {
                 <input className="v2-input" placeholder="Опционально" value={writeoffForm.comment}
                   onChange={function(e) { setWriteoffForm({ ...writeoffForm, comment: e.target.value }) }} />
               </div>
-              <button className="admin-btn admin-btn-accept" onClick={async function() {
+              <button style={{background:'linear-gradient(135deg, #667eea, #764ba2)',color:'#fff',padding:'10px 24px',borderRadius:'12px',fontSize:13,fontWeight:500,border:'none',cursor:'pointer'}} onClick={async function() {
                 const colors = {}
                 Object.entries(writeoffForm.colors).forEach(function(e) {
                   if (e[1] > 0) colors[e[0]] = e[1]
@@ -1157,7 +1157,7 @@ export default function Admin() {
                 })
                 setWriteoffForm({ product_id: '', product_name: '', colors: {}, reason: 'sale', comment: '' })
                 fetch(API + '/api/writeoffs').then(function(r) { return r.json() }).then(setWriteoffs).catch(function() {})
-              }} style={{padding:'10px 20px'}}>Списать</button>
+              }}>Списать</button>
             </div>
           </div>
 
