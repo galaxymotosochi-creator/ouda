@@ -576,7 +576,7 @@ img { max-width: 100%; display: block; }
 /* === Inventory === */
 .inventory-card {
   background: var(--bg-card); border-radius: var(--radius); box-shadow: var(--shadow);
-  margin-bottom: 16px; overflow: hidden;
+  margin-bottom: 16px;
 }
 .inv-header {
   display: flex; justify-content: space-between; align-items: center;
@@ -585,7 +585,10 @@ img { max-width: 100%; display: block; }
 .inv-header strong { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex-shrink: 1; }
 .inv-total { font-size: 13px; color: var(--text-muted); white-space: nowrap; flex-shrink: 0; margin-left: 12px; }
 .inv-total b { color: var(--accent); }
-.inv-table { table-layout: fixed; width: 100%; border-collapse: collapse; font-size: 14px; }
+.inv-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.inv-table-wrap::-webkit-scrollbar { height: 4px; }
+.inv-table-wrap::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+.inv-table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .inv-table th { text-align: left; padding: 10px 8px; font-size: 12px; color: var(--text-muted); font-weight: 500; border-bottom: 1px solid var(--border); white-space: nowrap; }
 .inv-table td { padding: 10px 8px; border-bottom: 1px solid var(--border); white-space: nowrap; }
 .inv-table th:nth-child(1), .inv-table td:nth-child(1) { width: 30%; }

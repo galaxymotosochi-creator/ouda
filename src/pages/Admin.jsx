@@ -875,7 +875,7 @@ export default function Admin() {
                 <strong>{d.product_name}</strong>
                 <span className="inv-total">{t('totalItems')}: <b>{d.totalAvailable}</b> шт{d.totalInTransit > 0 ? `, в пути: ${d.totalInTransit} шт` : ''}</span>
               </div>
-              <table className="inv-table">
+              <div className="inv-table-wrap"><table className="inv-table">
                 <thead><tr>
                   <th>{t('color')}</th><th>{t('received')}</th><th>В пути</th><th>Списано</th><th>{t('shippedOut')}</th><th>{t('available')}</th><th></th>
                 </tr></thead>
@@ -918,7 +918,7 @@ export default function Admin() {
                     )
                   })}
                 </tbody>
-              </table>
+              </table></div>
             </div>
           ))}
           {inventory.filter(d => d.totalAvailable > 0 || d.totalReceived > 0 || d.totalInTransit > 0).length === 0 && (
