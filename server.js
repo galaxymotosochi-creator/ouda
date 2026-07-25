@@ -94,13 +94,25 @@ function computeAvailableStock() {
     })
   })
   writeoffs.forEach(w => {
+    // New multi-item format
+    if (w.items && Array.isArray(w.items)) {
+      w.items.forEach(item => {
+        if (item.colors && typeof item.colors === 'object') {
+          Object.entries(item.colors).forEach(([color, qty]) => {
+            const key = item.product_id + ':' + color
+            available[key] = (available[key] || 0) - (qty || 0)
+          })
+        }
+      })
+    }
+    // Old single-item format with colors object
     if (w.colors && typeof w.colors === 'object') {
       Object.entries(w.colors).forEach(([color, qty]) => {
         const key = w.product_id + ':' + color
         available[key] = (available[key] || 0) - (qty || 0)
       })
     }
-    // backward compat: old format with single color/qty
+    // Old format with single color/qty
     if (w.color) {
       const key = w.product_id + ':' + w.color
       available[key] = (available[key] || 0) - (w.qty || 0)

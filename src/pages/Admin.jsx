@@ -36,7 +36,7 @@ export default function Admin() {
   const [shipments, setShipments] = useState([])
   const [preorders, setPreorders] = useState([])
   const [writeoffs, setWriteoffs] = useState([])
-  const [writeoffForm, setWriteoffForm] = useState({ product_id: '', product_name: '', colors: {}, reason: 'sale', comment: '' })
+  const [writeoffForm, setWriteoffForm] = useState({ items: [{ product_id: '', product_name: '', colors: {} }], reason: 'sale', comment: '', client_name: '', client_phone: '+7', price: '' })
 
   // Create shipment modal
   const [showShipModal, setShowShipModal] = useState(false)
@@ -886,7 +886,15 @@ export default function Admin() {
                   {d.colors.filter(c => c.received > 0 || c.available > 0 || c.inTransit > 0).map(function(c) {
                     const wCnt = writeoffs.reduce(function(s, w) { 
                       let cnt = 0
-                      if (w.colors && typeof w.colors === 'object') {
+                      if (w.items && Array.isArray(w.items)) {
+                        w.items.forEach(function(item) {
+                          if (item.product_name === d.product_name) {
+                            Object.entries(item.colors || {}).forEach(function(e) {
+                              if (e[0] === c.color) cnt += (e[1] || 0)
+                            })
+                          }
+                        })
+                      } else if (w.colors && typeof w.colors === 'object') {
                         cnt = Object.entries(w.colors).reduce(function(ss, e) { return ss + (e[1] || 0) }, 0)
                       } else if (w.color) {
                         cnt = w.qty || 0
@@ -1073,64 +1081,7 @@ export default function Admin() {
 
           {/* Form */}
           <div style={{padding:'20px 24px',borderBottom:'1px solid var(--border)'}}>
-            <div className="v2-field" style={{minWidth:250}}>
-              <label>{t('productLabel')}</label>
-              <select className="v2-input" value={writeoffForm.product_id}
-                onChange={e => {
-                  const p = products.find(x => x.id == e.target.value)
-                  if (p) {
-                    setWriteoffForm({ ...writeoffForm, product_id: e.target.value, product_name: p.name, colors: {} })
-                  } else {
-                    setWriteoffForm({ ...writeoffForm, product_id: '', product_name: '', colors: {} })
-                  }
-                }}>
-                <option value="">{t('selectProductPlaceholder')}</option>
-                {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-              </select>
-            </div>
-
-            {writeoffForm.product_id > 0 && (function() {
-              const p = products.find(x => x.id == writeoffForm.product_id)
-              if (!p) return null
-              const avail = p.available_colors || {}
-              const colorsWithStock = Object.entries(avail).filter(function(e) { return e[1] > 0 })
-              if (colorsWithStock.length === 0) {
-                return <div style={{marginTop:16,color:'#888',fontSize:13}}>{t('noStockWriteoff')}</div>
-              }
-              return (
-                <>
-                  <div style={{marginTop:16,marginBottom:12,fontSize:13,color:'#666'}}>
-                    {t('specifyColors')}
-                  </div>
-                  <div className="stock-color-picker" style={{marginBottom:16}}>
-                    {colorsWithStock.map(function(e) {
-                      const color = e[0], stock = e[1]
-                      const wQty = writeoffForm.colors[color] || 0
-                      return (
-                        <div key={color} className="stock-color-row" style={{marginBottom:8}}>
-                          <div className="color-swatch" style={getColorHex(color) !== 'chameleon' ? {background:getColorHex(color),width:16,height:16,cursor:'default',borderRadius:'50%'} : {background:'linear-gradient(135deg,#8b5cf6,#6366f1,#3b82f6)',width:16,height:16,cursor:'default',borderRadius:'50%'}} />
-                          <span className="stock-color-name" style={{fontWeight:500}}>{color}</span>
-                          <span style={{fontSize:12,color:'#888',marginRight:12}}>{t('inStockStatus')}: <b>{stock}</b> {t('pcs')}</span>
-                          <button type="button" className="stock-qty-btn" onClick={function() {
-                            setWriteoffForm(function(prev) {
-                              return { ...prev, colors: { ...prev.colors, [color]: Math.max(0, (prev.colors[color] || 0) - 1) } }
-                            })
-                          }}>−</button>
-                          <span className="stock-qty" style={wQty > 0 ? {color:'#e53e3e',fontWeight:700} : {}}>{wQty}</span>
-                          <button type="button" className="stock-qty-btn" onClick={function() {
-                            setWriteoffForm(function(prev) {
-                              return { ...prev, colors: { ...prev.colors, [color]: Math.min(stock, (prev.colors[color] || 0) + 1) } }
-                            })
-                          }}>+</button>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </>
-              )
-            })()}
-
-            <div style={{display:'flex',gap:12,alignItems:'flex-end',flexWrap:'wrap',marginTop:8}}>
+            <div style={{display:'flex',gap:12,flexWrap:'wrap',alignItems:'flex-end',marginBottom:16}}>
               <div className="v2-field" style={{minWidth:130}}>
                 <label>{t('reasonLabel')}</label>
                 <select className="v2-input" value={writeoffForm.reason}
@@ -1146,19 +1097,134 @@ export default function Admin() {
                 <input className="v2-input" placeholder={t('commentPlaceholder')} value={writeoffForm.comment}
                   onChange={function(e) { setWriteoffForm({ ...writeoffForm, comment: e.target.value }) }} />
               </div>
+            </div>
+
+            {/* Sale fields */}
+            {writeoffForm.reason === 'sale' && (
+              <div style={{display:'flex',gap:12,flexWrap:'wrap',alignItems:'flex-end',marginBottom:16}}>
+                <div className="v2-field" style={{minWidth:150}}>
+                  <label>{t('nameLabel')}</label>
+                  <input className="v2-input" placeholder={t('nameLabel')} value={writeoffForm.client_name}
+                    onChange={function(e) { setWriteoffForm({ ...writeoffForm, client_name: e.target.value }) }} />
+                </div>
+                <div className="v2-field" style={{minWidth:150}}>
+                  <label>{t('phoneLabel')}</label>
+                  <input className="v2-input" type="tel" placeholder={t('phoneLabel')} value={writeoffForm.client_phone}
+                    onChange={function(e) { setWriteoffForm({ ...writeoffForm, client_phone: e.target.value }) }} />
+                </div>
+                <div className="v2-field" style={{minWidth:120}}>
+                  <label>{t('priceLabel')}</label>
+                  <input className="v2-input" type="number" placeholder={t('priceLabel')} value={writeoffForm.price}
+                    onChange={function(e) { setWriteoffForm({ ...writeoffForm, price: e.target.value }) }} />
+                </div>
+              </div>
+            )}
+
+            {/* Items */}
+            <div style={{marginBottom:12}}>
+              <div style={{fontSize:13,color:'#666',marginBottom:12}}>Позиции:</div>
+              {writeoffForm.items.map(function(item, idx) {
+                return (
+                  <div key={idx} style={{border:'1px solid var(--border)',borderRadius:12,padding:16,marginBottom:12,background:'var(--bg-card)'}}>
+                    <div style={{display:'flex',gap:12,alignItems:'flex-end',flexWrap:'wrap',marginBottom:8}}>
+                      <div className="v2-field" style={{minWidth:180}}>
+                        <label>{t('productLabel')} {idx+1}</label>
+                        <select className="v2-input" value={item.product_id}
+                          onChange={function(e) {
+                            const p = products.find(function(x) { return x.id == e.target.value })
+                            var items = writeoffForm.items.slice()
+                            items[idx] = { product_id: e.target.value, product_name: p ? p.name : '', colors: {} }
+                            setWriteoffForm({ ...writeoffForm, items: items })
+                          }}>
+                          <option value="">{t('selectProductPlaceholder')}</option>
+                          {products.map(function(p) { return <option key={p.id} value={p.id}>{p.name}</option> })}
+                        </select>
+                      </div>
+                      {writeoffForm.items.length > 1 && (
+                        <button type="button" className="admin-btn admin-btn-danger" style={{padding:'6px 10px',fontSize:12}}
+                          onClick={function() {
+                            var items = writeoffForm.items.filter(function(_, i) { return i !== idx })
+                            setWriteoffForm({ ...writeoffForm, items: items })
+                          }}>✕</button>
+                      )}
+                    </div>
+
+                    {item.product_id > 0 && (function() {
+                      var p = products.find(function(x) { return x.id == item.product_id })
+                      if (!p) return null
+                      var avail = p.available_colors || {}
+                      var colorsWithStock = Object.entries(avail).filter(function(e) { return e[1] > 0 })
+                      if (colorsWithStock.length === 0) {
+                        return <div style={{marginTop:8,color:'#888',fontSize:13}}>{t('noStockWriteoff')}</div>
+                      }
+                      return (
+                        <div>
+                          <div style={{marginTop:8,marginBottom:8,fontSize:12,color:'#888'}}>{t('specifyColors')}</div>
+                          {colorsWithStock.map(function(e) {
+                            var color = e[0], stock = e[1]
+                            var wQty = item.colors[color] || 0
+                            return (
+                              <div key={color} className="stock-color-row" style={{marginBottom:6}}>
+                                <div className="color-swatch" style={getColorHex(color) !== 'chameleon' ? {background:getColorHex(color),width:14,height:14,cursor:'default',borderRadius:'50%'} : {background:'linear-gradient(135deg,#8b5cf6,#6366f1,#3b82f6)',width:14,height:14,cursor:'default',borderRadius:'50%'}} />
+                                <span className="stock-color-name" style={{fontWeight:500,fontSize:13}}>{color}</span>
+                                <span style={{fontSize:11,color:'#888',marginRight:8}}>{t('inStockStatus')}: {stock} {t('pcs')}</span>
+                                <button type="button" className="stock-qty-btn" onClick={function() {
+                                  var items = writeoffForm.items.slice()
+                                  var c = { ...items[idx].colors }
+                                  c[color] = Math.max(0, (c[color] || 0) - 1)
+                                  items[idx] = { ...items[idx], colors: c }
+                                  setWriteoffForm({ ...writeoffForm, items: items })
+                                }}>−</button>
+                                <span className="stock-qty" style={wQty > 0 ? {color:'#e53e3e',fontWeight:700} : {}}>{wQty}</span>
+                                <button type="button" className="stock-qty-btn" onClick={function() {
+                                  var items = writeoffForm.items.slice()
+                                  var c = { ...items[idx].colors }
+                                  c[color] = Math.min(stock, (c[color] || 0) + 1)
+                                  items[idx] = { ...items[idx], colors: c }
+                                  setWriteoffForm({ ...writeoffForm, items: items })
+                                }}>+</button>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      )
+                    })()}
+                  </div>
+                )
+              })}
+              <button type="button" className="admin-btn admin-btn-add-item"
+                onClick={function() {
+                  setWriteoffForm({ ...writeoffForm, items: writeoffForm.items.concat({ product_id: '', product_name: '', colors: {} }) })
+                }}>+ Добавить позицию</button>
+            </div>
+
+            <div style={{display:'flex',justifyContent:'flex-end',marginTop:8}}>
               <button style={{background:'linear-gradient(135deg, #667eea, #764ba2)',color:'#fff',padding:'10px 24px',borderRadius:'12px',fontSize:13,fontWeight:500,border:'none',cursor:'pointer'}} onClick={async function() {
-                const colors = {}
-                Object.entries(writeoffForm.colors).forEach(function(e) {
-                  if (e[1] > 0) colors[e[0]] = e[1]
-                })
-                const totalQty = Object.values(colors).reduce(function(s, v) { return s + v }, 0)
-                if (!writeoffForm.product_id || totalQty === 0) return
+                var items = []
+                for (var i = 0; i < writeoffForm.items.length; i++) {
+                  var item = writeoffForm.items[i]
+                  var colors = {}
+                  var entries = Object.entries(item.colors)
+                  for (var j = 0; j < entries.length; j++) {
+                    if (entries[j][1] > 0) colors[entries[j][0]] = entries[j][1]
+                  }
+                  if (item.product_id && Object.keys(colors).length > 0) {
+                    items.push({ product_id: item.product_id, product_name: item.product_name, colors: colors })
+                  }
+                }
+                if (items.length === 0) return
+                var data = { items: items, reason: writeoffForm.reason, comment: writeoffForm.comment }
+                if (writeoffForm.reason === 'sale') {
+                  data.client_name = writeoffForm.client_name
+                  data.client_phone = writeoffForm.client_phone
+                  data.price = Number(writeoffForm.price) || 0
+                }
                 await fetch(API + '/api/writeoffs', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ ...writeoffForm, colors: colors }),
+                  body: JSON.stringify(data),
                 })
-                setWriteoffForm({ product_id: '', product_name: '', colors: {}, reason: 'sale', comment: '' })
+                setWriteoffForm({ items: [{ product_id: '', product_name: '', colors: {} }], reason: 'sale', comment: '', client_name: '', client_phone: '+7', price: '' })
                 fetch(API + '/api/writeoffs').then(function(r) { return r.json() }).then(setWriteoffs).catch(function() {})
               }} className="writeoff-submit-btn">{t('writeoffBtn')}</button>
             </div>
@@ -1177,16 +1243,26 @@ export default function Admin() {
                   onMouseOver={e => e.currentTarget.style.background='#fafbff'} onMouseOut={e => e.currentTarget.style.background=''}>
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{i+1}</td>
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{new Date(w.created_at).toLocaleDateString('ru-RU')}</td>
-                  <td style={{padding:'12px 16px',whiteSpace:'nowrap',fontWeight:500}}>{w.product_name}</td>
-                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{
-                    w.colors && typeof w.colors === 'object'
-                      ? Object.entries(w.colors).filter(function(e) { return e[1] > 0 }).map(function(e) { return e[0] }).join(', ')
-                      : (w.color || '—')
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap',fontWeight:500}}>{
+                    w.items && Array.isArray(w.items)
+                      ? w.items.map(function(item) { return item.product_name }).join(', ')
+                      : w.product_name
                   }</td>
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{
-                    w.colors && typeof w.colors === 'object'
-                      ? Object.values(w.colors).reduce(function(s, v) { return s + v }, 0)
-                      : (w.qty || 0)
+                    w.items && Array.isArray(w.items)
+                      ? w.items.map(function(item) {
+                          return Object.entries(item.colors || {}).filter(function(e) { return e[1] > 0 }).map(function(e) { return e[0] + ' ×' + e[1] }).join(', ')
+                        }).join('; ')
+                      : w.colors && typeof w.colors === 'object'
+                        ? Object.entries(w.colors).filter(function(e) { return e[1] > 0 }).map(function(e) { return e[0] }).join(', ')
+                        : (w.color || '—')
+                  }</td>
+                  <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{
+                    w.items && Array.isArray(w.items)
+                      ? w.items.reduce(function(s, item) { return s + Object.values(item.colors || {}).reduce(function(ss, v) { return ss + v }, 0) }, 0)
+                      : w.colors && typeof w.colors === 'object'
+                        ? Object.values(w.colors).reduce(function(s, v) { return s + v }, 0)
+                        : (w.qty || 0)
                   }</td>
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>
                     {w.reason === 'sale' ? t('saleReason') : w.reason === 'error' ? t('errorReason') : w.reason === 'damage' ? t('damageReason') : w.reason === 'other' ? t('otherReason') : w.reason}
