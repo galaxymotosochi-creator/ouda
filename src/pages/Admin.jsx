@@ -1396,6 +1396,7 @@ export default function Admin() {
               </div>
 
               <div className="invoice-footer">
+                <p>Телефон: +7(900)000-80-23</p>
                 <p>OUDA — интернет-магазин скутеров</p>
               </div>
             </div>
