@@ -93,6 +93,10 @@ function computeAvailableStock() {
       available[key] = (available[key] || 0) - item.qty
     })
   })
+  writeoffs.forEach(w => {
+    const key = w.product_id + ':' + (w.color || '')
+    available[key] = (available[key] || 0) - (w.qty || 0)
+  })
   return available
 }
 
