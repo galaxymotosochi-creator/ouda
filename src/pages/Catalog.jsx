@@ -137,9 +137,7 @@ export default function Catalog() {
 
   const totalItems = cart.reduce((s, i) => s + i.qty, 0)
   const getItemPrice = (item) => {
-    const totalQty = cart
-      .filter(x => x.id === item.id)
-      .reduce((s, x) => s + x.qty, 0)
+    const totalQty = cart.reduce((s, x) => s + x.qty, 0)
     if (totalQty >= 3 && item.wholesale_price && Number(item.wholesale_price) > 0) {
       return Number(item.wholesale_price)
     }

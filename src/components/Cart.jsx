@@ -2,11 +2,9 @@ import { useState } from 'react'
 import { useLang } from '../i18n'
 
 function getItemPrice(item, allItems) {
-  // Суммарное количество товара (все цвета)
-  const totalQty = (allItems || [])
-    .filter(i => i.id === item.id)
-    .reduce((s, i) => s + i.qty, 0)
-  // 1 шт → розничная цена, 3+ шт → оптовая (если указана)
+  // Общее количество ВСЕХ товаров в корзине
+  const totalQty = (allItems || []).reduce((s, i) => s + i.qty, 0)
+  // 3+ шт в сумме → оптовая цена для всех позиций (если указана)
   if (totalQty >= 3 && item.wholesale_price && Number(item.wholesale_price) > 0) {
     return Number(item.wholesale_price)
   }
@@ -75,7 +73,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
                 <div className="cart-item-info">
                   <div className="cart-item-name">{item.name}{item.selectedColor ? ` — ${item.selectedColor}` : ''}</div>
                   <div className="cart-item-price">
-                    {item.qty >= 3 && item.wholesale_price && Number(item.wholesale_price) > 0 ? (
+                    {items.reduce((s, i) => s + i.qty, 0) >= 3 && item.wholesale_price && Number(item.wholesale_price) > 0 ? (
                       <>
                         <span style={{textDecoration:'line-through',color:'#999',marginRight:6,fontSize:12}}>
                           {(Number(item.price) * item.qty).toLocaleString('ru-RU')}
@@ -101,11 +99,8 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
         {items.length > 0 && (
           <form className="cart-form" onSubmit={handleSubmit}>
             <div className="cart-rule-hint">
-              {items.some(i => {
-                const totalQty = items.filter(x => x.id === i.id).reduce((s, x) => s + x.qty, 0)
-                return totalQty >= 3 && i.wholesale_price && Number(i.wholesale_price) > 0
-              }) && (
-                <span style={{fontSize:11,color:'#555',display:'block',marginBottom:6}}>✓ Применена оптовая цена (от 3 шт)</span>
+              {items.reduce((s, i) => s + i.qty, 0) >= 3 && items.some(i => i.wholesale_price && Number(i.wholesale_price) > 0) && (
+                <span style={{fontSize:11,color:'#555',display:'block',marginBottom:6}}>✓ Применена оптовая цена (от 3 шт в корзине)</span>
               )}
             </div>
             <div className="cart-total">
