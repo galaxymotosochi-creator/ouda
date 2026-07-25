@@ -860,14 +860,14 @@ export default function Admin() {
       {/* === INVENTORY TAB === */}
         {tab === 'inventory' && (<>
           <div style={{margin:'0 24px 16px', display:'flex', alignItems:'baseline', gap:12}}>
-            <h3 style={{fontSize:15,fontWeight:600, whiteSpace:'nowrap'}}>Остатки на складе</h3>
+            <h3 style={{fontSize:15,fontWeight:600, whiteSpace:'nowrap'}}>{t('inventoryTitle')}</h3>
             {(() => {
               const totalAll = inventory.reduce((s, d) => s + (d.totalAvailable || 0), 0)
               const transitAll = inventory.reduce((s, d) => s + (d.totalInTransit || 0), 0)
               if (totalAll === 0 && transitAll === 0) return null
               return (
                 <span style={{fontSize:13,color:'#666'}}>
-                  Итого: <b style={{color:'#1a1a1a'}}>{totalAll}</b> шт{transitAll > 0 ? <> | В пути: <b style={{color:'#1a1a1a'}}>{transitAll}</b> шт</> : ''}
+                  {t('totalLabel')}: <b style={{color:'#1a1a1a'}}>{totalAll}</b> {t('pcs')}{transitAll > 0 ? <> | {t('inTransit')}: <b style={{color:'#1a1a1a'}}>{transitAll}</b> {t('pcs')}</> : ''}
                 </span>
               )
             })()}
@@ -876,7 +876,7 @@ export default function Admin() {
             <div key={d.product_id} className="inventory-card" style={{margin:'0 24px 16px'}}>
               <div className="inv-header">
                 <strong>{d.product_name}</strong>
-                <span className="inv-total">{t('totalItems')}: <b>{d.totalAvailable}</b> шт{d.totalInTransit > 0 ? `, в пути: ${d.totalInTransit} шт` : ''}</span>
+                <span className="inv-total">{t('totalItems')}: <b>{d.totalAvailable}</b> {t('pcs')}{d.totalInTransit > 0 ? `, ${t('inTransit').toLowerCase()}: ${d.totalInTransit} ${t('pcs')}` : ''}</span>
               </div>
               <div className="inv-table-wrap"><table className="inv-table">
                 <thead><tr>

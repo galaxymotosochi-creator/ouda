@@ -162,6 +162,7 @@ const translations = {
     // Shipments & Inventory
     shipments: 'Отгрузки',
     inventory: 'Остатки',
+    inventoryTitle: 'Остатки на складе',
     newShipment: 'Новая отгрузка',
     createShipment: 'Создать отгрузку',
     invoice: 'Накладная',
@@ -305,6 +306,7 @@ const translations = {
     // Shipments & Inventory
     shipments: '出货',
     inventory: '库存',
+    inventoryTitle: '库存',
     newShipment: '新建出货',
     createShipment: '创建出货',
     invoice: '发票',
