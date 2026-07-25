@@ -1122,7 +1122,7 @@ export default function Admin() {
 
             {/* Items */}
             <div style={{marginBottom:12}}>
-              <div style={{fontSize:13,color:'#666',marginBottom:12}}>Позиции:</div>
+              <div style={{fontSize:13,color:'#666',marginBottom:12}}>{t('writeoffItems')}</div>
               {writeoffForm.items.map(function(item, idx) {
                 return (
                   <div key={idx} style={{border:'1px solid var(--border)',borderRadius:12,padding:16,marginBottom:12,background:'var(--bg-card)'}}>
@@ -1195,7 +1195,7 @@ export default function Admin() {
               <button type="button" className="admin-btn admin-btn-add-item"
                 onClick={function() {
                   setWriteoffForm({ ...writeoffForm, items: writeoffForm.items.concat({ product_id: '', product_name: '', colors: {} }) })
-                }}>+ Добавить позицию</button>
+                }}>{t('addPosition')}</button>
             </div>
 
             <div style={{display:'flex',justifyContent:'flex-end',marginTop:8}}>
