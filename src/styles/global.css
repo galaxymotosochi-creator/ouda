@@ -248,11 +248,14 @@ img { max-width: 100%; display: block; }
 .admin-logout { background: none; color: var(--text-muted); padding: 8px 18px; border: 1px solid var(--border); border-radius: 50px; font-size: 13px; transition: all 0.2s; }
 .admin-logout:hover { border-color: var(--accent); color: var(--accent); }
 .admin-content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
-.admin-tabs { display: flex; gap: 4px; margin-bottom: 3px; background: var(--bg-card); border-radius: 12px; padding: 4px; box-shadow: var(--shadow); width: fit-content; }
+.admin-tabs { display: flex; gap: 4px; margin-bottom: 3px; background: var(--bg-card); border-radius: 12px; padding: 4px; box-shadow: var(--shadow); flex-wrap: wrap; }
 .admin-tab { background: none; color: var(--text-muted); padding: 8px 18px; border-radius: 10px; font-size: 13px; font-weight: 500; transition: all 0.2s; }
 .admin-tab:hover { color: var(--text); background: var(--bg-hover); }
 .admin-tab.active { color: #fff; background: var(--accent); }
-.admin-table { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--bg-card); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--border); margin-bottom: 24px; }
+.admin-table { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--bg-card); border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); margin-bottom: 24px; }
+.admin-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 24px; }
+.admin-table-wrap::-webkit-scrollbar { height: 4px; }
+.admin-table-wrap::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
 .admin-table th { text-align: left; padding: 12px 16px; color: var(--text-muted); font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; border-bottom: 1px solid var(--border); }
 .admin-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); white-space: nowrap; }
 .admin-table tr:last-child td { border-bottom: none; }
@@ -990,7 +993,7 @@ img { max-width: 100%; display: block; }
 .v2-products-section .v2-btn-cancel { background: none; color: #999; }
 .v2-products-section .v2-btn-cancel:hover { color: #333; }
 .v2-st { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #667eea; font-weight: 600; margin-bottom: 10px; }
-.v2-card { background: #fff; border-radius: 14px; padding: 16px; box-shadow: 0 2px 8px rgba(102,126,234,0.08); margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
+.v2-card { background: #fff; border-radius: 14px; padding: 16px; box-shadow: 0 2px 8px rgba(102,126,234,0.08); margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; overflow: clip; }
 .v2-field { display: flex; flex-direction: column; gap: 4px; }
 .v2-field.full-w { grid-column: 1/-1; }
 .v2-field.half { display: flex; flex-direction: column; gap: 4px; }
