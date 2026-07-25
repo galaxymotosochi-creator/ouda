@@ -1157,7 +1157,7 @@ export default function Admin() {
                 })
                 setWriteoffForm({ product_id: '', product_name: '', colors: {}, reason: 'sale', comment: '' })
                 fetch(API + '/api/writeoffs').then(function(r) { return r.json() }).then(setWriteoffs).catch(function() {})
-              }}>{t('writeoffBtn')}</button>
+              }} className="writeoff-submit-btn">{t('writeoffBtn')}</button>
             </div>
           </div>
 

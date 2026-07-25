@@ -509,6 +509,9 @@ img { max-width: 100%; display: block; }
 .admin-btn-print { background: var(--accent); color: #fff; padding: 8px 18px; border-radius: 50px; font-size: 12px; margin-right: 10px; }
 .admin-btn-print:hover { background: var(--accent-hover); }
 .admin-btn-add-item { background: none; color: var(--text-muted); padding: 8px 14px; border: 1px dashed var(--border); border-radius: 10px; font-size: 13px; margin-top: 8px; width: 100%; transition: all 0.2s; }
+@media (max-width: 640px) {
+  .writeoff-submit-btn { margin-left: auto; }
+}
 .admin-btn-add-item:hover { border-color: var(--accent); color: var(--accent); }
 
 .ship-status-new { background: #fef3c7; color: #92400e; }
