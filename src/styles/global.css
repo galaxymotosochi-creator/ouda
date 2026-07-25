@@ -738,6 +738,8 @@ img { max-width: 100%; display: block; }
   background: var(--bg-card); border-radius: var(--radius); box-shadow: var(--shadow);
   padding: 12px 16px; margin-bottom: 6px; border: 1px solid var(--border);
 }
+.stock-card-clickable { cursor: pointer; transition: box-shadow 0.2s; }
+.stock-card-clickable:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
 .stock-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .stock-card-name { font-size: 15px; font-weight: 600; }
 .stock-card-colors { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }

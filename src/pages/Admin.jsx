@@ -826,11 +826,10 @@ export default function Admin() {
           </form>
           <div className="stock-list">
             {stock.map(s => (
-              <div key={s.id} className="stock-card">
+              <div key={s.id} className={'stock-card' + (s.status==='received' ? ' stock-card-clickable' : '')}
+                onClick={s.status==='received' ? function() { setDeleteStockItem(s.id) } : undefined}>
                 <div className="stock-card-head">
                   <strong className="stock-card-name">{s.product_name}</strong>
-                  <button className="admin-btn admin-btn-danger" style={{padding:'2px 8px',fontSize:11,marginLeft:'auto',lineHeight:1.4}}
-                    onClick={function() { setDeleteStockItem(s.id) }}>✕</button>
                   {s.status==='received' ? (
                     <span className="admin-badge badge-received">
                       {t('received')} {formatShortDate(s.date)}
