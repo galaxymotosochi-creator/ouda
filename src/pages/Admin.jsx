@@ -1184,7 +1184,7 @@ export default function Admin() {
                             return (
                               <div key={color} className="stock-color-row" style={{marginBottom:6}}>
                                 <div className="color-swatch" style={getColorHex(color) !== 'chameleon' ? {background:getColorHex(color),width:14,height:14,cursor:'default',borderRadius:'50%'} : {background:'linear-gradient(135deg,#8b5cf6,#6366f1,#3b82f6)',width:14,height:14,cursor:'default',borderRadius:'50%'}} />
-                                <span className="stock-color-name" style={{fontWeight:500,fontSize:13}}>{color}</span>
+                                <span className="stock-color-name" style={{fontWeight:500,fontSize:13}}>{translateColor(color)}</span>
                                 <span style={{fontSize:11,color:'#888',marginRight:8}}>{t('inStock')}: {stock} {t('pcs')}</span>
                                 <button type="button" className="stock-qty-btn" onClick={function() {
                                   var items = writeoffForm.items.slice()
