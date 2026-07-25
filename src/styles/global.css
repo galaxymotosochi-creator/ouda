@@ -381,8 +381,9 @@ img { max-width: 100%; display: block; }
   .catalog-grid { grid-template-columns: 1fr; }
   .cart-sidebar { width: 100vw; }
   .admin-add-form .form-grid { grid-template-columns: 1fr; }
-  .admin-table { font-size: 12px; }
-  .admin-table th, .admin-table td { padding: 6px 8px; font-size: 11px; }
+  .admin-table { font-size: 13px; }
+  .admin-table th, .admin-table td { padding: 8px 12px; font-size: 13px; }
+  .admin-table th { font-size: 11px; }
 }
 
 @media (max-width: 768px) {
