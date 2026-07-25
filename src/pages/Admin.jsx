@@ -826,8 +826,8 @@ export default function Admin() {
           </form>
           <div className="stock-list">
             {stock.map(s => (
-              <div key={s.id} className={'stock-card' + (s.status==='received' ? ' stock-card-clickable' : '')}
-                onClick={s.status==='received' ? function() { setDeleteStockItem(s.id) } : undefined}>
+              <div key={s.id} className="stock-card stock-card-clickable"
+                onClick={function() { setDeleteStockItem(s.id) }}>
                 <div className="stock-card-head">
                   <strong className="stock-card-name">{s.product_name}</strong>
                   {s.status==='received' ? (
@@ -836,7 +836,7 @@ export default function Admin() {
                     </span>
                   ) : (
                     <span className="admin-badge badge-transit clickable-badge"
-                      onClick={() => openReceiveModal(s)} title="Нажмите чтобы подтвердить получение">
+                      onClick={function(e) { e.stopPropagation(); openReceiveModal(s) }} title="Нажмите чтобы подтвердить получение">
                       {t('inTransit')} {formatShortDate(s.date)}
                     </span>
                   )}
