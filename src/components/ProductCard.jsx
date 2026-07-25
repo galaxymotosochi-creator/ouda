@@ -105,26 +105,25 @@ export default function ProductCard({ product, onAdd, inCart, cartQtys, onPreord
           <span className="spec-label">{t('cooling')}:</span> <strong>{product.cooling === 'Воздушное' ? t('airCooled') : product.cooling === 'Жидкостное' ? t('liquidCooled') : product.cooling}</strong>
           <span className="spec-label">{t('max_speed')}:</span> <strong>{product.max_speed}{!String(product.max_speed).includes('км') ? ' км/ч' : ''}</strong>
           <span className="spec-label">{t('wheels')}:</span> <strong>{product.wheels}</strong>
+          {isOutOfStock && (
+            <>
+              <span className="spec-label">{t('priceLastRetail')}</span> <strong>{product.price.toLocaleString('ru-RU')} {t('rub')}</strong>
+              <span className="spec-label">{t('priceLastWholesale')}</span> <strong>{product.wholesale_price ? Number(product.wholesale_price).toLocaleString('ru-RU') + ' ' + t('rub') : '—'}</strong>
+            </>
+          )}
         </div>
 
         {product.description && (
           <div className="product-desc">{product.description}</div>
         )}
 
-        <div className="product-price">
-          {!isOutOfStock ? (
-            <>
-              <div><span className="price-label">Розничная:</span> <span className="price-value">{product.price.toLocaleString('ru-RU')} {t('rub')}</span></div>
-              <div><span className="price-label">Оптовая:</span> <span className="price-value">{product.wholesale_price ? Number(product.wholesale_price).toLocaleString('ru-RU') + ' ' + t('rub') : '—'}</span></div>
-              <div className="wholesale-pill">Оптовая цена от 3 шт</div>
-            </>
-          ) : (
-            <>
-              <div><span className="price-label">{t('priceLastRetail')}</span> <span className="price-value">{product.price.toLocaleString('ru-RU')} {t('rub')}</span></div>
-              <div><span className="price-label">{t('priceLastWholesale')}</span> <span className="price-value">{product.wholesale_price ? Number(product.wholesale_price).toLocaleString('ru-RU') + ' ' + t('rub') : '—'}</span></div>
-            </>
-          )}
-        </div>
+        {!isOutOfStock && (
+          <div className="product-price">
+            <div><span className="price-label">Розничная:</span> <span className="price-value">{product.price.toLocaleString('ru-RU')} {t('rub')}</span></div>
+            <div><span className="price-label">Оптовая:</span> <span className="price-value">{product.wholesale_price ? Number(product.wholesale_price).toLocaleString('ru-RU') + ' ' + t('rub') : '—'}</span></div>
+            <div className="wholesale-pill">Оптовая цена от 3 шт</div>
+          </div>
+        )}
         <div style={{textAlign:'right', marginTop:'auto'}}>
           {isOutOfStock ? (
             <button className="product-add preorder-btn" onClick={() => onPreorder(product)}>
