@@ -1110,7 +1110,7 @@ export default function Admin() {
                         <div key={color} className="stock-color-row" style={{marginBottom:8}}>
                           <div className="color-swatch" style={getColorHex(color) !== 'chameleon' ? {background:getColorHex(color),width:16,height:16,cursor:'default',borderRadius:'50%'} : {background:'linear-gradient(135deg,#8b5cf6,#6366f1,#3b82f6)',width:16,height:16,cursor:'default',borderRadius:'50%'}} />
                           <span className="stock-color-name" style={{fontWeight:500}}>{color}</span>
-                          <span style={{fontSize:12,color:'#888',marginRight:12}}>в наличии: <b>{stock}</b> шт</span>
+                          <span style={{fontSize:12,color:'#888',marginRight:12}}>{t('inStockStatus')}: <b>{stock}</b> {t('pcs')}</span>
                           <button type="button" className="stock-qty-btn" onClick={function() {
                             setWriteoffForm(function(prev) {
                               return { ...prev, colors: { ...prev.colors, [color]: Math.max(0, (prev.colors[color] || 0) - 1) } }
