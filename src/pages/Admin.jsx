@@ -581,8 +581,8 @@ export default function Admin() {
             { key: 'inventory', label: t('inventory') },
             { key: 'orders', label: `${t('orders')} (${orders.filter(o => o.status === 'new').length})` },
             { key: 'shipments', label: `${t('shipments')} (${shipments.length})` },
-            { key: 'preorders', label: `Предзаказы (${preorders.length})` },
-            { key: 'writeoffs', label: `Списания (${writeoffs.length})` },
+            { key: 'preorders', label: `${t('preordersTab')} (${preorders.length})` },
+            { key: 'writeoffs', label: `${t('writeoffsTab')} (${writeoffs.length})` },
           ].map(tabItem => (
             <button key={tabItem.key} className={`admin-tab ${tab === tabItem.key ? 'active' : ''}`}
               onClick={() => setTab(tabItem.key)}>{tabItem.label}</button>
@@ -721,7 +721,7 @@ export default function Admin() {
 
           </div>
           <div style={{display:'flex',justifyContent:'flex-end',gap:10,margin:'16px 0'}}>
-            <button type="button" className="v2-btn v2-btn-cancel">Отмена</button>
+            <button type="button" className="v2-btn v2-btn-cancel">{t('cancelText')}</button>
             <button type="submit" className="v2-btn v2-btn-primary">{t('addProduct')}</button>
           </div>
 
@@ -877,7 +877,7 @@ export default function Admin() {
               </div>
               <div className="inv-table-wrap"><table className="inv-table">
                 <thead><tr>
-                  <th>{t('color')}</th><th>{t('received')}</th><th>В пути</th><th>Списано</th><th>{t('shippedOut')}</th><th>{t('available')}</th><th></th>
+                  <th>{t('color')}</th><th>{t('received')}</th><th>{t('inTransit')}</th><th>{t('writeoffQty')}</th><th>{t('shippedOut')}</th><th>{t('available')}</th><th></th>
                 </tr></thead>
                 <tbody>
                   {d.colors.filter(c => c.received > 0 || c.available > 0 || c.inTransit > 0).map(function(c) {
@@ -908,7 +908,7 @@ export default function Admin() {
                         {c.available > 0
                           ? <span className="inv-badge">{t('inStock')}</span>
                           : c.inTransit > 0
-                            ? <span className="inv-badge inv-badge-out" style={{background:'#fff3cd',color:'#856404'}}>В пути</span>
+                            ? <span className="inv-badge inv-badge-out" style={{background:'#fff3cd',color:'#856404'}}>{t('inTransit')}</span>
                             : c.received > 0
                               ? <span className="inv-badge inv-badge-out">{t('none')}</span>
                               : <span className="inv-badge inv-badge-none">{t('neverHad')}</span>
@@ -955,9 +955,9 @@ export default function Admin() {
                   <td>{statusLabel(o.status)}</td>
                   <td>
                     <div className="admin-actions">
-                      {o.status==='new' && <><button className="admin-btn admin-btn-accept" onClick={() => updateStatus(o.id,'accepted')}>Взять в работу</button><button className="admin-btn admin-btn-danger" onClick={() => updateStatus(o.id,'cancelled')}>Отменить</button></>}
-                      {o.status==='accepted' && <button className="admin-btn admin-btn-ship" onClick={() => openShipFromOrder(o, i+1)} style={{background:"linear-gradient(135deg,#667eea,#764ba2)",color:"#fff",padding:"5px 12px",borderRadius:8,fontSize:13,border:"none",cursor:"pointer",fontWeight:500}}>Отгрузить</button>}
-                      <button className="admin-btn admin-btn-invoice" onClick={() => showOrderInvoice(o, i+1)} style={{background:"none",color:"#667eea",padding:"5px 10px",borderRadius:8,fontSize:12,border:"1px solid #667eea",cursor:"pointer"}}>Накладная</button>
+                      {o.status==='new' && <><button className="admin-btn admin-btn-accept" onClick={() => updateStatus(o.id,'accepted')}>{t('takeToWork')}</button><button className="admin-btn admin-btn-danger" onClick={() => updateStatus(o.id,'cancelled')}>{t('cancel')}</button></>}
+                      {o.status==='accepted' && <button className="admin-btn admin-btn-ship" onClick={() => openShipFromOrder(o, i+1)} style={{background:"linear-gradient(135deg,#667eea,#764ba2)",color:"#fff",padding:"5px 12px",borderRadius:8,fontSize:13,border:"none",cursor:"pointer",fontWeight:500}}>{t('ship')}</button>}
+                      <button className="admin-btn admin-btn-invoice" onClick={() => showOrderInvoice(o, i+1)} style={{background:"none",color:"#667eea",padding:"5px 10px",borderRadius:8,fontSize:12,border:"1px solid #667eea",cursor:"pointer"}}>{t('invoice')}</button>
                     </div>
                   </td>
                 </tr>
@@ -1004,13 +1004,13 @@ export default function Admin() {
                   <td>
                     <div className="admin-actions">
                       {s.status === 'оформлено' && <>
-                        <button className="admin-btn admin-btn-accept" onClick={() => updateShipment(s.id,{status:'отгружено'})}>Отгрузить</button>
-                        <button className="admin-btn admin-btn-danger" onClick={() => updateShipment(s.id,{status:'отменено'})}>✕ Отмена</button>
+                        <button className="admin-btn admin-btn-accept" onClick={() => updateShipment(s.id,{status:'отгружено'})}>{t('ship')}</button>
+                        <button className="admin-btn admin-btn-danger" onClick={() => updateShipment(s.id,{status:'отменено'})}>✕ {t('cancelText')}</button>
                       </>}
                       {s.status === 'отгружено' && <>
                         <button className="admin-btn admin-btn-done" onClick={() => updateShipment(s.id,{status:'доставлено'})}>Доставлено</button>
                       </>}
-                      <button className="admin-btn admin-btn-invoice" onClick={() => setInvoiceShip(s)} style={{background:"none",color:"#667eea",padding:"5px 10px",borderRadius:8,fontSize:12,border:"1px solid #667eea",cursor:"pointer"}}>Накладная</button>
+                      <button className="admin-btn admin-btn-invoice" onClick={() => setInvoiceShip(s)} style={{background:"none",color:"#667eea",padding:"5px 10px",borderRadius:8,fontSize:12,border:"1px solid #667eea",cursor:"pointer"}}>{t('invoice')}</button>
                     </div>
                   </td>
                 </tr>
@@ -1047,14 +1047,14 @@ export default function Admin() {
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{p.city}</td>
                   <td>
                     <button className="admin-btn admin-btn-danger" onClick={async () => {
-                      if (!confirm('Удалить предзаказ?')) return
+                      if (!confirm(t('deletePreorder'))) return
                       await fetch(`${API}/api/preorders/${p.id}`, {method:'DELETE'})
                       setPreorders(prev => prev.filter(x => x.id !== p.id))
                     }} style={{padding:'5px 10px',fontSize:12}}>✕</button>
                   </td>
                 </tr>
               ))}
-              {preorders.length===0 && <tr><td colSpan={8} style={{textAlign:'center',color:'#666',padding:40}}>Нет предзаказов</td></tr>}
+              {preorders.length===0 && <tr><td colSpan={8} style={{textAlign:'center',color:'#666',padding:40}}>{t('noPreorders')}</td></tr>}
             </tbody>
           </table>
           </div>
@@ -1071,7 +1071,7 @@ export default function Admin() {
           {/* Form */}
           <div style={{padding:'20px 24px',borderBottom:'1px solid var(--border)'}}>
             <div className="v2-field" style={{minWidth:250}}>
-              <label>Товар</label>
+              <label>{t('productLabel')}</label>
               <select className="v2-input" value={writeoffForm.product_id}
                 onChange={e => {
                   const p = products.find(x => x.id == e.target.value)
@@ -1092,12 +1092,12 @@ export default function Admin() {
               const avail = p.available_colors || {}
               const colorsWithStock = Object.entries(avail).filter(function(e) { return e[1] > 0 })
               if (colorsWithStock.length === 0) {
-                return <div style={{marginTop:16,color:'#888',fontSize:13}}>Нет товаров в наличии для списания</div>
+                return <div style={{marginTop:16,color:'#888',fontSize:13}}>{t('noStockWriteoff')}</div>
               }
               return (
                 <>
                   <div style={{marginTop:16,marginBottom:12,fontSize:13,color:'#666'}}>
-                    Укажите, сколько списать с каждого цвета:
+                    {t('specifyColors')}
                   </div>
                   <div className="stock-color-picker" style={{marginBottom:16}}>
                     {colorsWithStock.map(function(e) {
@@ -1129,18 +1129,18 @@ export default function Admin() {
 
             <div style={{display:'flex',gap:12,alignItems:'flex-end',flexWrap:'wrap',marginTop:8}}>
               <div className="v2-field" style={{minWidth:130}}>
-                <label>Причина</label>
+                <label>{t('reasonLabel')}</label>
                 <select className="v2-input" value={writeoffForm.reason}
                   onChange={function(e) { setWriteoffForm({ ...writeoffForm, reason: e.target.value }) }}>
-                  <option value="sale">Продажа</option>
-                  <option value="error">Ошибка</option>
-                  <option value="damage">Брак</option>
-                  <option value="other">Другое</option>
+                  <option value="sale">{t('saleReason')}</option>
+                  <option value="error">{t('errorReason')}</option>
+                  <option value="damage">{t('damageReason')}</option>
+                  <option value="other">{t('otherReason')}</option>
                 </select>
               </div>
               <div className="v2-field" style={{minWidth:200}}>
-                <label>Комментарий</label>
-                <input className="v2-input" placeholder="Опционально" value={writeoffForm.comment}
+                <label>{t('commentLabel')}</label>
+                <input className="v2-input" placeholder={t('commentPlaceholder')} value={writeoffForm.comment}
                   onChange={function(e) { setWriteoffForm({ ...writeoffForm, comment: e.target.value }) }} />
               </div>
               <button style={{background:'linear-gradient(135deg, #667eea, #764ba2)',color:'#fff',padding:'10px 24px',borderRadius:'12px',fontSize:13,fontWeight:500,border:'none',cursor:'pointer'}} onClick={async function() {
@@ -1157,7 +1157,7 @@ export default function Admin() {
                 })
                 setWriteoffForm({ product_id: '', product_name: '', colors: {}, reason: 'sale', comment: '' })
                 fetch(API + '/api/writeoffs').then(function(r) { return r.json() }).then(setWriteoffs).catch(function() {})
-              }}>Списать</button>
+              }}>{t('writeoffBtn')}</button>
             </div>
           </div>
 
@@ -1166,7 +1166,7 @@ export default function Admin() {
           <div style={{overflowX:'auto',borderRadius:'var(--radius)'}}>
           <table className="admin-table" style={{margin:0}}>
             <thead><tr>
-              <th>№</th><th>Дата</th><th>Товар</th><th>Цвет</th><th>Кол-во</th><th>Причина</th><th>Комментарий</th><th></th>
+              <th>№</th><th>{t('date')}</th><th>{t('productLabel')}</th><th>{t('colorLabel')}</th><th>{t('qtyLabel')}</th><th>{t('reasonLabel')}</th><th>{t('commentLabel')}</th><th></th>
             </tr></thead>
             <tbody>
               {writeoffs.map((w, i) => (
@@ -1186,7 +1186,7 @@ export default function Admin() {
                       : (w.qty || 0)
                   }</td>
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>
-                    {w.reason === 'sale' ? 'Продажа' : w.reason === 'error' ? 'Ошибка' : w.reason === 'damage' ? 'Брак' : w.reason === 'other' ? 'Другое' : w.reason}
+                    {w.reason === 'sale' ? t('saleReason') : w.reason === 'error' ? t('errorReason') : w.reason === 'damage' ? t('damageReason') : w.reason === 'other' ? t('otherReason') : w.reason}
                   </td>
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap',color:'#888'}}>{w.comment || '—'}</td>
                   <td>
@@ -1198,7 +1198,7 @@ export default function Admin() {
                   </td>
                 </tr>
               ))}
-              {writeoffs.length===0 && <tr><td colSpan={8} style={{textAlign:'center',color:'#666',padding:40}}>Нет списаний</td></tr>}
+              {writeoffs.length===0 && <tr><td colSpan={8} style={{textAlign:'center',color:'#666',padding:40}}>{t('noWriteoffs')}</td></tr>}
             </tbody>
           </table>
           </div>
@@ -1320,7 +1320,7 @@ export default function Admin() {
 
             </div>
             <div className="modal-actions" style={{paddingTop:16}}>
-              <button type="button" className="v2-btn v2-btn-cancel" onClick={closeEditProduct}>Отмена</button>
+              <button type="button" className="v2-btn v2-btn-cancel" onClick={closeEditProduct}>{t('cancelText')}</button>
               <button type="button" className="v2-btn v2-btn-primary" onClick={updateProduct}>Сохранить</button>
             </div>
             </div>
@@ -1377,7 +1377,7 @@ export default function Admin() {
                           <div className="v2-item-name">{item.product_name}</div>
                           <div className="v2-item-extra">
                             <select className="v2-select-color" value={item.color} onChange={e => updateShipItem(idx, 'color', e.target.value)}>
-                              <option value="">Цвет</option>
+                              <option value="">{t('colorLabel')}</option>
                               {(products.find(p => p.id === item.product_id)?.available_colors ? Object.entries(products.find(p => p.id === item.product_id).available_colors).filter(([,qty]) => qty > 0).map(([color, qty]) => (
                                 <option key={color} value={color}>{color}</option>
                               )) : [])}
@@ -1423,12 +1423,12 @@ export default function Admin() {
               </div>
 
               <div className="v2-total">
-                <span>Итого</span>
+                <span>{t('totalLabel')}</span>
                 <span>{shipTotal().toLocaleString('ru-RU')} ₽</span>
               </div>
 
               <div className="v2-footer">
-                <button className="v2-btn v2-btn-cancel" onClick={closeShipModal}>Отмена</button>
+                <button className="v2-btn v2-btn-cancel" onClick={closeShipModal}>{t('cancelText')}</button>
                 <button className="v2-btn v2-btn-primary" onClick={createShipment}>Создать отгрузку</button>
               </div>
             </div>
@@ -1489,9 +1489,9 @@ export default function Admin() {
         <div className="modal-overlay" onClick={() => setInvoiceShip(null)}>
           <div className="modal modal-wide invoice-modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>Накладная {invoiceShip.number}</h3>
+              <h3>{t('invoice')} {invoiceShip.number}</h3>
               <div>
-                <button className="admin-btn admin-btn-print" onClick={() => window.print()}>Печать</button>
+                <button className="admin-btn admin-btn-print" onClick={() => window.print()}>{t('print')}</button>
                 <button className="modal-close" onClick={() => setInvoiceShip(null)}>×</button>
               </div>
             </div>
