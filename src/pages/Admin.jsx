@@ -921,7 +921,11 @@ export default function Admin() {
               <th>{t('products')}</th><th>{t('total')}</th><th>{t('payment')}</th><th>{t('status')}</th><th></th>
             </tr></thead>
             <tbody>
-              {orders.map((o, i) => (
+              {[...orders].sort((a, b) => {
+                if (a.status === 'cancelled' && b.status !== 'cancelled') return 1
+                if (a.status !== 'cancelled' && b.status === 'cancelled') return -1
+                return 0
+              }).map((o, i) => (
                 <tr key={o.id}>
                   <td>{i+1}</td>
                   <td>{formatDate(o.created_at)}</td>
