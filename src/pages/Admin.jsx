@@ -1103,8 +1103,8 @@ export default function Admin() {
             {writeoffForm.reason === 'sale' && (
               <div style={{display:'flex',gap:12,flexWrap:'wrap',alignItems:'flex-end',marginBottom:16}}>
                 <div className="v2-field" style={{minWidth:150}}>
-                  <label>{t('nameLabel')}</label>
-                  <input className="v2-input" placeholder={t('nameLabel')} value={writeoffForm.client_name}
+                  <label>{t('clientName')}</label>
+                  <input className="v2-input" placeholder={t('clientName')} value={writeoffForm.client_name}
                     onChange={function(e) { setWriteoffForm({ ...writeoffForm, client_name: e.target.value }) }} />
                 </div>
                 <div className="v2-field" style={{minWidth:150}}>
