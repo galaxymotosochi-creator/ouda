@@ -1102,43 +1102,40 @@ export default function Admin() {
 
           {/* Form */}
           <div style={{padding:'20px 24px',borderBottom:'1px solid var(--border)'}}>
-            <div style={{display:'flex',gap:12,flexWrap:'wrap',alignItems:'flex-end',marginBottom:16}}>
-              <div className="v2-field" style={{minWidth:130}}>
-                <label>{t('reasonLabel')}</label>
-                <select className="v2-input" value={writeoffForm.reason}
-                  onChange={function(e) { setWriteoffForm({ ...writeoffForm, reason: e.target.value }) }}>
-                  <option value="sale">{t('saleReason')}</option>
-                  <option value="error">{t('errorReason')}</option>
-                  <option value="damage">{t('damageReason')}</option>
-                  <option value="other">{t('otherReason')}</option>
-                </select>
-              </div>
-              <div className="v2-field" style={{minWidth:200}}>
-                <label>{t('commentLabel')}</label>
-                <input className="v2-input" placeholder={t('commentPlaceholder')} value={writeoffForm.comment}
-                  onChange={function(e) { setWriteoffForm({ ...writeoffForm, comment: e.target.value }) }} />
-              </div>
+            <div className="v2-field" style={{marginBottom:16}}>
+              <label>{t('reasonLabel')}</label>
+              <select className="v2-input" value={writeoffForm.reason}
+                onChange={function(e) { setWriteoffForm({ ...writeoffForm, reason: e.target.value }) }}>
+                <option value="sale">{t('saleReason')}</option>
+                <option value="error">{t('errorReason')}</option>
+                <option value="damage">{t('damageReason')}</option>
+                <option value="other">{t('otherReason')}</option>
+              </select>
             </div>
 
             {/* Sale fields */}
             {writeoffForm.reason === 'sale' && (
-              <div style={{display:'flex',gap:12,flexWrap:'wrap',alignItems:'flex-end',marginBottom:16}}>
-                <div className="v2-field" style={{minWidth:150}}>
-                  <label>{t('clientName')}</label>
-                  <input className="v2-input" placeholder={t('clientName')} value={writeoffForm.client_name}
-                    onChange={function(e) { setWriteoffForm({ ...writeoffForm, client_name: e.target.value }) }} />
+              <>
+                <div className="v2-row2" style={{marginBottom:12}}>
+                  <div className="v2-field">
+                    <label>{t('clientName')}</label>
+                    <input className="v2-input" placeholder={t('clientName')} value={writeoffForm.client_name}
+                      onChange={function(e) { setWriteoffForm({ ...writeoffForm, client_name: e.target.value }) }} />
+                  </div>
+                  <div className="v2-field">
+                    <label>{t('phoneLabel')}</label>
+                    <input className="v2-input" type="tel" placeholder={t('phoneLabel')} value={writeoffForm.client_phone}
+                      onChange={function(e) { setWriteoffForm({ ...writeoffForm, client_phone: e.target.value }) }} />
+                  </div>
                 </div>
-                <div className="v2-field" style={{minWidth:150}}>
-                  <label>{t('phoneLabel')}</label>
-                  <input className="v2-input" type="tel" placeholder={t('phoneLabel')} value={writeoffForm.client_phone}
-                    onChange={function(e) { setWriteoffForm({ ...writeoffForm, client_phone: e.target.value }) }} />
+                <div style={{marginBottom:12}}>
+                  <div className="v2-field">
+                    <label>{t('priceLabel')}</label>
+                    <input className="v2-input" type="number" placeholder={t('priceLabel')} value={writeoffForm.price}
+                      onChange={function(e) { setWriteoffForm({ ...writeoffForm, price: e.target.value }) }} />
+                  </div>
                 </div>
-                <div className="v2-field" style={{minWidth:120}}>
-                  <label>{t('priceLabel')}</label>
-                  <input className="v2-input" type="number" placeholder={t('priceLabel')} value={writeoffForm.price}
-                    onChange={function(e) { setWriteoffForm({ ...writeoffForm, price: e.target.value }) }} />
-                </div>
-              </div>
+              </>
             )}
 
             {/* Items */}
@@ -1248,6 +1245,12 @@ export default function Admin() {
                 setWriteoffForm({ items: [{ product_id: '', product_name: '', colors: {} }], reason: 'sale', comment: '', client_name: '', client_phone: '+7', price: '' })
                 fetch(API + '/api/writeoffs').then(function(r) { return r.json() }).then(setWriteoffs).catch(function() {})
               }} className="writeoff-submit-btn">{t('writeoffBtn')}</button>
+            </div>
+
+            <div className="v2-field" style={{marginTop:12}}>
+              <label>{t('commentLabel')}</label>
+              <input className="v2-input" placeholder={t('commentPlaceholder')} value={writeoffForm.comment}
+                onChange={function(e) { setWriteoffForm({ ...writeoffForm, comment: e.target.value }) }} />
             </div>
           </div>
 
