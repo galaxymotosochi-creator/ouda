@@ -134,14 +134,17 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
                     var cityData = await cityRes.json()
                     if (!cityData.code) { setDeliveryError('Город не найден'); setDeliveryLoading(false); return }
 
-                    // Fetch terminals in this city
+                    // Fetch ALL terminals, then filter by city name
                     var termRes = await fetch(api + '/api/search-terminals', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ city_code: cityData.code })
+                      body: JSON.stringify({ city_code: '' })
                     })
                     var termData = await termRes.json()
-                    setTerminals(Array.isArray(termData) ? termData : [])
+                    var filtered = (Array.isArray(termData) ? termData : []).filter(function(t) {
+                      return t.cityName && t.cityName.toLowerCase() === cityData.name.toLowerCase()
+                    })
+                    setTerminals(filtered)
 
                     // Calculate delivery
                     var calcRes = await fetch(api + '/api/calculate-delivery', {
