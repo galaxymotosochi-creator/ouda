@@ -200,6 +200,11 @@ app.post('/api/stock', (req, res) => {
   saveAll()
   res.json(s)
 })
+app.delete('/api/stock/:id', (req, res) => {
+  stock = stock.filter(s => s.id != req.params.id)
+  saveAll()
+  res.json({ ok: true })
+})
 
 // === Receive stock (partial/full) ===
 app.patch('/api/stock/:id/receive', (req, res) => {

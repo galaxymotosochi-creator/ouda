@@ -37,6 +37,7 @@ export default function Admin() {
   const [preorders, setPreorders] = useState([])
   const [writeoffs, setWriteoffs] = useState([])
   const [writeoffForm, setWriteoffForm] = useState({ items: [{ product_id: '', product_name: '', colors: {} }], reason: 'sale', comment: '', client_name: '', client_phone: '+7', price: '' })
+  const [deleteStockItem, setDeleteStockItem] = useState(null)
 
   // Create shipment modal
   const [showShipModal, setShowShipModal] = useState(false)
@@ -828,6 +829,8 @@ export default function Admin() {
               <div key={s.id} className="stock-card">
                 <div className="stock-card-head">
                   <strong className="stock-card-name">{s.product_name}</strong>
+                  <button className="admin-btn admin-btn-danger" style={{padding:'2px 8px',fontSize:11,marginLeft:'auto',lineHeight:1.4}}
+                    onClick={function() { setDeleteStockItem(s.id) }}>✕</button>
                   {s.status==='received' ? (
                     <span className="admin-badge badge-received">
                       {t('received')} {formatShortDate(s.date)}
@@ -854,6 +857,25 @@ export default function Admin() {
             ))}
             {stock.length===0 && <p style={{color:'#666',textAlign:'center',padding:40}}>{t('noStock')}</p>}
           </div>
+
+          {deleteStockItem && (
+            <div className="modal-overlay" onClick={function() { setDeleteStockItem(null) }}>
+              <div className="modal" style={{maxWidth:380}} onClick={function(e) { e.stopPropagation() }}>
+                <div style={{padding:24,textAlign:'center'}}>
+                  <h3 style={{margin:'0 0 16px',fontSize:18,fontWeight:600}}>Вы хотите удалить это?</h3>
+                  <div style={{display:'flex',gap:12,justifyContent:'center'}}>
+                    <button className="admin-btn" style={{padding:'8px 24px'}} onClick={function() { setDeleteStockItem(null) }}>Отмена</button>
+                    <button className="admin-btn admin-btn-danger" style={{padding:'8px 24px'}} onClick={async function() {
+                      await fetch(API + '/api/stock/' + deleteStockItem, { method: 'DELETE' })
+                      setDeleteStockItem(null)
+                      fetch(API + '/api/stock').then(function(r) { return r.json() }).then(setStock).catch(function() {})
+                      fetch(API + '/api/products').then(function(r) { return r.json() }).then(setProducts).catch(function() {})
+                    }}>Да</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </>)}
       </div>
 
