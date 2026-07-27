@@ -389,8 +389,7 @@ img { max-width: 100%; display: block; }
 @media (max-width: 640px) {
   .hero { padding-top: 60px; }
   .hero h1 { font-size: 28px; }
-  .hero-desc-glass { margin-bottom: 20px; }
-  .hero-btn { padding: 6px 18px; font-size: 10px; }
+  .hero-desc-glass { margin-bottom: 12px; }
   .catalog-grid { grid-template-columns: 1fr; }
   .cart-sidebar { width: 100vw; }
   .admin-add-form .form-grid { grid-template-columns: 1fr; }
