@@ -387,6 +387,7 @@ img { max-width: 100%; display: block; }
 
 /* Responsive */
 @media (max-width: 640px) {
+  .hero { padding-top: 60px; }
   .hero h1 { font-size: 28px; }
   .catalog-grid { grid-template-columns: 1fr; }
   .cart-sidebar { width: 100vw; }
