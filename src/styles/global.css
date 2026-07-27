@@ -124,6 +124,10 @@ img { max-width: 100%; display: block; }
   padding: 2px 10px; border-radius: 20px; font-size: 11px;
   display: inline-block; margin-top: 4px;
 }
+.assembly-fee {
+  font-size: 12px; color: #888; margin-top: 6px;
+  padding: 4px 0;
+}
 .product-specs {
   display: grid; grid-template-columns: auto 1fr;
   gap: 4px 8px; font-size: 13px; margin-bottom: 14px;

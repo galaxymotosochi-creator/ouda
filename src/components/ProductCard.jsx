@@ -117,11 +117,13 @@ export default function ProductCard({ product, onAdd, inCart, cartQtys, onPreord
               <div><span className="price-label">Розничная цена:</span> <span className="price-value">{product.price.toLocaleString('ru-RU')} {t('rub')}</span></div>
               <div><span className="price-label">Оптовая цена:</span> <span className="price-value">{product.wholesale_price ? Number(product.wholesale_price).toLocaleString('ru-RU') + ' ' + t('rub') : '—'}</span></div>
               <div className="wholesale-pill">Оптовая цена от 3 шт</div>
+              <div className="assembly-fee">🔧 Сборка 7 000 ₽ · только при самовывозе (Москва)</div>
             </>
           ) : (
             <>
               <div><span className="price-label">{t('priceLastRetail')}</span> <span className="price-value">{product.price.toLocaleString('ru-RU')} {t('rub')}</span></div>
               <div><span className="price-label">{t('priceLastWholesale')}</span> <span className="price-value">{product.wholesale_price ? Number(product.wholesale_price).toLocaleString('ru-RU') + ' ' + t('rub') : '—'}</span></div>
+              <div className="assembly-fee">🔧 Сборка 7 000 ₽ · только при самовывозе (Москва)</div>
             </>
           )}
         </div>
