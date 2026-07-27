@@ -250,6 +250,8 @@ export default function Admin() {
         subtotal: (item.price || 0) * (item.qty || 0),
       })),
       total: order.total || 0,
+      assembly: order.assembly || '',
+      assembly_total: order.assembly_total || 0,
       prepaid: 0,
       paid: 0,
       status: '—',
@@ -1039,7 +1041,10 @@ export default function Admin() {
                   <td>{o.pickup ? 'Самовывоз (Москва)' : (o.delivery_terminal || o.transport || '—')}</td>
                   <td>{o.delivery_cost ? Number(o.delivery_cost).toLocaleString('ru-RU') + ' ₽' : '—'}</td>
                   <td>{o.phone}</td>
-                  <td>{o.items?.map(item => `${item.name} ×${item.qty}${item.color ? ' ('+item.color+')' : ''}`).join(', ')||'—'}</td>
+                  <td style={{maxWidth:300}}>
+                    {o.items?.map(item => `${item.name} ×${item.qty}${item.color ? ' ('+item.color+')' : ''}`).join(', ')||'—'}
+                    {o.assembly ? <div style={{fontSize:11,color:'#888',marginTop:4}}>🔧 Сборка: {o.assembly}{o.assembly_total > 0 ? ` (+${Number(o.assembly_total).toLocaleString('ru-RU')} ₽)` : ''}</div> : ''}
+                  </td>
                   <td>{(o.total||0).toLocaleString('ru-RU')} ₽</td>
                   <td>{o.payment==='usdt'?'USDT':o.payment==='credit'?'Кредит':o.payment==='discuss'?'Хочу обсудить дополнительно':t('cash')}</td>
                   <td>{statusLabel(o.status)}</td>
@@ -1084,6 +1089,7 @@ export default function Admin() {
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{s.client?.phone || '—'}</td>
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>
                     {(s.items || []).map(item => `${item.product_name}${item.color ? ' ('+item.color+')' : ''} ×${item.qty}`).join(', ')}
+                    {s.assembly ? <span style={{fontSize:11,color:'#888'}}> 🔧 Сборка {s.assembly}</span> : ''}
                   </td>
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{(s.total||0).toLocaleString('ru-RU')} ₽</td>
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>
@@ -1741,6 +1747,12 @@ export default function Admin() {
               </table>
 
               <div className="invoice-summary">
+                {invoiceShip.assembly ? (
+                  <div className="invoice-paid">
+                    <span>🔧 Сборка {invoiceShip.assembly}: </span>
+                    <span>+{Number(invoiceShip.assembly_total || 0).toLocaleString('ru-RU')} ₽</span>
+                  </div>
+                ) : ''}
                 <div className="invoice-total">
                   <span>{t('totalDue')}: </span>
                   <span className="invoice-total-amount">{(invoiceShip.total||0).toLocaleString('ru-RU')} ₽</span>
