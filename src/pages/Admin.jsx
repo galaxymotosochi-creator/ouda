@@ -354,13 +354,14 @@ export default function Admin() {
           price: i.price,
           qty: i.qty,
         }))
+        const orderTotal = items.reduce((s, i) => s + (i.price||0) * (i.qty||0), 0)
         fetch(`${API}/api/orders/${payload.order_id}`, {
           method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ items: orderItems, status: 'done' }),
+          body: JSON.stringify({ items: orderItems, total: orderTotal, status: 'done' }),
         }).catch(() => {
           // Update locally
           const localOrders = getLocal(LS_ORDERS).map(o => o.id === payload.order_id
-            ? { ...o, items: orderItems, status: 'done' } : o)
+            ? { ...o, items: orderItems, total: orderTotal, status: 'done' } : o)
           setLocal(LS_ORDERS, localOrders)
         })
       }
