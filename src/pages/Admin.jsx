@@ -1049,9 +1049,12 @@ export default function Admin() {
             </tr></thead>
             <tbody>
               {[...orders].sort((a, b) => {
-                if (a.status === 'cancelled' && b.status !== 'cancelled') return 1
-                if (a.status !== 'cancelled' && b.status === 'cancelled') return -1
-                return 0
+                const priority = { 'new': 0, 'accepted': 1, 'done': 2, 'cancelled': 3 }
+                const pa = priority[a.status] ?? 2
+                const pb = priority[b.status] ?? 2
+                if (pa !== pb) return pa - pb
+                // Внутри одной группы — новые сверху
+                return new Date(b.created_at) - new Date(a.created_at)
               }).map((o, i) => (
                 <tr key={o.id}>
                   <td>{i+1}</td>
