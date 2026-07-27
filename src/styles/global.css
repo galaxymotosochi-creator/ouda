@@ -390,6 +390,7 @@ img { max-width: 100%; display: block; }
   .hero { padding-top: 60px; }
   .hero h1 { font-size: 28px; }
   .hero-desc-glass { margin-bottom: 5px; }
+  .hero-contacts { margin-top: 5px; }
   .catalog-grid { grid-template-columns: 1fr; }
   .cart-sidebar { width: 100vw; }
   .admin-add-form .form-grid { grid-template-columns: 1fr; }
