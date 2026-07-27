@@ -269,7 +269,7 @@ export default function Admin() {
         const prod = products.find(p => p.id === item.product_id)
         if (prod && item.color) {
           const avail = prod.available_colors?.[item.color] || 0
-          if (item.qty > avail) item.qty = avail
+          if (avail > 0 && item.qty > avail) item.qty = avail
           item.price = prod.price || 0
         }
       }
@@ -277,7 +277,7 @@ export default function Admin() {
         const prod = products.find(p => p.id === item.product_id)
         if (prod && item.color) {
           const avail = prod.available_colors?.[item.color] || 0
-          if (value > avail) item.qty = avail
+          if (avail > 0 && value > avail) item.qty = avail
         }
       }
       item.subtotal = (item.price || 0) * (item.qty || 0)
@@ -1041,7 +1041,7 @@ export default function Admin() {
                   <td>{o.pickup ? 'Самовывоз (Москва)' : (o.delivery_terminal || o.transport || '—')}</td>
                   <td>{o.delivery_cost ? Number(o.delivery_cost).toLocaleString('ru-RU') + ' ₽' : '—'}</td>
                   <td>{o.phone}</td>
-                  <td style={{maxWidth:300}}>
+                  <td style={{minWidth:280,whiteSpace:'normal',wordBreak:'break-word'}}>
                     {o.items?.map(item => `${item.name} ×${item.qty}${item.color ? ' ('+item.color+')' : ''}`).join(', ')||'—'}
                     {o.assembly ? <div style={{fontSize:11,color:'#888',marginTop:4}}>🔧 Сборка: {o.assembly}{o.assembly_total > 0 ? ` (+${Number(o.assembly_total).toLocaleString('ru-RU')} ₽)` : ''}</div> : ''}
                   </td>
@@ -1600,14 +1600,18 @@ export default function Admin() {
                       <div className="v2-item-row">
                         <div className="v2-item-controls" style={{flex:1,display:'flex',alignItems:'center',gap:6}}>
                           <button className="stock-qty-btn" onClick={() => updateShipItem(idx, 'qty', Math.max(0, item.qty - 1))}>−</button>
-                          <input className="v2-input-qty" type="number" min="0" max={availQty}
+                          <input className="v2-input-qty" type="number" min="0" max={availQty > 0 ? availQty : undefined}
                             value={item.qty}
                             onChange={e => {
                               const v = Number(e.target.value)
-                              updateShipItem(idx, 'qty', Math.min(Math.max(0, v), availQty))
+                              const max = availQty > 0 ? availQty : Infinity
+                              updateShipItem(idx, 'qty', Math.min(Math.max(0, v), max))
                             }}
                             style={{width:46,textAlign:'center',padding:'.3rem .25rem',fontSize:'.78rem',border:'1.5px solid var(--border)',borderRadius:'8px',outline:'none',fontFamily:'var(--font)'}} />
-                          <button className="stock-qty-btn" onClick={() => updateShipItem(idx, 'qty', Math.min(availQty, item.qty + 1))}>+</button>
+                          <button className="stock-qty-btn" onClick={() => {
+                            const max = availQty > 0 ? availQty : Infinity
+                            updateShipItem(idx, 'qty', Math.min(max, item.qty + 1))
+                          }}>+</button>
                           <span className="v2-item-sum" style={{marginLeft:'auto',fontSize:'.82rem',fontWeight:600,color:'#222',whiteSpace:'nowrap'}}>{(item.subtotal||0).toLocaleString('ru-RU')} ₽</span>
                         </div>
                       </div>
