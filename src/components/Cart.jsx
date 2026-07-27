@@ -22,18 +22,23 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
   const [deliveryError, setDeliveryError] = useState('')
   const [terminals, setTerminals] = useState([])
   const [selectedTerminal, setSelectedTerminal] = useState('')
+  const [assembly, setAssembly] = useState(false)
+  const assemblyPricePerUnit = 7000
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!form.name || !form.phone || form.phone === '+7' || !form.city) return
     setSending(true)
     try {
-      const effectiveTotal = items.reduce((s, i) => s + getItemPrice(i, items) * i.qty, 0)
+      const totalQty = items.reduce((s, i) => s + i.qty, 0)
+      const assemblyTotal = assembly && pickup ? totalQty * assemblyPricePerUnit : 0
+      const effectiveTotal = items.reduce((s, i) => s + getItemPrice(i, items) * i.qty, 0) + assemblyTotal
       const orderData = {
         ...form,
         city: pickup ? 'Москва' : form.city,
         transport: pickup ? 'Самовывоз (Москва)' : form.transport,
         pickup,
+        assembly: assembly ? totalQty : 0,
         items: items.map(i => ({ product_id: i.id, name: i.name, price: getItemPrice(i, items), qty: i.qty, color: i.selectedColor || '' })),
         total: effectiveTotal,
         delivery_cost: deliveryCost,
@@ -46,13 +51,16 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
       })
       onSuccess()
     } catch {
-      const effectiveTotal = items.reduce((s, i) => s + getItemPrice(i, items) * i.qty, 0)
+      const totalQty = items.reduce((s, i) => s + i.qty, 0)
+      const assemblyTotal = assembly && pickup ? totalQty * assemblyPricePerUnit : 0
+      const effectiveTotal = items.reduce((s, i) => s + getItemPrice(i, items) * i.qty, 0) + assemblyTotal
       const localOrders = JSON.parse(localStorage.getItem('ouda_orders') || '[]')
       localOrders.push({
         id: Date.now(), ...form,
         city: pickup ? 'Москва' : form.city,
         transport: pickup ? 'Самовывоз (Москва)' : form.transport,
         pickup,
+        assembly: assembly ? totalQty : 0,
         items: items.map(i => ({ product_id: i.id, name: i.name, price: getItemPrice(i, items), qty: i.qty, color: i.selectedColor || '' })),
         total: effectiveTotal, status: 'new', created_at: new Date().toISOString(),
         delivery_cost: deliveryCost,
@@ -113,10 +121,25 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
                 <span style={{fontSize:11,color:'#555',display:'block',marginBottom:6}}>✓ Применена оптовая цена (от 3 шт в корзине)</span>
               )}
             </div>
-            <div className="cart-total">
-              <span>{t('total')}</span>
-              <span>{items.reduce((s, i) => s + getItemPrice(i, items) * i.qty, 0).toLocaleString('ru-RU')} {t('rub')}</span>
-            </div>
+            {(() => {
+              const totalQty = items.reduce((s, i) => s + i.qty, 0)
+              const assemblyTotal = assembly && pickup ? totalQty * assemblyPricePerUnit : 0
+              const baseTotal = items.reduce((s, i) => s + getItemPrice(i, items) * i.qty, 0)
+              return (
+                <>
+                  {assemblyTotal > 0 && (
+                    <div className="cart-total" style={{fontSize:12,color:'#888',borderTop:'none',padding:'4px 24px',justifyContent:'space-between'}}>
+                      <span>Сборка ({totalQty} × {assemblyPricePerUnit.toLocaleString('ru-RU')} ₽)</span>
+                      <span>+{assemblyTotal.toLocaleString('ru-RU')} ₽</span>
+                    </div>
+                  )}
+                  <div className="cart-total">
+                    <span>{t('total')}</span>
+                    <span>{(baseTotal + assemblyTotal).toLocaleString('ru-RU')} {t('rub')}</span>
+                  </div>
+                </>
+              )
+            })()}
             <input placeholder="Имя *" value={form.name}
               onChange={e => setForm({ ...form, name: e.target.value })} required />
             <input placeholder="Город *" value={form.city}
@@ -216,6 +239,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
                 if (!v) {
                   setForm(f => ({ ...f, city: 'Москва', transport: 'Самовывоз (Москва)' }))
                 } else {
+                  setAssembly(false)
                   setForm(f => ({ ...f, city: '', transport: '' }))
                 }
                 return !v
@@ -226,6 +250,14 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
               </div>
               <span>{t('pickupLabel')}</span>
             </div>
+            {pickup && (
+              <div className="cart-pickup" style={{marginTop:4}} onClick={() => setAssembly(v => !v)}>
+                <div className={`cart-toggle-track ${assembly ? 'active' : ''}`}>
+                  <div className="cart-toggle-thumb" />
+                </div>
+                <span>🔧 Сборка скутера — {assemblyPricePerUnit.toLocaleString('ru-RU')} ₽ <span style={{fontSize:11,color:'#888'}}>(за шт)</span></span>
+              </div>
+            )}
             <input placeholder="Номер телефона *" type="tel" value={form.phone}
               onChange={e => {
                 const v = e.target.value.replace(/[^0-9]/g, '')
