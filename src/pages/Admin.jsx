@@ -212,14 +212,14 @@ export default function Admin() {
   }
 
   const openShipFromOrder = (order, orderNum) => {
-    const items = (order.items || []).map(item => ({
+    const items = recalcShipPrices((order.items || []).map(item => ({
       product_id: item.product_id,
       product_name: item.name,
       color: item.color || '',
       price: item.price || 0,
       qty: item.qty || 0,
       subtotal: (item.price || 0) * (item.qty || 0),
-    }))
+    })))
     setShipOrder(order)
     setShipForm({
       client: { name: order.name, phone: order.phone, city: order.city || '', transport: order.transport || '' },
@@ -260,6 +260,21 @@ export default function Admin() {
   }
   const closeShipModal = () => { setShowShipModal(false); setShipOrder(null); setShipOrderNum(0) }
 
+  const getShipPrice = (prod, totalQty) => {
+    if (totalQty >= 3 && prod.wholesale_price && Number(prod.wholesale_price) > 0) {
+      return Number(prod.wholesale_price)
+    }
+    return Number(prod.price) || 0
+  }
+
+  const recalcShipPrices = (items) => items.map(item => {
+    const prod = products.find(p => p.id === item.product_id)
+    if (!prod || !item.product_id) return item
+    const totalQty = items.reduce((s, i) => s + (i.qty || 0), 0)
+    const price = getShipPrice(prod, totalQty)
+    return { ...item, price, subtotal: price * (item.qty || 0) }
+  })
+
   const updateShipItem = (idx, field, value) => {
     setShipForm(prev => {
       const items = [...prev.items]
@@ -270,7 +285,6 @@ export default function Admin() {
         if (prod && item.color) {
           const avail = prod.available_colors?.[item.color] || 0
           if (avail > 0 && item.qty > avail) item.qty = avail
-          item.price = prod.price || 0
         }
       }
       if (field === 'qty') {
@@ -280,21 +294,25 @@ export default function Admin() {
           if (avail > 0 && value > avail) item.qty = avail
         }
       }
-      item.subtotal = (item.price || 0) * (item.qty || 0)
       items[idx] = item
-      return { ...prev, items }
+      // Пересчитываем цены (опт/розница) с учётом общего количества
+      const recalc = recalcShipPrices(items)
+      return { ...prev, items: recalc }
     })
   }
 
   const addShipItem = () => {
-    setShipForm(prev => ({
-      ...prev,
-      items: [...prev.items, { product_id: 0, product_name: '', color: '', price: 0, qty: 0, subtotal: 0 }]
-    }))
+    setShipForm(prev => {
+      const items = [...prev.items, { product_id: 0, product_name: '', color: '', price: 0, qty: 0, subtotal: 0 }]
+      return { ...prev, items: recalcShipPrices(items) }
+    })
   }
 
   const removeShipItem = (idx) => {
-    setShipForm(prev => ({ ...prev, items: prev.items.filter((_, i) => i !== idx) }))
+    setShipForm(prev => {
+      const items = prev.items.filter((_, i) => i !== idx)
+      return { ...prev, items: recalcShipPrices(items) }
+    })
   }
 
   const onProductSelect = (idx, productId) => {
@@ -308,10 +326,10 @@ export default function Admin() {
       const items = [...prev.items]
       items[idx] = {
         ...items[idx], product_id: pid, product_name: prod.name,
-        price: prod.price, color: firstColor,
-        qty: 1, subtotal: prod.price,
+        price: Number(prod.price) || 0, color: firstColor,
+        qty: 1, subtotal: Number(prod.price) || 0,
       }
-      return { ...prev, items }
+      return { ...prev, items: recalcShipPrices(items) }
     })
   }
 
