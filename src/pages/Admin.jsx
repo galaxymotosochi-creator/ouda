@@ -1067,7 +1067,7 @@ export default function Admin() {
                     {o.assembly ? <div style={{fontSize:11,color:'#888',marginTop:4}}>🔧 Сборка: {o.assembly}{o.assembly_total > 0 ? ` (+${Number(o.assembly_total).toLocaleString('ru-RU')} ₽)` : ''}</div> : ''}
                   </td>
                   <td>{(o.total||0).toLocaleString('ru-RU')} ₽</td>
-                  <td>{o.payment==='usdt'?'USDT':o.payment==='credit'?'Кредит':o.payment==='discuss'?'Хочу обсудить дополнительно':t('cash')}</td>
+                  <td>{o.payment==='usdt'?'USDT':o.payment==='discuss'?'Хочу обсудить дополнительно':t('cash')}</td>
                   <td>{statusLabel(o.status)}</td>
                   <td>
                     <div className="admin-actions">
