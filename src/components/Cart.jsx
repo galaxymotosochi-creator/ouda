@@ -23,6 +23,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
   const [terminals, setTerminals] = useState([])
   const [selectedTerminal, setSelectedTerminal] = useState('')
   const [assembly, setAssembly] = useState(false)
+  const [pickupDate, setPickupDate] = useState('')
   const assemblyPricePerUnit = 7000
 
   const handleSubmit = async (e) => {
@@ -38,6 +39,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
         city: pickup ? 'Москва' : form.city,
         transport: pickup ? 'Самовывоз (Москва)' : form.transport,
         pickup,
+        pickup_date: pickup ? pickupDate : '',
         assembly: assembly ? `${totalQty} шт` : '',
         assembly_total: assemblyTotal,
         items: items.map(i => ({ product_id: i.id, name: i.name, price: getItemPrice(i, items), qty: i.qty, color: i.selectedColor || '' })),
@@ -61,6 +63,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
         city: pickup ? 'Москва' : form.city,
         transport: pickup ? 'Самовывоз (Москва)' : form.transport,
         pickup,
+        pickup_date: pickup ? pickupDate : '',
         assembly: assembly ? `${totalQty} шт` : '',
         assembly_total: assemblyTotal,
         items: items.map(i => ({ product_id: i.id, name: i.name, price: getItemPrice(i, items), qty: i.qty, color: i.selectedColor || '' })),
@@ -146,6 +149,15 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
               onChange={e => setForm({ ...form, name: e.target.value })} required />
             <input placeholder="Город *" value={form.city}
               onChange={e => setForm({ ...form, city: e.target.value })} required />
+            {pickup && (
+              <div style={{marginBottom:12}}>
+                <label style={{fontSize:11,color:'#888',display:'block',marginBottom:4}}>Дата самовывоза</label>
+                <input type="date" className="cart-input-date" value={pickupDate}
+                  onChange={e => setPickupDate(e.target.value)}
+                  min={new Date().toISOString().slice(0,10)}
+                  style={{width:'100%',padding:'10px 14px',border:'1.5px solid #ddd',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}} required />
+              </div>
+            )}
             <input type="hidden" value={pickup ? 'Самовывоз (Москва)' : form.transport} />
 
             {!pickup && form.city && form.city !== 'Москва' && (

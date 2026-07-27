@@ -250,6 +250,7 @@ export default function Admin() {
         subtotal: (item.price || 0) * (item.qty || 0),
       })),
       total: order.total || 0,
+      pickup_date: order.pickup_date || '',
       assembly: order.assembly || '',
       assembly_total: order.assembly_total || 0,
       prepaid: 0,
@@ -1043,7 +1044,7 @@ export default function Admin() {
           <div style={{overflowX:'auto',borderRadius:'var(--radius)'}}>
           <table className="admin-table" style={{margin:0}}>
             <thead><tr>
-              <th>№</th><th>{t('date')}</th><th>Имя</th><th>{t('city')}</th><th>Терминал / ТК</th><th>Доставка</th><th>Номер телефона</th>
+              <th>№</th><th>{t('date')}</th><th>Имя</th><th>{t('city')}</th><th>Терминал / ТК</th><th>Доставка</th><th>Дата самовывоза</th><th>Номер телефона</th>
               <th>{t('products')}</th><th>{t('total')}</th><th>{t('payment')}</th><th>{t('status')}</th><th></th>
             </tr></thead>
             <tbody>
@@ -1059,6 +1060,7 @@ export default function Admin() {
                   <td>{o.pickup ? 'Москва' : (o.city||'—')}</td>
                   <td>{o.pickup ? 'Самовывоз (Москва)' : (o.delivery_terminal || o.transport || '—')}</td>
                   <td>{o.delivery_cost ? Number(o.delivery_cost).toLocaleString('ru-RU') + ' ₽' : '—'}</td>
+                  <td>{o.pickup_date || '—'}</td>
                   <td>{o.phone}</td>
                   <td style={{minWidth:280,whiteSpace:'normal',wordBreak:'break-word'}}>
                     {o.items?.map(item => `${item.name} ×${item.qty}${item.color ? ' ('+item.color+')' : ''}`).join(', ')||'—'}
@@ -1076,7 +1078,7 @@ export default function Admin() {
                   </td>
                 </tr>
               ))}
-              {orders.length===0 && <tr><td colSpan={12} style={{textAlign:'center',color:'#666',padding:40}}>{t('noOrders')}</td></tr>}
+              {orders.length===0 && <tr><td colSpan={13} style={{textAlign:'center',color:'#666',padding:40}}>{t('noOrders')}</td></tr>}
             </tbody>
           </table>
           </div>
@@ -1746,7 +1748,7 @@ export default function Admin() {
                 <p><strong>{invoiceShip.client?.name || '—'}</strong></p>
                 <p>{t('phoneLabel')}: {invoiceShip.client?.phone || '—'}</p>
                 <p>Город: {invoiceShip.client?.city || '—'}</p>
-                {invoiceShip.pickup ? <p>Самовывоз (Москва)</p> : invoiceShip.client?.transport && <p>Транспортная компания: {invoiceShip.client.transport}</p>}
+                {invoiceShip.pickup ? <><p>Самовывоз (Москва)</p>{invoiceShip.pickup_date ? <p>Дата самовывоза: {invoiceShip.pickup_date}</p> : ''}</> : invoiceShip.client?.transport && <p>Транспортная компания: {invoiceShip.client.transport}</p>}
               </div>
 
               <table className="invoice-table">
