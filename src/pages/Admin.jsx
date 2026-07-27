@@ -261,8 +261,25 @@ export default function Admin() {
   const updateShipItem = (idx, field, value) => {
     setShipForm(prev => {
       const items = [...prev.items]
-      items[idx] = { ...items[idx], [field]: value }
-      items[idx].subtotal = (items[idx].price || 0) * (items[idx].qty || 0)
+      const item = { ...items[idx], [field]: value }
+      // Если меняется модель или цвет — сбрасываем/проверяем количество
+      if (field === 'product_id' || field === 'color') {
+        const prod = products.find(p => p.id === item.product_id)
+        if (prod && item.color) {
+          const avail = prod.available_colors?.[item.color] || 0
+          if (item.qty > avail) item.qty = avail
+          item.price = prod.price || 0
+        }
+      }
+      if (field === 'qty') {
+        const prod = products.find(p => p.id === item.product_id)
+        if (prod && item.color) {
+          const avail = prod.available_colors?.[item.color] || 0
+          if (value > avail) item.qty = avail
+        }
+      }
+      item.subtotal = (item.price || 0) * (item.qty || 0)
+      items[idx] = item
       return { ...prev, items }
     })
   }
@@ -282,11 +299,14 @@ export default function Admin() {
     const pid = Number(productId)
     const prod = products.find(p => p.id === pid)
     if (!prod) return
+    // Выбираем первый доступный цвет с остатком
+    const availColors = Object.entries(prod.available_colors || {}).filter(([,qty]) => qty > 0)
+    const firstColor = availColors.length > 0 ? availColors[0][0] : ''
     setShipForm(prev => {
       const items = [...prev.items]
       items[idx] = {
         ...items[idx], product_id: pid, product_name: prod.name,
-        price: prod.price, color: prod.colors?.[0]?.name || '',
+        price: prod.price, color: firstColor,
         qty: 1, subtotal: prod.price,
       }
       return { ...prev, items }
@@ -298,6 +318,19 @@ export default function Admin() {
   const createShipment = () => {
     const items = shipForm.items.filter(i => i.qty > 0 && i.product_id > 0)
     if (items.length === 0) return
+
+    // Проверка остатков перед сохранением
+    for (const item of items) {
+      const prod = products.find(p => p.id === item.product_id)
+      if (prod && item.color) {
+        const avail = prod.available_colors?.[item.color] || 0
+        if (item.qty > avail) {
+          alert(`Недостаточно на складе: ${item.product_name} (${item.color}) — доступно ${avail} шт, указано ${item.qty} шт`)
+          return
+        }
+      }
+    }
+
     const payload = {
       order_id: shipOrder?.id || null,
       order_number: shipOrderNum || 0,
@@ -308,13 +341,33 @@ export default function Admin() {
       prepaid: Number(shipForm.prepaid) || 0,
       paid: Number(shipForm.paid) || 0,
     }
+
+    const afterShip = () => {
+      // Обновляем заказ — сохраняем актуальные модели/цвета/количество
+      if (payload.order_id) {
+        const orderItems = items.map(i => ({
+          product_id: i.product_id,
+          name: i.product_name,
+          color: i.color,
+          price: i.price,
+          qty: i.qty,
+        }))
+        fetch(`${API}/api/orders/${payload.order_id}`, {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ items: orderItems, status: 'done' }),
+        }).catch(() => {
+          // Update locally
+          const localOrders = getLocal(LS_ORDERS).map(o => o.id === payload.order_id
+            ? { ...o, items: orderItems, status: 'done' } : o)
+          setLocal(LS_ORDERS, localOrders)
+        })
+      }
+    }
+
     fetch(`${API}/api/shipments`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
     }).then(() => {
-      // Update order status to done after shipment
-      if (payload.order_id) {
-        updateStatus(payload.order_id, 'done')
-      }
+      afterShip()
     }).catch(() => {
       const list = getLocal(LS_SHIPMENTS)
       const maxNum = list.reduce((max, s) => {
@@ -324,11 +377,7 @@ export default function Admin() {
       const nextNum = payload.order_number ? payload.order_number : (maxNum + 1)
       list.push({ id: Date.now(), number: 'OUDA-' + String(nextNum).padStart(3, '0'), ...payload, status: 'оформлено', created_at: new Date().toISOString() })
       setLocal(LS_SHIPMENTS, list)
-      if (payload.order_id) {
-        // Update order locally
-        const localOrders = getLocal(LS_ORDERS).map(o => o.id === payload.order_id ? { ...o, status: 'done' } : o)
-        setLocal(LS_ORDERS, localOrders)
-      }
+      afterShip()
     })
     setShowShipModal(false)
     setShipOrder(null)
@@ -1502,40 +1551,63 @@ export default function Admin() {
 
               <div className="v2-section-title">Товары</div>
               <div className="v2-items-list">
-                {shipForm.items.map((item, idx) => (
-                  <div key={idx} className="v2-item-card">
-                    <div className="v2-item-info">
-                      {item.product_id > 0 ? (
-                        <>
-                          <div className="v2-item-name">{item.product_name}</div>
-                          <div className="v2-item-extra">
-                            <select className="v2-select-color" value={item.color} onChange={e => updateShipItem(idx, 'color', e.target.value)}>
-                              <option value="">{t('colorLabel')}</option>
-                              {(products.find(p => p.id === item.product_id)?.available_colors ? Object.entries(products.find(p => p.id === item.product_id).available_colors).filter(([,qty]) => qty > 0).map(([color, qty]) => (
-                                <option key={color} value={color}>{color}</option>
-                              )) : [])}
-                            </select>
-                          </div>
-                        </>
-                      ) : (
+                {shipForm.items.map((item, idx) => {
+                  const prod = products.find(p => p.id === item.product_id)
+                  const availColors = prod?.available_colors || {}
+                  const availQty = item.color ? (availColors[item.color] || 0) : 0
+                  return (
+                    <div key={idx} className="v2-item-card">
+                      <div className="v2-item-row">
                         <div className="v2-item-name" style={{flex:1}}>
-                          <select className="v2-select-product" value={item.product_id} onChange={e => onProductSelect(idx, e.target.value)}>
+                          <select className="v2-select-product" value={item.product_id}
+                            onChange={e => onProductSelect(idx, e.target.value)}>
                             <option value="0">— Выберите товар —</option>
                             {products.map(p => (
                               <option key={p.id} value={p.id}>{p.name} — {(p.price||0).toLocaleString('ru-RU')} ₽</option>
                             ))}
                           </select>
                         </div>
-                      )}
+                        <button className="v2-item-remove" onClick={() => removeShipItem(idx)}>×</button>
+                      </div>
+                      <div className="v2-item-row">
+                        <div className="v2-item-extra" style={{flex:1}}>
+                          <select className="v2-select-color" value={item.color}
+                            onChange={e => updateShipItem(idx, 'color', e.target.value)}
+                            style={{flex:1}}>
+                            <option value="">{t('colorLabel')}</option>
+                            {Object.entries(availColors).filter(([,qty]) => qty > 0).map(([color, qty]) => (
+                              <option key={color} value={color}>
+                                {color} — {qty} шт
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        {item.color && (
+                          <span className="v2-stock-badge" style={{
+                            fontSize:'.7rem', color: availQty > 0 ? '#16a34a' : '#dc2626',
+                            whiteSpace:'nowrap', marginLeft:6
+                          }}>
+                            {availQty > 0 ? '✓ ' + availQty + ' шт' : '✗ нет'}
+                          </span>
+                        )}
+                      </div>
+                      <div className="v2-item-row">
+                        <div className="v2-item-controls" style={{flex:1,display:'flex',alignItems:'center',gap:6}}>
+                          <button className="stock-qty-btn" onClick={() => updateShipItem(idx, 'qty', Math.max(0, item.qty - 1))}>−</button>
+                          <input className="v2-input-qty" type="number" min="0" max={availQty}
+                            value={item.qty}
+                            onChange={e => {
+                              const v = Number(e.target.value)
+                              updateShipItem(idx, 'qty', Math.min(Math.max(0, v), availQty))
+                            }}
+                            style={{width:46,textAlign:'center',padding:'.3rem .25rem',fontSize:'.78rem',border:'1.5px solid var(--border)',borderRadius:'8px',outline:'none',fontFamily:'var(--font)'}} />
+                          <button className="stock-qty-btn" onClick={() => updateShipItem(idx, 'qty', Math.min(availQty, item.qty + 1))}>+</button>
+                          <span className="v2-item-sum" style={{marginLeft:'auto',fontSize:'.82rem',fontWeight:600,color:'#222',whiteSpace:'nowrap'}}>{(item.subtotal||0).toLocaleString('ru-RU')} ₽</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="v2-item-controls">
-                      <input className="v2-input-qty" type="number" min="0" value={item.qty}
-                        onChange={e => updateShipItem(idx, 'qty', Number(e.target.value))} />
-                      <span className="v2-item-sum">{(item.subtotal||0).toLocaleString('ru-RU')} ₽</span>
-                      <button className="v2-item-remove" onClick={() => removeShipItem(idx)}>×</button>
-                    </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
               <button className="v2-add-btn" onClick={addShipItem}>+ Добавить товар</button>
 
