@@ -739,6 +739,7 @@ export default function Admin() {
                   <option value="">{t('cooling')}</option>
                   <option value="Воздушное">{t('airCooled')}</option>
                   <option value="Жидкостное">{t('liquidCooled')}</option>
+                  <option value="Масляное">Масляное</option>
                 </select>
               </div>
               <div className="v2-field third">
@@ -1465,6 +1466,7 @@ export default function Admin() {
                       <option value="">{t('cooling')}</option>
                       <option value="Воздушное">{t('airCooled')}</option>
                       <option value="Жидкостное">{t('liquidCooled')}</option>
+                      <option value="Масляное">Масляное</option>
                     </select>
                   </div>
                   <div className="v2-field third">
