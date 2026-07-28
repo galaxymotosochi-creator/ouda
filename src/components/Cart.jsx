@@ -22,8 +22,8 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
   const [deliveryError, setDeliveryError] = useState('')
   const [terminals, setTerminals] = useState([])
   const [selectedTerminal, setSelectedTerminal] = useState('')
-  const getAssemblyPrice = (item) => item.assembly_price || 7000
-  const calcAssemblyTotal = (items) => assembly && pickup ? items.reduce((s, i) => s + i.qty * getAssemblyPrice(i), 0) : 0
+  const getAssemblyPrice = (item) => (item && item.assembly_price) || 7000
+  const calcAssemblyTotal = (items) => assembly && pickup ? (items.length ? items.reduce((s, i) => s + i.qty * getAssemblyPrice(i), 0) : 0) : 0
   const [assembly, setAssembly] = useState(false)
   const [pickupDate, setPickupDate] = useState('')
 
@@ -277,7 +277,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
                 <div className={`cart-toggle-track ${assembly ? 'active' : ''}`}>
                   <div className="cart-toggle-thumb" />
                 </div>
-                <span>{t('assemblyFee')} — {getAssemblyPrice(items[0]).toLocaleString('ru-RU')} ₽ <span style={{fontSize:11,color:'#888'}}>(за {t('pcs')})</span></span>
+                <span>{t('assemblyFee')} — {items.length > 0 ? getAssemblyPrice(items[0]).toLocaleString('ru-RU') : 7000} ₽ <span style={{fontSize:11,color:'#888'}}>(за {t('pcs')})</span></span>
               </div>
             )}
             <input placeholder="Номер телефона *" type="tel" value={form.phone}
