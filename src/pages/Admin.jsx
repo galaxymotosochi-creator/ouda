@@ -579,6 +579,7 @@ export default function Admin() {
     e.preventDefault()
     const basePrice = Number(newProduct.price) || 0
     const wholesalePrice = Number(newProduct.wholesale_price) || 0
+    const assemblyPrice = Number(newProduct.assembly_price) || 7000
 
     // Upload photos first
     let images = []
@@ -594,7 +595,7 @@ export default function Admin() {
       setUploading(false)
     }
 
-    const product = { ...newProduct, price: basePrice, wholesale_price: wholesalePrice, name: lang === 'zh' ? (newProduct.name_zh || newProduct.name_ru) : (newProduct.name_ru || newProduct.name_zh), images, image: images[0] || '', id: Date.now() }
+    const product = { ...newProduct, price: basePrice, wholesale_price: wholesalePrice, assembly_price: assemblyPrice, name: lang === 'zh' ? (newProduct.name_zh || newProduct.name_ru) : (newProduct.name_ru || newProduct.name_zh), images, image: images[0] || '', id: Date.now() }
     const list = getLocal(LS_PRODUCTS)
     list.push(product)
     setLocal(LS_PRODUCTS, list)
@@ -603,7 +604,7 @@ export default function Admin() {
     fetch(`${API}/api/products`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(product) })
       .then(r => { if (r.ok) setTimeout(loadData, 300) })
       .catch(() => {})
-    setNewProduct({ name_ru: '', name_zh: '', price: '', wholesale_price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', images: [], weight: '', length: '', width: '', height: '' })
+    setNewProduct({ name_ru: '', name_zh: '', price: '', wholesale_price: '', assembly_price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', images: [], weight: '', length: '', width: '', height: '' })
     setPhotos([])
   }
 
@@ -706,6 +707,10 @@ export default function Admin() {
                 <label>Оптовая цена</label>
                 <input className="v2-input" placeholder={t('wholesalePrice')} type="number" value={newProduct.wholesale_price} onChange={e => setNewProduct({...newProduct, wholesale_price: e.target.value})} />
               </div>
+            </div>
+            <div className="v2-field">
+              <label>Сборка (₽)</label>
+              <input className="v2-input" placeholder="7000" type="number" value={newProduct.assembly_price} onChange={e => setNewProduct({...newProduct, assembly_price: e.target.value})} />
             </div>
           </div>
 
@@ -1434,6 +1439,10 @@ export default function Admin() {
                     <label>Оптовая цена</label>
                     <input className="v2-input" type="number" value={editForm.wholesale_price} onChange={e => setEditForm({...editForm, wholesale_price: e.target.value})} />
                   </div>
+                </div>
+                <div className="v2-field">
+                  <label>Сборка (₽)</label>
+                  <input className="v2-input" placeholder="7000" type="number" value={editForm.assembly_price} onChange={e => setEditForm({...editForm, assembly_price: e.target.value})} />
                 </div>
               </div>
 

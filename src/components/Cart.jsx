@@ -22,9 +22,10 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
   const [deliveryError, setDeliveryError] = useState('')
   const [terminals, setTerminals] = useState([])
   const [selectedTerminal, setSelectedTerminal] = useState('')
+  const getAssemblyPrice = (item) => item.assembly_price || 7000
+  const calcAssemblyTotal = (items) => assembly && pickup ? items.reduce((s, i) => s + i.qty * getAssemblyPrice(i), 0) : 0
   const [assembly, setAssembly] = useState(false)
   const [pickupDate, setPickupDate] = useState('')
-  const assemblyPricePerUnit = 7000
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -32,7 +33,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
     setSending(true)
     try {
       const totalQty = items.reduce((s, i) => s + i.qty, 0)
-      const assemblyTotal = assembly && pickup ? totalQty * assemblyPricePerUnit : 0
+      const assemblyTotal = calcAssemblyTotal(items)
       const effectiveTotal = items.reduce((s, i) => s + getItemPrice(i, items) * i.qty, 0) + assemblyTotal
       const orderData = {
         ...form,
@@ -56,7 +57,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
       onSuccess()
     } catch {
       const totalQty = items.reduce((s, i) => s + i.qty, 0)
-      const assemblyTotal = assembly && pickup ? totalQty * assemblyPricePerUnit : 0
+      const assemblyTotal = calcAssemblyTotal(items)
       const effectiveTotal = items.reduce((s, i) => s + getItemPrice(i, items) * i.qty, 0) + assemblyTotal
       const localOrders = JSON.parse(localStorage.getItem('ouda_orders') || '[]')
       localOrders.push({
@@ -130,13 +131,13 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
             </div>
             {(() => {
               const totalQty = items.reduce((s, i) => s + i.qty, 0)
-              const assemblyTotal = assembly && pickup ? totalQty * assemblyPricePerUnit : 0
+              const assemblyTotal = calcAssemblyTotal(items)
               const baseTotal = items.reduce((s, i) => s + getItemPrice(i, items) * i.qty, 0)
               return (
                 <>
                   {assemblyTotal > 0 && (
                     <div className="cart-total" style={{fontSize:12,color:'#888',borderTop:'none',padding:'4px 24px',justifyContent:'space-between'}}>
-                      <span>{t('assemblyFee')} ({totalQty} × {assemblyPricePerUnit.toLocaleString('ru-RU')} ₽)</span>
+                      <span>{t('assemblyFee')}</span>
                       <span>+{assemblyTotal.toLocaleString('ru-RU')} ₽</span>
                     </div>
                   )}
@@ -276,7 +277,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
                 <div className={`cart-toggle-track ${assembly ? 'active' : ''}`}>
                   <div className="cart-toggle-thumb" />
                 </div>
-                <span>{t('assemblyFee')} — {assemblyPricePerUnit.toLocaleString('ru-RU')} ₽ <span style={{fontSize:11,color:'#888'}}>(за {t('pcs')})</span></span>
+                <span>{t('assemblyFee')} — {getAssemblyPrice(items[0]).toLocaleString('ru-RU')} ₽ <span style={{fontSize:11,color:'#888'}}>(за {t('pcs')})</span></span>
               </div>
             )}
             <input placeholder="Номер телефона *" type="tel" value={form.phone}
