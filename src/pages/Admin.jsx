@@ -720,6 +720,7 @@ export default function Admin() {
                   <option value="125">125</option>
                   <option value="150">150</option>
                   <option value="180">180</option>
+                  <option value="300">300</option>
                 </select>
               </div>
               <div className="v2-field half">
@@ -759,6 +760,7 @@ export default function Admin() {
                   <option value="13/13">13/13</option>
                   <option value="13/14">13/14</option>
                   <option value="14/14">14/14</option>
+                  <option value="21/18">21/18</option>
                 </select>
               </div>
             </div>
@@ -1443,6 +1445,7 @@ export default function Admin() {
                       <option value="125">125</option>
                       <option value="150">150</option>
                       <option value="180">180</option>
+                      <option value="300">300</option>
                     </select>
                   </div>
                   <div className="v2-field half">
@@ -1482,6 +1485,7 @@ export default function Admin() {
                       <option value="13/13">13/13</option>
                       <option value="13/14">13/14</option>
                       <option value="14/14">14/14</option>
+                      <option value="21/18">21/18</option>
                     </select>
                   </div>
                 </div>
