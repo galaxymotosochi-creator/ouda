@@ -1066,7 +1066,7 @@ export default function Admin() {
                   <td>{o.pickup ? 'Москва' : (o.city||'—')}</td>
                   <td>{o.pickup ? 'Самовывоз (Москва)' : (o.delivery_terminal || o.transport || '—')}</td>
                   <td>{o.delivery_cost ? Number(o.delivery_cost).toLocaleString('ru-RU') + ' ₽' : '—'}</td>
-                  <td>{o.pickup_date || '—'}</td>
+                  <td>{o.pickup_date || '—'}{o.pickup_time ? ' ' + o.pickup_time : ''}</td>
                   <td>{o.phone}</td>
                   <td style={{minWidth:280,whiteSpace:'normal',wordBreak:'break-word'}}>
                     {o.items?.map(item => `${item.name} ×${item.qty}${item.color ? ' ('+item.color+')' : ''}`).join(', ')||'—'}
@@ -1757,7 +1757,7 @@ export default function Admin() {
                 <p><strong>{invoiceShip.client?.name || '—'}</strong></p>
                 <p>{t('phoneLabel')}: {invoiceShip.client?.phone || '—'}</p>
                 <p>Город: {invoiceShip.client?.city || '—'}</p>
-                {invoiceShip.pickup ? <><p>Самовывоз (Москва)</p>{invoiceShip.pickup_date ? <p>Дата самовывоза: {invoiceShip.pickup_date}</p> : ''}</> : invoiceShip.client?.transport && <p>Транспортная компания: {invoiceShip.client.transport}</p>}
+                {invoiceShip.pickup ? <><p>Самовывоз (Москва)</p>{invoiceShip.pickup_date ? <p>Дата самовывоза: {invoiceShip.pickup_date}{invoiceShip.pickup_time ? ' ' + invoiceShip.pickup_time : ''}</p> : ''}</> : invoiceShip.client?.transport && <p>Транспортная компания: {invoiceShip.client.transport}</p>}
               </div>
 
               <table className="invoice-table">

@@ -40,6 +40,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
         transport: pickup ? 'Самовывоз (Москва)' : form.transport,
         pickup,
         pickup_date: pickup ? pickupDate : '',
+        pickup_time: pickup ? pickupTime : '',
         assembly: assembly ? `${totalQty} шт` : '',
         assembly_total: assemblyTotal,
         items: items.map(i => ({ product_id: i.id, name: i.name, price: getItemPrice(i, items), qty: i.qty, color: i.selectedColor || '' })),
@@ -64,6 +65,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
         transport: pickup ? 'Самовывоз (Москва)' : form.transport,
         pickup,
         pickup_date: pickup ? pickupDate : '',
+        pickup_time: pickup ? pickupTime : '',
         assembly: assembly ? `${totalQty} шт` : '',
         assembly_total: assemblyTotal,
         items: items.map(i => ({ product_id: i.id, name: i.name, price: getItemPrice(i, items), qty: i.qty, color: i.selectedColor || '' })),
@@ -155,6 +157,11 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
                 <input type="date" className="cart-input-date" value={pickupDate}
                   onChange={e => setPickupDate(e.target.value)}
                   min={new Date().toISOString().slice(0,10)}
+                  style={{width:'100%',padding:'10px 14px',border:'1.5px solid #ddd',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}} required />
+                <label style={{fontSize:11,color:'#888',display:'block',marginBottom:4,marginTop:8}}>Время самовывоза</label>
+                <input type="time" value={pickupTime}
+                  onChange={e => setPickupTime(e.target.value)}
+                  min="10:00" max="17:00"
                   style={{width:'100%',padding:'10px 14px',border:'1.5px solid #ddd',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}} required />
               </div>
             )}
