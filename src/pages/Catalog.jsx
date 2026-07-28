@@ -285,7 +285,7 @@ export default function Catalog() {
                           <button onClick={() => handleColorQty(name, 1)}>+</button>
                         </div>
                         {remaining > 0 ? (
-                          <span className="color-picker-remain">в наличии {remaining} шт</span>
+                          <span className="color-picker-remain">{t('inStock')} {remaining} {t('pcs')}</span>
                         ) : (
                           <span className="color-picker-remain">всё в корзине</span>
                         )}

@@ -346,7 +346,7 @@ export default function Admin() {
       if (prod && item.color) {
         const avail = prod.available_colors?.[item.color] || 0
         if (item.qty > avail) {
-          alert(`Недостаточно на складе: ${item.product_name} (${item.color}) — доступно ${avail} шт, указано ${item.qty} шт`)
+          alert(`Недостаточно на складе: ${item.product_name} (${item.color}) — доступно ${avail} ${t('pcs')}, указано ${item.qty} ${t('pcs')}`)
           return
         }
       }
@@ -1615,7 +1615,7 @@ export default function Admin() {
                             <option value="">{t('colorLabel')}</option>
                             {Object.entries(availColors).filter(([,qty]) => qty > 0).map(([color, qty]) => (
                               <option key={color} value={color}>
-                                {color} — {qty} шт
+                                {color} — {qty} {t('pcs')}
                               </option>
                             ))}
                           </select>
@@ -1625,7 +1625,7 @@ export default function Admin() {
                             fontSize:'.7rem', color: availQty > 0 ? '#16a34a' : '#dc2626',
                             whiteSpace:'nowrap', marginLeft:6
                           }}>
-                            {availQty > 0 ? '✓ ' + availQty + ' шт' : '✗ нет'}
+                            {availQty > 0 ? '✓ ' + availQty + ' ' + t('pcs') : '✗ нет'}
                           </span>
                         )}
                       </div>

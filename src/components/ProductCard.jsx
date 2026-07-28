@@ -86,7 +86,7 @@ export default function ProductCard({ product, onAdd, inCart, cartQtys, onPreord
                     const remaining = stock - inCartQty
                     return (
                       <span key={name} className="color-pill">
-                        {translateColor(name)} {remaining} шт
+                        {translateColor(name)} {remaining} {t('pcs')}
                       </span>
                     )
                   })}
@@ -116,7 +116,7 @@ export default function ProductCard({ product, onAdd, inCart, cartQtys, onPreord
             <>
               <div><span className="price-label">Розничная цена:</span> <span className="price-value">{product.price.toLocaleString('ru-RU')} {t('rub')}</span></div>
               <div><span className="price-label">Оптовая цена:</span> <span className="price-value">{product.wholesale_price ? Number(product.wholesale_price).toLocaleString('ru-RU') + ' ' + t('rub') : '—'}</span></div>
-              <div className="wholesale-pill">📦 Опт от 3 шт</div>
+              <div className="wholesale-pill">📦 Опт от 3 {t('pcs')}</div>
               <div className="assembly-fee">
                 <div>🔧 Сборка 7 000 ₽</div>
                 <div className="assembly-fee-sub">только при самовывозе (Москва)</div>

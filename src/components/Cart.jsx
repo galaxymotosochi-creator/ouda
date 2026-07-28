@@ -107,7 +107,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
                         <span style={{display:'block',fontSize:11,color:'#555',fontWeight:500}}>Оптовая цена</span>
                       </>
                     ) : (
-                      <>{getItemPrice(item, items).toLocaleString('ru-RU')} {t('rub')} / шт</>
+                      <>{getItemPrice(item, items).toLocaleString('ru-RU')} {t('rub')} / {t('pcs')}</>
                     )}
                   </div>
                   <div className="cart-item-qty">
@@ -125,7 +125,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
           <form className="cart-form" onSubmit={handleSubmit}>
             <div className="cart-rule-hint">
               {items.reduce((s, i) => s + i.qty, 0) >= 3 && items.some(i => i.wholesale_price && Number(i.wholesale_price) > 0) && (
-                <span style={{fontSize:11,color:'#555',display:'block',marginBottom:6}}>✓ Применена оптовая цена (от 3 шт в корзине)</span>
+                <span style={{fontSize:11,color:'#555',display:'block',marginBottom:6}}>✓ Применена оптовая цена (от 3 {t('pcs')} в корзине)</span>
               )}
             </div>
             {(() => {
@@ -276,7 +276,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
                 <div className={`cart-toggle-track ${assembly ? 'active' : ''}`}>
                   <div className="cart-toggle-thumb" />
                 </div>
-                <span>🔧 Сборка скутера — {assemblyPricePerUnit.toLocaleString('ru-RU')} ₽ <span style={{fontSize:11,color:'#888'}}>(за шт)</span></span>
+                <span>🔧 Сборка скутера — {assemblyPricePerUnit.toLocaleString('ru-RU')} ₽ <span style={{fontSize:11,color:'#888'}}>(за {t('pcs')})</span></span>
               </div>
             )}
             <input placeholder="Номер телефона *" type="tel" value={form.phone}
