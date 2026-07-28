@@ -25,7 +25,12 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
   const [assembly, setAssembly] = useState(false)
   const [pickupDate, setPickupDate] = useState('')
   const [pickupTime, setPickupTime] = useState('')
-  const getAssemblyPrice = (item) => (item && item.assembly_price) || 7000
+  const getAssemblyPrice = (item) => {
+    if (!item) return 7000
+    if (item.type === 'enduro') return 12000
+    if (item.assembly_price) return item.assembly_price
+    return 7000
+  }
   const calcAssemblyTotal = (items) => {
     try {
       if (!items || !items.length) return 0

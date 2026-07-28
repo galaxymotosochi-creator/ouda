@@ -75,6 +75,7 @@ export default function Admin() {
       max_speed: p.max_speed || '',
       wheels: p.wheels || '',
       description: p.description || '',
+      type: p.type || (p.assembly_price === 12000 ? 'enduro' : 'scooter'),
     })
     setEditPhotos((p.images || []).map(url => ({ file: null, url })))
     setEditingProduct(p)
@@ -115,6 +116,8 @@ export default function Admin() {
           max_speed: editForm.max_speed,
           wheels: editForm.wheels,
           description: editForm.description,
+          type: editForm.type,
+          assembly_price: editForm.type === 'enduro' ? 12000 : 7000,
           images: finalImages,
           image: finalImages[0] || '',
           name: lang === 'zh' ? (editForm.name_zh || editForm.name_ru) : (editForm.name_ru || editForm.name_zh),
@@ -579,7 +582,7 @@ export default function Admin() {
     e.preventDefault()
     const basePrice = Number(newProduct.price) || 0
     const wholesalePrice = Number(newProduct.wholesale_price) || 0
-    const assemblyPrice = Number(newProduct.assembly_price) || 7000
+    const assemblyPrice = newProduct.type === 'enduro' ? 12000 : 7000
 
     // Upload photos first
     let images = []
@@ -604,7 +607,7 @@ export default function Admin() {
     fetch(`${API}/api/products`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(product) })
       .then(r => { if (r.ok) setTimeout(loadData, 300) })
       .catch(() => {})
-    setNewProduct({ name_ru: '', name_zh: '', price: '', wholesale_price: '', assembly_price: '', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', images: [], weight: '', length: '', width: '', height: '' })
+    setNewProduct({ name_ru: '', name_zh: '', price: '', wholesale_price: '', type: 'scooter', power: '', fuel: '', cooling: '', max_speed: '', wheels: '', description: '', images: [], weight: '', length: '', width: '', height: '' })
     setPhotos([])
   }
 
@@ -709,8 +712,11 @@ export default function Admin() {
               </div>
             </div>
             <div className="v2-field">
-              <label>Сборка (₽)</label>
-              <input className="v2-input" placeholder="7000" type="number" value={newProduct.assembly_price} onChange={e => setNewProduct({...newProduct, assembly_price: e.target.value})} />
+              <label>Тип</label>
+              <select className="v2-input" value={newProduct.type} onChange={e => setNewProduct({...newProduct, type: e.target.value})}>
+                <option value="scooter">Скутер</option>
+                <option value="enduro">Эндуро</option>
+              </select>
             </div>
           </div>
 
@@ -1441,8 +1447,11 @@ export default function Admin() {
                   </div>
                 </div>
                 <div className="v2-field">
-                  <label>Сборка (₽)</label>
-                  <input className="v2-input" placeholder="7000" type="number" value={editForm.assembly_price} onChange={e => setEditForm({...editForm, assembly_price: e.target.value})} />
+                  <label>Тип</label>
+                  <select className="v2-input" value={editForm.type} onChange={e => setEditForm({...editForm, type: e.target.value})}>
+                    <option value="scooter">Скутер</option>
+                    <option value="enduro">Эндуро</option>
+                  </select>
                 </div>
               </div>
 
