@@ -749,6 +749,7 @@ export default function Admin() {
                   <option value="100">100</option>
                   <option value="105">105</option>
                   <option value="110">110</option>
+                  <option value="120">120</option>
                 </select>
               </div>
               <div className="v2-field third">
@@ -1474,6 +1475,7 @@ export default function Admin() {
                       <option value="100">100</option>
                       <option value="105">105</option>
                       <option value="110">110</option>
+                      <option value="120">120</option>
                     </select>
                   </div>
                   <div className="v2-field third">
