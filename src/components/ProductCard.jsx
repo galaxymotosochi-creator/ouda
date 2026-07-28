@@ -114,12 +114,12 @@ export default function ProductCard({ product, onAdd, inCart, cartQtys, onPreord
         <div className="product-price">
           {!isOutOfStock ? (
             <>
-              <div><span className="price-label">Розничная цена:</span> <span className="price-value">{product.price.toLocaleString('ru-RU')} {t('rub')}</span></div>
-              <div><span className="price-label">Оптовая цена:</span> <span className="price-value">{product.wholesale_price ? Number(product.wholesale_price).toLocaleString('ru-RU') + ' ' + t('rub') : '—'}</span></div>
-              <div className="wholesale-pill">📦 Опт от 3 {t('pcs')}</div>
+              <div><span className="price-label">{t('retailPriceLabel')}</span> <span className="price-value">{product.price.toLocaleString('ru-RU')} {t('rub')}</span></div>
+              <div><span className="price-label">{t('wholesalePriceLabel')}</span> <span className="price-value">{product.wholesale_price ? Number(product.wholesale_price).toLocaleString('ru-RU') + ' ' + t('rub') : '—'}</span></div>
+              <div className="wholesale-pill">{t('wholesaleFrom')} {t('pcs')}</div>
               <div className="assembly-fee">
-                <div>🔧 Сборка 7 000 ₽</div>
-                <div className="assembly-fee-sub">только при самовывозе (Москва)</div>
+                <div>{t('assemblyFee')} 7 000 ₽</div>
+                <div className="assembly-fee-sub">{t('assemblyFeeOnly')}</div>
               </div>
             </>
           ) : (
@@ -127,8 +127,8 @@ export default function ProductCard({ product, onAdd, inCart, cartQtys, onPreord
               <div><span className="price-label">{t('priceLastRetail')}</span> <span className="price-value">{product.price.toLocaleString('ru-RU')} {t('rub')}</span></div>
               <div><span className="price-label">{t('priceLastWholesale')}</span> <span className="price-value">{product.wholesale_price ? Number(product.wholesale_price).toLocaleString('ru-RU') + ' ' + t('rub') : '—'}</span></div>
               <div className="assembly-fee">
-                <div>🔧 Сборка 7 000 ₽</div>
-                <div className="assembly-fee-sub">только при самовывозе (Москва)</div>
+                <div>{t('assemblyFee')} 7 000 ₽</div>
+                <div className="assembly-fee-sub">{t('assemblyFeeOnly')}</div>
               </div>
             </>
           )}

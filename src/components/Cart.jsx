@@ -136,7 +136,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
                 <>
                   {assemblyTotal > 0 && (
                     <div className="cart-total" style={{fontSize:12,color:'#888',borderTop:'none',padding:'4px 24px',justifyContent:'space-between'}}>
-                      <span>Сборка ({totalQty} × {assemblyPricePerUnit.toLocaleString('ru-RU')} ₽)</span>
+                      <span>{t('assemblyFee')} ({totalQty} × {assemblyPricePerUnit.toLocaleString('ru-RU')} ₽)</span>
                       <span>+{assemblyTotal.toLocaleString('ru-RU')} ₽</span>
                     </div>
                   )}
@@ -276,7 +276,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
                 <div className={`cart-toggle-track ${assembly ? 'active' : ''}`}>
                   <div className="cart-toggle-thumb" />
                 </div>
-                <span>🔧 Сборка скутера — {assemblyPricePerUnit.toLocaleString('ru-RU')} ₽ <span style={{fontSize:11,color:'#888'}}>(за {t('pcs')})</span></span>
+                <span>{t('assemblyFee')} — {assemblyPricePerUnit.toLocaleString('ru-RU')} ₽ <span style={{fontSize:11,color:'#888'}}>(за {t('pcs')})</span></span>
               </div>
             )}
             <input placeholder="Номер телефона *" type="tel" value={form.phone}
