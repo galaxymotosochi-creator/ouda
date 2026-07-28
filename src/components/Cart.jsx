@@ -23,7 +23,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
   const [terminals, setTerminals] = useState([])
   const [selectedTerminal, setSelectedTerminal] = useState('')
   const getAssemblyPrice = (item) => (item && item.assembly_price) || 7000
-  const calcAssemblyTotal = (items) => assembly && pickup ? (items.length ? items.reduce((s, i) => s + i.qty * getAssemblyPrice(i), 0) : 0) : 0
+  const calcAssemblyTotal = (items) => { try { return assembly && pickup ? (items && items.length ? items.reduce((s, i) => s + i.qty * getAssemblyPrice(i), 0) : 0) : 0 } catch(e) { return 0 } }
   const [assembly, setAssembly] = useState(false)
   const [pickupDate, setPickupDate] = useState('')
 
@@ -277,7 +277,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
                 <div className={`cart-toggle-track ${assembly ? 'active' : ''}`}>
                   <div className="cart-toggle-thumb" />
                 </div>
-                <span>{t('assemblyFee')} — {items.length > 0 ? getAssemblyPrice(items[0]).toLocaleString('ru-RU') : 7000} ₽ <span style={{fontSize:11,color:'#888'}}>(за {t('pcs')})</span></span>
+                <span>{t('assemblyFee')} — {(() => { try { var p = (items && items[0] && items[0].assembly_price) || 7000; return Number(p).toLocaleString('ru-RU') } catch(e) { return '7 000' } })()} ₽ <span style={{fontSize:11,color:'#888'}}>(за {t('pcs')})</span></span>
               </div>
             )}
             <input placeholder="Номер телефона *" type="tel" value={form.phone}
