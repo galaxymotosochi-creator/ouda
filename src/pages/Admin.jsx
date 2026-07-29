@@ -44,6 +44,9 @@ export default function Admin() {
   const [shipOrder, setShipOrder] = useState(null)
   const [shipOrderNum, setShipOrderNum] = useState(0)
   const [shipForm, setShipForm] = useState({ client: { name: '', phone: '', city: '', transport: '' }, items: [], prepaid: 0, paid: 0, date: new Date().toISOString().slice(0, 10) })
+  const [shipShipment, setShipShipment] = useState(null)
+  const [shipPayAmount, setShipPayAmount] = useState('')
+  const [showShipPayModal, setShowShipPayModal] = useState(false)
 
   // Invoice modal
   const [invoiceShip, setInvoiceShip] = useState(null)
@@ -407,6 +410,15 @@ export default function Admin() {
     setShowShipModal(false)
     setShipOrder(null)
     setTimeout(loadData, 300)
+  }
+
+  const confirmShipPayment = () => {
+    if (!shipShipment) return
+    const extraPay = Number(shipPayAmount) || 0
+    const newPaid = (shipShipment.paid || 0) + extraPay
+    updateShipment(shipShipment.id, { status: 'отгружено', paid: newPaid })
+    setShowShipPayModal(false)
+    setShipShipment(null)
   }
 
   const updateShipment = (id, data) => {
@@ -1142,7 +1154,7 @@ export default function Admin() {
                   <td>
                     <div className="admin-actions">
                       {s.status === 'оформлено' && <>
-                        <button className="admin-btn admin-btn-accept" onClick={() => updateShipment(s.id,{status:'отгружено'})}>{t('ship')}</button>
+                        <button className="admin-btn admin-btn-accept" onClick={() => { setShipShipment(s); setShipPayAmount(''); setShowShipPayModal(true) }}>{t('ship')}</button>
                         <button className="admin-btn admin-btn-danger" onClick={() => updateShipment(s.id,{status:'отменено'})}>✕ {t('cancelText')}</button>
                       </>}
                       {s.status === 'отгружено' && <>
@@ -1698,6 +1710,43 @@ export default function Admin() {
               <div className="v2-footer">
                 <button className="v2-btn v2-btn-cancel" onClick={closeShipModal}>{t('cancelText')}</button>
                 <button className="v2-btn v2-btn-primary" onClick={createShipment}>Создать отгрузку</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* === SHIP PAYMENT MODAL === */}
+      {showShipPayModal && shipShipment && (
+        <div className="modal-overlay" onClick={() => { setShowShipPayModal(false); setShipShipment(null) }}>
+          <div className="modal modal-compact" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Отгрузить — {shipShipment.number}</h3>
+              <button className="modal-close" onClick={() => { setShowShipPayModal(false); setShipShipment(null) }}>×</button>
+            </div>
+            <div className="modal-body">
+              <div style={{marginBottom:16}}>
+                <div style={{fontSize:13,color:'#666',marginBottom:4}}>Сумма заказа</div>
+                <div style={{fontSize:18,fontWeight:700,color:'#222'}}>{(shipShipment.total||0).toLocaleString('ru-RU')} ₽</div>
+              </div>
+              {shipShipment.prepaid > 0 && (
+                <div style={{marginBottom:16}}>
+                  <div style={{fontSize:13,color:'#666',marginBottom:4}}>Уже оплачено (предоплата)</div>
+                  <div style={{fontSize:16,fontWeight:600,color:'#333'}}>{(shipShipment.prepaid||0).toLocaleString('ru-RU')} ₽</div>
+                </div>
+              )}
+              <div style={{marginBottom:20}}>
+                <label style={{display:'block',fontSize:13,color:'#666',marginBottom:6,fontWeight:500}}>Сумма оплаты при отгрузке</label>
+                <div style={{display:'flex',gap:8,alignItems:'center',background:'#f5f5f5',borderRadius:10,padding:'8px 12px'}}>
+                  <input type="number" min="0" placeholder="0" value={shipPayAmount}
+                    onChange={e => setShipPayAmount(e.target.value)}
+                    style={{flex:1,background:'transparent',border:'none',outline:'none',fontSize:16,fontWeight:600,color:'#222'}} />
+                  <span style={{fontSize:14,color:'#888',fontWeight:500}}>₽</span>
+                </div>
+              </div>
+              <div style={{display:'flex',gap:10,justifyContent:'flex-end'}}>
+                <button className="v2-btn v2-btn-cancel" onClick={() => { setShowShipPayModal(false); setShipShipment(null) }}>Отмена</button>
+                <button className="v2-btn v2-btn-primary" onClick={confirmShipPayment}>Отгрузить</button>
               </div>
             </div>
           </div>
