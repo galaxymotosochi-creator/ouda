@@ -236,6 +236,7 @@ const translations = {
     injector: 'Инжектор',
     airCooled: 'Воздушное',
     liquidCooled: 'Жидкостное',
+    oilCooled: 'Масляное',
   },
   zh: {
     logo: 'OUDA',
@@ -462,6 +463,7 @@ const translations = {
     injector: '喷射',
     airCooled: '风冷',
     liquidCooled: '水冷',
+    oilCooled: '油冷',
   },
 }
 

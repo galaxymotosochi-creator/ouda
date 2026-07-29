@@ -102,7 +102,7 @@ export default function ProductCard({ product, onAdd, inCart, cartQtys, onPreord
         <div className="product-specs">
           <span className="spec-label">{t('power')}:</span> <strong>{product.power}</strong>
           <span className="spec-label">{t('fuel')}:</span> <strong>{product.fuel === 'Карбюратор' ? t('carburetor') : product.fuel === 'Инжектор' ? t('injector') : product.fuel}</strong>
-          <span className="spec-label">{t('cooling')}:</span> <strong>{product.cooling === 'Воздушное' ? t('airCooled') : product.cooling === 'Жидкостное' ? t('liquidCooled') : product.cooling}</strong>
+          <span className="spec-label">{t('cooling')}:</span> <strong>{product.cooling === 'Воздушное' ? t('airCooled') : product.cooling === 'Жидкостное' ? t('liquidCooled') : product.cooling === 'Масляное' ? t('oilCooled') : product.cooling}</strong>
           <span className="spec-label">{t('max_speed')}:</span> <strong>{product.max_speed}{!String(product.max_speed).includes('км') ? ' км/ч' : ''}</strong>
           <span className="spec-label">{t('wheels')}:</span> <strong>{product.wheels}</strong>
         </div>
