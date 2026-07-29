@@ -1132,8 +1132,11 @@ export default function Admin() {
                   </td>
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{(s.total||0).toLocaleString('ru-RU')} ₽</td>
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>
-                    {s.prepaid > 0 && <div>{t('prepaid')}: {(s.prepaid||0).toLocaleString('ru-RU')} ₽</div>}
-                    <div style={{color:'#333'}}>К оплате: {((s.total||0) - (s.prepaid||0)).toLocaleString('ru-RU')} ₽</div>
+                    {s.prepaid > 0 && <div style={{color:'#888',fontSize:12}}>Предоплата: {(s.prepaid||0).toLocaleString('ru-RU')} ₽</div>}
+                    {s.paid > 0 && s.paid >= s.total
+                      ? <div style={{color:'#22c55e',fontWeight:600,fontSize:13}}>✅ Оплачено полностью</div>
+                      : <div style={{color:'#333'}}>К оплате: {((s.total||0) - Math.max(s.paid||0, s.prepaid||0)).toLocaleString('ru-RU')} ₽</div>
+                    }
                   </td>
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>{statusShipLabel(s.status)}</td>
                   <td>
@@ -1813,14 +1816,19 @@ export default function Admin() {
                 </div>
                 {invoiceShip.prepaid > 0 && (
                   <div className="invoice-paid">
-                    <span>{t('prepaid')}: </span>
+                    <span>Предоплата: </span>
                     <span>{(invoiceShip.prepaid||0).toLocaleString('ru-RU')} ₽</span>
                   </div>
                 )}
-                <div className="invoice-paid">
-                  <span>К оплате: </span>
-                  <span>{((invoiceShip.total||0) - (invoiceShip.prepaid||0)).toLocaleString('ru-RU')} ₽</span>
-                </div>
+                {invoiceShip.paid > 0 && invoiceShip.paid >= invoiceShip.total
+                  ? <div className="invoice-paid" style={{color:'#22c55e',fontWeight:700}}>
+                      <span>✅ Оплачено полностью</span>
+                    </div>
+                  : <div className="invoice-paid">
+                      <span>К оплате: </span>
+                      <span>{((invoiceShip.total||0) - Math.max(invoiceShip.paid||0, invoiceShip.prepaid||0)).toLocaleString('ru-RU')} ₽</span>
+                    </div>
+                }
                 {invoiceShip.status === 'доставлено' && (
                   <div className="invoice-status-badge">Доставлено</div>
                 )}
