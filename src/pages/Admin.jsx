@@ -1146,7 +1146,7 @@ export default function Admin() {
                   <td style={{padding:'12px 16px',whiteSpace:'nowrap'}}>
                     {s.prepaid > 0 && <div style={{color:'#888',fontSize:12}}>Предоплата: {(s.prepaid||0).toLocaleString('ru-RU')} ₽</div>}
                     {s.paid > 0 && s.paid >= s.total
-                      ? <div style={{color:'#22c55e',fontWeight:600,fontSize:13}}>✅ Оплачено полностью</div>
+                      ? <div style={{color:'#333'}}>Оплачено полностью</div>
                       : <div style={{color:'#333'}}>К оплате: {((s.total||0) - Math.max(s.paid||0, s.prepaid||0)).toLocaleString('ru-RU')} ₽</div>
                     }
                   </td>
@@ -1871,7 +1871,7 @@ export default function Admin() {
                 )}
                 {invoiceShip.paid > 0 && invoiceShip.paid >= invoiceShip.total
                   ? <div className="invoice-paid" style={{color:'#22c55e',fontWeight:700}}>
-                      <span>✅ Оплачено полностью</span>
+                      <span style={{color:'#333'}}>Оплачено полностью</span>
                     </div>
                   : <div className="invoice-paid">
                       <span>К оплате: </span>
