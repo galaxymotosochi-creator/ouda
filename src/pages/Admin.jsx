@@ -728,9 +728,9 @@ export default function Admin() {
                 <label>Мощность</label>
                 <select className="v2-input" value={newProduct.power} onChange={e => setNewProduct({...newProduct, power: e.target.value})}>
                   <option value="">{t('power')}</option>
-                  <option value="125">125</option>
-                  <option value="150">150</option>
-                  <option value="180">180</option>
+                  <option value="125 / 49">125 / 49</option>
+                  <option value="150 / 49">150 / 49</option>
+                  <option value="180 / 49">180 / 49</option>
                   <option value="300">300</option>
                 </select>
               </div>
@@ -1462,9 +1462,9 @@ export default function Admin() {
                     <label>{t('power')}</label>
                     <select className="v2-input" value={editForm.power} onChange={e => setEditForm({...editForm, power: e.target.value})}>
                       <option value="">{t('power')}</option>
-                      <option value="125">125</option>
-                      <option value="150">150</option>
-                      <option value="180">180</option>
+                      <option value="125 / 49">125 / 49</option>
+                      <option value="150 / 49">150 / 49</option>
+                      <option value="180 / 49">180 / 49</option>
                       <option value="300">300</option>
                     </select>
                   </div>
