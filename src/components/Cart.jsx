@@ -172,10 +172,19 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
                   min={new Date().toISOString().slice(0,10)}
                   style={{width:'100%',padding:'10px 14px',border:'1.5px solid #ddd',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}} required />
                 <label style={{fontSize:11,color:'#888',display:'block',marginBottom:4,marginTop:8}}>Время самовывоза</label>
-                <input type="time" value={pickupTime}
-                  onChange={e => setPickupTime(e.target.value)}
-                  min="10:00" max="17:00"
-                  style={{width:'100%',padding:'10px 14px',border:'1.5px solid #ddd',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}} required />
+                <div style={{display:'flex',flexWrap:'wrap',gap:4}}>
+                  {(() => { var slots = []; for (var h = 10; h <= 17; h++) { for (var m = 0; m < 60; m += 30) { if (h === 17 && m > 0) break; var time = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0'); slots.push(time); } } return slots })().map(t => (
+                    <div key={t} onClick={() => setPickupTime(t)}
+                      style={{
+                        padding:'6px 12px', borderRadius:8, fontSize:13, cursor:'pointer',
+                        background: pickupTime === t ? '#1a1a1a' : '#f0f0f0',
+                        color: pickupTime === t ? '#fff' : '#333',
+                        fontWeight: pickupTime === t ? 600 : 400,
+                        transition:'all .15s', userSelect:'none',
+                      }}>{t}</div>
+                  ))}
+                  <input type="hidden" value={pickupTime} required />
+                </div>
               </div>
             )}
             <input type="hidden" value={pickup ? 'Самовывоз (Москва)' : form.transport} />
