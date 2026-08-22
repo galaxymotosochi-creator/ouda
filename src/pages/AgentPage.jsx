@@ -251,9 +251,15 @@ export default function AgentPage() {
                 <div className="agent-tg-ok">Telegram подключён — уведомления приходят автоматически</div>
               ) : (
                 <>
-                  <div className="agent-tg-hint">1. Нажмите «Получить код»</div>
-                  <div className="agent-tg-hint">2. Напишите боту в Telegram: /start {tgCode || 'КОД'}</div>
-                  <button className="agent-btn" onClick={requestTgCode}>{tgCode ? `Код: ${tgCode} (10 мин)` : 'Получить код'}</button>
+                  <div className="agent-tg-hint">Подключите Telegram, чтобы получать уведомления о заказах и клиентах</div>
+                  {tgCode ? (
+                    <a className="agent-btn agent-btn-primary" style={{textDecoration:'none',display:'inline-block'}}
+                      href={`https://t.me/myouda_bot?start=${tgCode}`} target="_blank" rel="noreferrer">
+                      Подключить Telegram
+                    </a>
+                  ) : (
+                    <button className="agent-btn" onClick={requestTgCode}>Получить код</button>
+                  )}
                 </>
               )}
             </div>
