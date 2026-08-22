@@ -843,7 +843,7 @@ export default function Admin() {
           <div style={{overflowX:'auto',borderRadius:'var(--radius)'}}>
           <table className="admin-table" style={{margin:0}}>
             <thead><tr>
-              <th>Агент</th><th>Ссылка</th><th>WhatsApp / Telegram / MAX</th><th>Телефон</th><th>Клики</th><th>Заказы</th><th>Потенц.</th><th>Фактич.</th><th>Клиенты</th><th>Статус</th><th></th>
+              <th>Агент</th><th>Ссылка</th><th>WhatsApp / Telegram / MAX</th><th>Телефон</th><th>Telegram-бот</th><th>Клики</th><th>Заказы</th><th>Потенц.</th><th>Фактич.</th><th>Клиенты</th><th>Статус</th><th></th>
             </tr></thead>
             <tbody>
               {agents.map(a => (
@@ -858,6 +858,7 @@ export default function Admin() {
                     {a.max_link ? <a href={a.max_link} target="_blank" style={{color:'#667eea'}}>MAX</a> : <span style={{color:'#ccc'}}>MAX</span>}
                   </td>
                   <td>{a.phone || '—'}</td>
+                  <td>{a.tg_chat_id ? <span style={{color:'#16a34a',fontSize:12}}>подключён</span> : <span style={{color:'#999',fontSize:12}}>нет</span>}</td>
                   <td>{a.stats ? a.stats.clicks : 0}</td>
                   <td>{a.stats ? a.stats.orders : 0}</td>
                   <td>{a.stats ? Number(a.stats.potential).toLocaleString('ru-RU') : 0} ₽</td>
@@ -877,7 +878,7 @@ export default function Admin() {
                   </td>
                 </tr>
               ))}
-              {agents.length===0 && <tr><td colSpan={11} style={{textAlign:'center',color:'#666',padding:40}}>Агентов пока нет — нажмите «Добавить агента»</td></tr>}
+              {agents.length===0 && <tr><td colSpan={12} style={{textAlign:'center',color:'#666',padding:40}}>Агентов пока нет — нажмите «Добавить агента»</td></tr>}
             </tbody>
           </table>
           </div>
