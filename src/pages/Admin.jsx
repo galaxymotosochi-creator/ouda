@@ -28,7 +28,8 @@ export default function Admin() {
   const navigate = useNavigate()
   const role = sessionStorage.getItem('ouda_admin') || ''
   const isSupplier = role === 'supplier'
-  const defaultTab = isSupplier ? 'stock' : 'orders'
+  const isManager = role === 'manager'
+  const defaultTab = isSupplier ? 'stock' : (isManager ? 'agents' : 'orders')
   const [tab, setTab] = useState(defaultTab)
   const [orders, setOrders] = useState([])
   const [products, setProducts] = useState([])
@@ -36,6 +37,8 @@ export default function Admin() {
   const [shipments, setShipments] = useState([])
   const [preorders, setPreorders] = useState([])
   const [writeoffs, setWriteoffs] = useState([])
+  const [agents, setAgents] = useState([])
+  const [agentClients, setAgentClients] = useState([])
   const [writeoffForm, setWriteoffForm] = useState({ items: [{ product_id: '', product_name: '', colors: {} }], reason: 'sale', comment: '', client_name: '', client_phone: '+7', price: '' })
   const [deleteStockItem, setDeleteStockItem] = useState(null)
 
@@ -195,6 +198,10 @@ export default function Admin() {
     fetch(`${API}/api/stock/details`).then(r => r.json()).then(setInventory).catch(() => {})
     fetch(`${API}/api/preorders`).then(r => r.json()).then(setPreorders).catch(() => {})
     fetch(`${API}/api/writeoffs`).then(r => r.json()).then(setWriteoffs).catch(() => {})
+    if (role === 'admin' || role === 'manager') {
+      fetch(`${API}/api/agents`, { headers: { 'X-Admin-Role': role } }).then(r => r.ok ? r.json() : []).then(setAgents).catch(() => {})
+      fetch(`${API}/api/clients`, { headers: { 'X-Admin-Role': role } }).then(r => r.ok ? r.json() : []).then(setAgentClients).catch(() => {})
+    }
   }
 
   const updateStatus = (id, status) => {
@@ -654,9 +661,122 @@ export default function Admin() {
     setTimeout(loadData, 300)
   }
 
-  const statusLabel = (s) => { const map = { new: t('new'), accepted: 'В работе', done: t('completed'), cancelled: 'Отменён' }; return map[s] || s }
+  const statusLabel = (s) => { const map = { new: t('new'), accepted: 'В работе', paid: 'Оплачен', shipped: 'Отгружен', done: t('completed'), cancelled: 'Отменён' }; return map[s] || s }
   const statusClass = (s) => { const map = { new: 'status-new', accepted: 'status-accepted', done: 'status-done' }; return map[s] || '' }
   const logout = () => { sessionStorage.removeItem('ouda_admin'); navigate('/login') }
+
+  // === Agents ===
+  const [settings, setSettings] = useState({ retail_reward: 7500, wholesale_reward: 2500 })
+  const [newAgentPassword, setNewAgentPassword] = useState('')
+  const [lastAgentCode, setLastAgentCode] = useState('')
+  const [lastAgentLogin, setLastAgentLogin] = useState('')
+  const [agentForm, setAgentForm] = useState({ id: null, name: '', code: '', max_link: '', tg_link: '', wa_link: '', phone: '' })
+  const [clientModal, setClientModal] = useState(null) // agent
+  const [clientForm, setClientForm] = useState({ name: '', phone: '+7', city: '', note: '' })
+
+  const loadSettings = () => {
+    if (role !== 'admin') return
+    fetch(`${API}/api/settings`, { headers: { 'X-Admin-Role': role } }).then(r => r.ok ? r.json() : null).then(d => { if (d) setSettings(d) }).catch(() => {})
+  }
+
+  useEffect(() => {
+    if (role === 'admin') loadSettings()
+  }, [])
+
+  const openAddAgent = () => {
+    setNewAgentPassword('')
+    setAgentForm({ id: null, name: '', code: '', max_link: '', tg_link: '', wa_link: '', phone: '' })
+  }
+
+  const openEditAgent = (a) => {
+    setNewAgentPassword('')
+    setAgentForm({ id: a.id, name: a.name || '', code: a.code || '', max_link: a.max_link || '', tg_link: a.tg_link || '', wa_link: a.wa_link || '', phone: a.phone || '' })
+  }
+
+  const saveAgent = async () => {
+    if (!agentForm.name) { alert('Укажите имя агента'); return }
+    try {
+      const isNew = !agentForm.id
+      const r = await fetch(`${API}/api/agents`, {
+        method: isNew ? 'POST' : 'PATCH',
+        headers: { 'X-Admin-Role': role, 'Content-Type': 'application/json' },
+        body: JSON.stringify(agentForm),
+      })
+      if (!r.ok) { const d = await r.json().catch(() => ({})); alert(d.error || 'Ошибка сохранения'); return }
+      const d = await r.json()
+      if (isNew) {
+        setNewAgentPassword(d.password_plain || '')
+        setLastAgentCode(d.code)
+        setLastAgentLogin(d.login)
+      }
+      setAgentForm({ id: null, name: '', code: '', max_link: '', tg_link: '', wa_link: '', phone: '' })
+      loadData()
+    } catch (e) { alert('Ошибка: ' + e.message) }
+  }
+
+  const updateAgent = async (id, patch) => {
+    await fetch(`${API}/api/agents/${id}`, {
+      method: 'PATCH',
+      headers: { 'X-Admin-Role': role, 'Content-Type': 'application/json' },
+      body: JSON.stringify(patch),
+    }).catch(() => {})
+    loadData()
+  }
+
+  const resetAgentPassword = async (a) => {
+    if (!confirm(`Сбросить пароль агента ${a.name}?`)) return
+    const r = await fetch(`${API}/api/agents/${a.id}/reset-password`, {
+      method: 'POST',
+      headers: { 'X-Admin-Role': role },
+    }).then(r => r.json()).catch(() => ({}))
+    if (r.password_plain) {
+      const text = `Новый пароль для ${a.name}: ${r.password_plain}. Вход: https://ouda.ru/agent`
+      navigator.clipboard.writeText(text).catch(() => {})
+      alert('Новый пароль: ' + r.password_plain + ' (скопирован в буфер)')
+    }
+  }
+
+  const sendAgentData = (a) => {
+    const text = `Здравствуйте, ${a.name}! Ваша ссылка: https://ouda.ru/?ref=${a.code} | Вход для агентов: https://ouda.ru/agent | Логин: ${a.login} | Пароль: ${a.password}`
+    const waMatch = (a.wa_link || '').match(/wa\.me\/([0-9]+)/)
+    if (waMatch) {
+      window.open('https://wa.me/' + waMatch[1] + '?text=' + encodeURIComponent(text), '_blank')
+    } else if (a.tg_link) {
+      window.open(a.tg_link, '_blank')
+      navigator.clipboard.writeText(text).catch(() => {})
+      alert('Откройте чат и вставьте сообщение (скопировано)')
+    } else {
+      navigator.clipboard.writeText(text).catch(() => {})
+      alert('Ссылка на мессенджер не указана. Сообщение скопировано в буфер.')
+    }
+  }
+
+  const openClientModal = (a) => {
+    setClientModal(a)
+    setClientForm({ name: '', phone: '+7', city: '', note: '' })
+  }
+
+  const addAgentClient = async (e) => {
+    e.preventDefault()
+    if (!clientModal || !clientForm.name) return
+    await fetch(`${API}/api/agents/${clientModal.id}/clients`, {
+      method: 'POST',
+      headers: { 'X-Admin-Role': role, 'Content-Type': 'application/json' },
+      body: JSON.stringify(clientForm),
+    }).catch(() => {})
+    setClientModal(null)
+    loadData()
+  }
+
+  const saveSettings = async () => {
+    await fetch(`${API}/api/settings`, {
+      method: 'PATCH',
+      headers: { 'X-Admin-Role': role, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ retail_reward: Number(settings.retail_reward) || 0, wholesale_reward: Number(settings.wholesale_reward) || 0 }),
+    }).catch(() => {})
+    alert('Ставки сохранены')
+    loadData()
+  }
 
   if (!sessionStorage.getItem('ouda_admin')) return null
 
@@ -675,6 +795,7 @@ export default function Admin() {
       <div className="admin-content">
         <div className="admin-tabs">
           {[
+            { key: 'agents', label: `Агенты (${agents.length})`, role: 'admin' },
             { key: 'products', label: `${t('products')} (${products.length})`, role: 'admin' },
             { key: 'stock', label: `${t('stock')}`, role: 'all' },
             { key: 'inventory', label: t('inventory'), role: 'all' },
@@ -682,13 +803,114 @@ export default function Admin() {
             { key: 'shipments', label: `${t('shipments')} (${shipments.length})`, role: 'admin' },
             { key: 'preorders', label: `${t('preordersTab')} (${preorders.length})`, role: 'admin' },
             { key: 'writeoffs', label: `${t('writeoffsTab')} (${writeoffs.length})`, role: 'all' },
-          ].filter(tabItem => tabItem.role === 'all' || (tabItem.role === 'admin' && !isSupplier)).map(tabItem => (
+          ].filter(tabItem => isManager ? tabItem.key === 'agents' : (tabItem.role === 'all' || (tabItem.role === 'admin' && !isSupplier))).map(tabItem => (
             <button key={tabItem.key} className={`admin-tab ${tab === tabItem.key ? 'active' : ''}`}
               onClick={() => setTab(tabItem.key)}>{tabItem.label}</button>
           ))}
         </div>
 
+        {/* === AGENTS TAB === */}
+        {tab === 'agents' && (<>
+          <div className="v2-products-section">
+
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16,flexWrap:'wrap',gap:8}}>
+            <button onClick={openAddAgent} style={{background:'linear-gradient(135deg,#667eea,#764ba2)',color:'#fff',padding:'10px 24px',borderRadius:12,fontSize:13,fontWeight:500,border:'none',cursor:'pointer'}}>Добавить агента</button>
+            {!isManager && (
+              <div style={{display:'flex',alignItems:'center',gap:8,background:'#fff',borderRadius:12,padding:'8px 14px',boxShadow:'0 1px 3px rgba(0,0,0,.06)'}}>
+                <span style={{fontSize:12,color:'#777'}}>Ставки:</span>
+                <span style={{fontSize:13}}>розница</span>
+                <input type="number" className="v2-input" style={{width:80,padding:'6px 10px'}} value={settings.retail_reward} onChange={e => setSettings({...settings, retail_reward: e.target.value})} />
+                <span style={{fontSize:13}}>опт</span>
+                <input type="number" className="v2-input" style={{width:80,padding:'6px 10px'}} value={settings.wholesale_reward} onChange={e => setSettings({...settings, wholesale_reward: e.target.value})} />
+                <button onClick={saveSettings} style={{background:'#1a1a1a',color:'#fff',padding:'7px 16px',borderRadius:8,fontSize:12,border:'none',cursor:'pointer'}}>Сохранить</button>
+              </div>
+            )}
+          </div>
+
+          {newAgentPassword && (
+            <div style={{background:'#f0fdf4',border:'1px solid #bbf7d0',borderRadius:12,padding:'14px 18px',marginBottom:16,fontSize:13,color:'#065f46'}}>
+              Агент создан. Передайте ему доступ:<br/>
+              <strong>Ссылка:</strong> https://ouda.ru/?ref={lastAgentCode}<br/>
+              <strong>Вход:</strong> https://ouda.ru/agent &nbsp;|&nbsp; <strong>Логин:</strong> {lastAgentLogin} &nbsp;|&nbsp; <strong>Пароль:</strong> {newAgentPassword}
+            </div>
+          )}
+
+          <div className="v2-card" style={{overflow:'hidden',padding:0}}>
+          <div style={{overflowX:'auto',borderRadius:'var(--radius)'}}>
+          <table className="admin-table" style={{margin:0}}>
+            <thead><tr>
+              <th>Агент</th><th>Ссылка</th><th>WhatsApp / Telegram / MAX</th><th>Телефон</th><th>Клики</th><th>Заказы</th><th>Потенц.</th><th>Фактич.</th><th>Клиенты</th><th>Статус</th><th></th>
+            </tr></thead>
+            <tbody>
+              {agents.map(a => (
+                <tr key={a.id} style={{borderTop:'1px solid #f0f2ff'}}>
+                  <td style={{fontWeight:500}}>{a.name}<div style={{fontSize:11,color:'#888',fontWeight:400}}>логин: {a.login}</div></td>
+                  <td style={{whiteSpace:'nowrap'}}><code style={{fontSize:12,background:'#f4f4f6',padding:'3px 8px',borderRadius:6}}>ouda.ru/?ref={a.code}</code></td>
+                  <td style={{fontSize:12,whiteSpace:'nowrap'}}>
+                    {a.wa_link ? <a href={a.wa_link} target="_blank" style={{color:'#25D366'}}>WhatsApp</a> : <span style={{color:'#ccc'}}>WhatsApp</span>}
+                    {' · '}
+                    {a.tg_link ? <a href={a.tg_link} target="_blank" style={{color:'#229ED9'}}>Telegram</a> : <span style={{color:'#ccc'}}>Telegram</span>}
+                    {' · '}
+                    {a.max_link ? <a href={a.max_link} target="_blank" style={{color:'#667eea'}}>MAX</a> : <span style={{color:'#ccc'}}>MAX</span>}
+                  </td>
+                  <td>{a.phone || '—'}</td>
+                  <td>{a.stats ? a.stats.clicks : 0}</td>
+                  <td>{a.stats ? a.stats.orders : 0}</td>
+                  <td>{a.stats ? Number(a.stats.potential).toLocaleString('ru-RU') : 0} ₽</td>
+                  <td style={{fontWeight:600}}>{a.stats ? Number(a.stats.actual).toLocaleString('ru-RU') : 0} ₽</td>
+                  <td>{a.stats ? a.stats.clients : 0}</td>
+                  <td>{a.status === 'active' ? <span style={{color:'#16a34a',fontSize:12}}>активен</span> : <span style={{color:'#dc2626',fontSize:12}}>заблокирован</span>}</td>
+                  <td>
+                    <div className="admin-actions" style={{flexDirection:'column',alignItems:'flex-start',gap:4}}>
+                      <button className="admin-btn" onClick={() => openEditAgent(a)}>Редактировать</button>
+                      <button className="admin-btn" onClick={() => openClientModal(a)}>Добавить клиента</button>
+                      <button className="admin-btn" onClick={() => sendAgentData(a)}>Отправить данные</button>
+                      <button className="admin-btn" onClick={() => resetAgentPassword(a)}>Сброс пароля</button>
+                      {a.status === 'active'
+                        ? <button className="admin-btn admin-btn-danger" onClick={() => updateAgent(a.id, {status:'blocked'})}>Заблокировать</button>
+                        : <button className="admin-btn" onClick={() => updateAgent(a.id, {status:'active'})}>Разблокировать</button>}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {agents.length===0 && <tr><td colSpan={11} style={{textAlign:'center',color:'#666',padding:40}}>Агентов пока нет — нажмите «Добавить агента»</td></tr>}
+            </tbody>
+          </table>
+          </div>
+          </div>
+
+          {/* Список клиентов CRM */}
+          <div style={{marginTop:24}}>
+            <div className="v2-st">Клиенты агентов (CRM)</div>
+            <div className="v2-card" style={{overflow:'hidden',padding:0}}>
+            <div style={{overflowX:'auto'}}>
+            <table className="admin-table" style={{margin:0}}>
+              <thead><tr><th>Клиент</th><th>Телефон</th><th>Город</th><th>Агент</th><th>Источник</th><th>Статус</th><th>Заметка</th><th>Дата</th></tr></thead>
+              <tbody>
+                {agentClients.map(c => (
+                  <tr key={c.id}>
+                    <td>{c.name}</td>
+                    <td>{c.phone}</td>
+                    <td>{c.city || '—'}</td>
+                    <td>{c.agent_name}</td>
+                    <td>{c.source === 'site' ? 'С сайта' : 'Свой'}</td>
+                    <td>{{new:'Новый',talk:'В переговорах',order:'Заказ',sold:'Продано',lost:'Отказ'}[c.status] || c.status}</td>
+                    <td style={{whiteSpace:'normal',wordBreak:'break-word'}}>{c.note || '—'}</td>
+                    <td>{formatDate(c.created_at)}</td>
+                  </tr>
+                ))}
+                {agentClients.length===0 && <tr><td colSpan={8} style={{textAlign:'center',color:'#666',padding:40}}>Клиентов пока нет</td></tr>}
+              </tbody>
+            </table>
+            </div>
+            </div>
+          </div>
+
+          </div>
+        </>)}
+
         {/* === PRODUCTS TAB === */}
+
                 {tab === 'products' && (<>
           <div className="v2-products-section">
 
@@ -1071,14 +1293,14 @@ export default function Admin() {
           <div style={{overflowX:'auto',borderRadius:'var(--radius)'}}>
           <table className="admin-table" style={{margin:0}}>
             <thead><tr>
-              <th>№</th><th>{t('date')}</th><th>Имя</th><th>{t('city')}</th><th>Терминал / ТК</th><th>Доставка</th><th>Дата самовывоза</th><th>Номер телефона</th>
+              <th>№</th><th>{t('date')}</th><th>Имя</th><th>{t('city')}</th><th>Терминал / ТК</th><th>Доставка</th><th>Дата самовывоза</th><th>Номер телефона</th><th>Агент</th>
               <th>{t('products')}</th><th>{t('total')}</th><th>{t('payment')}</th><th>{t('status')}</th><th></th>
             </tr></thead>
             <tbody>
               {[...orders].sort((a, b) => {
-                const priority = { 'new': 0, 'accepted': 1, 'done': 2, 'cancelled': 3 }
-                const pa = priority[a.status] ?? 2
-                const pb = priority[b.status] ?? 2
+                const priority = { 'new': 0, 'accepted': 1, 'paid': 2, 'shipped': 3, 'done': 4, 'cancelled': 5 }
+                const pa = priority[a.status] ?? 4
+                const pb = priority[b.status] ?? 4
                 if (pa !== pb) return pa - pb
                 // Внутри одной группы — новые сверху
                 return new Date(b.created_at) - new Date(a.created_at)
@@ -1092,6 +1314,7 @@ export default function Admin() {
                   <td>{o.delivery_cost ? Number(o.delivery_cost).toLocaleString('ru-RU') + ' ₽' : '—'}</td>
                   <td>{o.pickup_date || '—'}{o.pickup_time ? ' ' + o.pickup_time : ''}</td>
                   <td>{o.phone}</td>
+                  <td>{(agents.find(a => a.id === o.agent_id) || {}).name || '—'}</td>
                   <td style={{minWidth:280,whiteSpace:'normal',wordBreak:'break-word'}}>
                     {o.items?.map(item => `${item.name} ×${item.qty}${item.color ? ' ('+item.color+')' : ''}`).join(', ')||'—'}
                     {o.assembly ? <div style={{fontSize:11,color:'#888',marginTop:4}}>🔧 Сборка: {o.assembly}{o.assembly_total > 0 ? ` (+${Number(o.assembly_total).toLocaleString('ru-RU')} ₽)` : ''}</div> : ''}
@@ -1102,13 +1325,16 @@ export default function Admin() {
                   <td>
                     <div className="admin-actions">
                       {o.status==='new' && <><button className="admin-btn admin-btn-accept" onClick={() => updateStatus(o.id,'accepted')}>{t('takeToWork')}</button><button className="admin-btn admin-btn-danger" onClick={() => updateStatus(o.id,'cancelled')}>{t('cancel')}</button></>}
+                      {['new','accepted'].includes(o.status) && <button className="admin-btn" onClick={() => updateStatus(o.id,'paid')}>Оплачен</button>}
+                      {o.status==='paid' && <button className="admin-btn admin-btn-ship" onClick={() => updateStatus(o.id,'shipped')} style={{background:"linear-gradient(135deg,#667eea,#764ba2)",color:"#fff",padding:"5px 12px",borderRadius:8,fontSize:13,border:"none",cursor:"pointer",fontWeight:500}}>Отгружен</button>}
+                      {o.status==='shipped' && <button className="admin-btn admin-btn-done" onClick={() => updateStatus(o.id,'done')}>Завершён</button>}
                       {o.status==='accepted' && <button className="admin-btn admin-btn-ship" onClick={() => openShipFromOrder(o, i+1)} style={{background:"linear-gradient(135deg,#667eea,#764ba2)",color:"#fff",padding:"5px 12px",borderRadius:8,fontSize:13,border:"none",cursor:"pointer",fontWeight:500}}>{t('ship')}</button>}
                       <button className="admin-btn admin-btn-invoice" onClick={() => showOrderInvoice(o, i+1)} style={{background:"none",color:"#667eea",padding:"5px 10px",borderRadius:8,fontSize:12,border:"1px solid #667eea",cursor:"pointer"}}>{t('invoice')}</button>
                     </div>
                   </td>
                 </tr>
               ))}
-              {orders.length===0 && <tr><td colSpan={13} style={{textAlign:'center',color:'#666',padding:40}}>{t('noOrders')}</td></tr>}
+              {orders.length===0 && <tr><td colSpan={14} style={{textAlign:'center',color:'#666',padding:40}}>{t('noOrders')}</td></tr>}
             </tbody>
           </table>
           </div>
@@ -1888,6 +2114,47 @@ export default function Admin() {
                 <p>OUDA — интернет-магазин скутеров</p>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Модалка: форма агента */}
+      {(agentForm.id !== null || agentForm.name !== '' || agentForm.code !== '' || agentForm.max_link !== '' || agentForm.tg_link !== '' || agentForm.wa_link !== '' || agentForm.phone !== '') && (
+        <div className="modal-overlay" onClick={openAddAgent}>
+          <div className="modal-box" style={{maxWidth:480}} onClick={e => e.stopPropagation()}>
+            <h3 style={{marginBottom:16}}>{agentForm.id ? 'Редактировать агента' : 'Новый агент'}</h3>
+            <div style={{display:'flex',flexDirection:'column',gap:10}}>
+              <input className="v2-input" placeholder="Имя *" value={agentForm.name} onChange={e => setAgentForm({...agentForm, name: e.target.value})} />
+              <input className="v2-input" placeholder="Код ссылки (например: sergey)" value={agentForm.code} onChange={e => setAgentForm({...agentForm, code: e.target.value})} />
+              <input className="v2-input" placeholder="WhatsApp ссылка (https://wa.me/...)" value={agentForm.wa_link} onChange={e => setAgentForm({...agentForm, wa_link: e.target.value})} />
+              <input className="v2-input" placeholder="Telegram ссылка (https://t.me/...)" value={agentForm.tg_link} onChange={e => setAgentForm({...agentForm, tg_link: e.target.value})} />
+              <input className="v2-input" placeholder="MAX ссылка (https://max.ru/u/...)" value={agentForm.max_link} onChange={e => setAgentForm({...agentForm, max_link: e.target.value})} />
+              <input className="v2-input" placeholder="Телефон (необязательно)" value={agentForm.phone} onChange={e => setAgentForm({...agentForm, phone: e.target.value})} />
+              <div style={{fontSize:11,color:'#888'}}>Пустые мессенджеры скрываются на сайте для клиентов агента.</div>
+            </div>
+            <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginTop:16}}>
+              <button className="color-modal-cancel" onClick={openAddAgent}>Отмена</button>
+              <button className="product-add" onClick={saveAgent}>{agentForm.id ? 'Сохранить' : 'Создать'}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Модалка: добавить клиента агенту */}
+      {clientModal && (
+        <div className="modal-overlay" onClick={() => setClientModal(null)}>
+          <div className="modal-box" style={{maxWidth:440}} onClick={e => e.stopPropagation()}>
+            <h3 style={{marginBottom:16}}>Новый клиент для агента {clientModal.name}</h3>
+            <form onSubmit={addAgentClient} style={{display:'flex',flexDirection:'column',gap:10}}>
+              <input className="v2-input" placeholder="Имя *" value={clientForm.name} onChange={e => setClientForm({...clientForm, name: e.target.value})} required />
+              <input className="v2-input" placeholder="Телефон" value={clientForm.phone} onChange={e => setClientForm({...clientForm, phone: e.target.value})} />
+              <input className="v2-input" placeholder="Город" value={clientForm.city} onChange={e => setClientForm({...clientForm, city: e.target.value})} />
+              <input className="v2-input" placeholder="Заметка" value={clientForm.note} onChange={e => setClientForm({...clientForm, note: e.target.value})} />
+              <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginTop:8}}>
+                <button type="button" className="color-modal-cancel" onClick={() => setClientModal(null)}>Отмена</button>
+                <button type="submit" className="product-add">Добавить</button>
+              </div>
+            </form>
           </div>
         </div>
       )}

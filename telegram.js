@@ -35,4 +35,28 @@ async function sendTelegram(text) {
   }
 }
 
-module.exports = { sendTelegram };
+// Отправка конкретному chat_id (для агентов)
+async function sendTelegramTo(chatId, text) {
+  if (!chatId) return false
+  try {
+    const res = await tgApi('sendMessage', { chat_id: chatId, text: String(text).slice(0, 4000), parse_mode: 'HTML' })
+    return !!(res && res.ok)
+  } catch (e) {
+    console.error('Telegram send error:', e.message)
+    return false
+  }
+}
+
+// getUpdates — для привязки агентов (/start <код>)
+async function getUpdates(offset) {
+  try {
+    const res = await tgApi('getUpdates', { offset: offset || 0, timeout: 5 })
+    return (res && res.ok && Array.isArray(res.result)) ? res.result : []
+  } catch (e) {
+    console.error('Telegram getUpdates error:', e.message)
+    return []
+  }
+}
+
+module.exports = { sendTelegram, sendTelegramTo, getUpdates };
+module.exports.CHAT_ID = CHAT_ID;

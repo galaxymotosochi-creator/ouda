@@ -3,6 +3,7 @@ import { LangProvider } from './i18n'
 import Catalog from './pages/Catalog'
 import Admin from './pages/Admin'
 import Login from './pages/Login'
+import AgentPage from './pages/AgentPage'
 
 export default function App() {
   return (
@@ -11,6 +12,7 @@ export default function App() {
         <Route path="/" element={<Catalog />} />
         <Route path="/login" element={<Login />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/agent" element={<AgentPage />} />
       </Routes>
     </LangProvider>
   )

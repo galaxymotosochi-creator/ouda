@@ -34,6 +34,7 @@ const translations = {
     pickupLabel: 'Самовывоз г. Москва',
     // Toast
     successMsg: 'Спасибо! Заказ отправлен, мы свяжемся с вами',
+    agentEntry: 'Вход для агентов',
     bottomCatalog: 'Каталог',
     bottomCart: 'Корзина',
     bottomFaq: 'Вопросы',
@@ -264,6 +265,7 @@ const translations = {
     submit: '下订单',
     sending: '发送中...',
     successMsg: '谢谢！订单已发送，我们会与您联系',
+    agentEntry: 'Вход для агентов',
     pickupLabel: '自提 莫斯科',
     color: '颜色',
     power: '功率',

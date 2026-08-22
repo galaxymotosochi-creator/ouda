@@ -1,7 +1,17 @@
 import { useLang } from '../i18n'
 
+const DEFAULT_MAX = 'https://max.ru/u/f9LHodD0cOKl_rlTV9a9EsXejDlc-Be7NLdhMcpCfu16AH6yJIUX5j9q9SM'
+const DEFAULT_TG = 'https://t.me/iuliiashimanskaia'
+
+function getCookie(name) {
+  const m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'))
+  return m ? decodeURIComponent(m[1]) : ''
+}
+
 export default function BottomNav({ onCartClick }) {
   const { t } = useLang()
+  const agentRef = getCookie('ouda_ref')
+  const isAgent = !!agentRef
   return (
     <nav className="bottom-nav">
       <div className="bottom-nav-inner">
@@ -24,20 +34,23 @@ export default function BottomNav({ onCartClick }) {
           <span className="bottom-nav-label">{t('bottomCart')}</span>
         </button>
         <span className="bottom-nav-sep">|</span>
-        <a href="https://max.ru/u/f9LHodD0cOKl_rlTV9a9EsXejDlc-Be7NLdhMcpCfu16AH6yJIUX5j9q9SM" target="_blank" className="bottom-nav-item">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-          </svg>
-          <span className="bottom-nav-label">{t('contactManager')}</span>
-        </a>
-        <span className="bottom-nav-sep">|</span>
-        <a href="https://t.me/iuliiashimanskaia" target="_blank" className="bottom-nav-item">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="22 2 11 13" />
-            <path d="M22 2l-7 20-4-9-9-4 20-7z" />
-          </svg>
-          <span className="bottom-nav-label">{t('contactTelegram')}</span>
-        </a>
+        {!isAgent && (
+          <a href={DEFAULT_MAX} target="_blank" className="bottom-nav-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+            <span className="bottom-nav-label">{t('contactManager')}</span>
+          </a>
+        )}
+        {isAgent && (
+          <a href={DEFAULT_TG} target="_blank" className="bottom-nav-item" onClick={() => fetch(`${import.meta.env.VITE_API_URL || ''}/api/clicks`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ref: agentRef, type: 'tg' }) }).catch(() => {})}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="22 2 11 13" />
+              <path d="M22 2l-7 20-4-9-9-4 20-7z" />
+            </svg>
+            <span className="bottom-nav-label">{t('contactTelegram')}</span>
+          </a>
+        )}
         <span className="bottom-nav-sep">|</span>
         <a href="#faq" className="bottom-nav-item">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

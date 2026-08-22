@@ -4,6 +4,7 @@ const fs = require('fs')
 const path = require('path')
 const multer = require('multer')
 const sharp = require('sharp')
+const { sendTelegram, sendTelegramTo, getUpdates } = require('./telegram')
 const app = express()
 
 app.use(cors())
@@ -67,6 +68,14 @@ let shipmentCounter = loadData('shipmentCounter', 0)
 let preorders = loadData('preorders', [])
 let writeoffs = loadData('writeoffs', [])
 
+// === Agent system data ===
+let agents = loadData('agents', [])
+let clients = loadData('clients', [])
+let clicks = loadData('clicks', [])
+let notifications = loadData('notifications', [])
+let tasks = loadData('tasks', [])
+let settings = loadData('settings', { retail_reward: 7500, wholesale_reward: 2500 })
+
 function saveAll() {
   saveData('products', products)
   saveData('orders', orders)
@@ -76,6 +85,12 @@ function saveAll() {
   saveData('writeoffs', writeoffs)
   saveData('nextId', nextId)
   saveData('shipmentCounter', shipmentCounter)
+  saveData('agents', agents)
+  saveData('clients', clients)
+  saveData('clicks', clicks)
+  saveData('notifications', notifications)
+  saveData('tasks', tasks)
+  saveData('settings', settings)
 }
 
 // === Stock computation ===
@@ -181,16 +196,63 @@ app.patch('/api/products/:id', (req, res) => {
 app.get('/api/orders', (req, res) => res.json(orders))
 app.post('/api/orders', (req, res) => {
   const o = { id: nextId++, ...req.body, status: 'new', created_at: new Date().toISOString() }
+  // Привязка агента по ref (из cookie/ссылки)
+  if (req.body.agent_ref) {
+    const agent = agents.find(a => a.code === req.body.agent_ref && a.status !== 'blocked')
+    if (agent) {
+      o.agent_id = agent.id
+      o.agent_ref = agent.code
+      // Авто-карточка клиента в CRM агента
+      const client = {
+        id: nextId++,
+        agent_id: agent.id,
+        name: req.body.name || '',
+        phone: req.body.phone || '',
+        city: req.body.city || '',
+        source: 'site',
+        status: 'order',
+        note: 'Заказ с сайта',
+        order_id: o.id,
+        created_at: new Date().toISOString(),
+      }
+      clients.unshift(client)
+      // Уведомление агенту
+      const totalQty = (o.items || []).reduce((s, i) => s + (i.qty || 0), 0)
+      const type = totalQty >= 3 ? 'опт' : 'розница'
+      const reward = totalQty >= 3 ? (settings.wholesale_reward || 2500) : (settings.retail_reward || 7500)
+      notifyAgent(agent, `Новый заказ ${o.id ? '' : ''}${formatOrderNumber(o)} | ${o.name || ''} | ${o.phone || ''} | ${(o.total || 0).toLocaleString('ru-RU')} ₽ | ${type} (+${reward} ₽)`)
+    }
+  }
   orders.unshift(o)
   saveAll()
   res.json(o)
 })
 app.patch('/api/orders/:id', (req, res) => {
   const o = orders.find(o => o.id == req.params.id)
-  if (o) Object.assign(o, req.body)
+  if (!o) return res.status(404).json({ error: 'not found' })
+  const prevStatus = o.status
+  Object.assign(o, req.body)
+  // Заработок агента: при статусе «отгружен» — фактический (уведомление)
+  if (o.agent_id && req.body.status && req.body.status !== prevStatus) {
+    const agent = agents.find(a => a.id === o.agent_id)
+    if (agent && req.body.status === 'shipped') {
+      const totalQty = (o.items || []).reduce((s, i) => s + (i.qty || 0), 0)
+      const reward = totalQty >= 3 ? (settings.wholesale_reward || 2500) : (settings.retail_reward || 7500)
+      notifyAgent(agent, `Заказ отгружен | ${o.name || ''} | +${reward} ₽ фактический заработок`)
+    } else if (agent && req.body.status === 'cancelled') {
+      notifyAgent(agent, `Заказ отменён | ${o.name || ''} | ${(o.total || 0).toLocaleString('ru-RU')} ₽`)
+    } else if (agent && req.body.status === 'paid') {
+      notifyAgent(agent, `Заказ оплачен | ${o.name || ''} | ${(o.total || 0).toLocaleString('ru-RU')} ₽`)
+    }
+  }
   saveAll()
   res.json(o || { error: 'not found' })
 })
+
+function formatOrderNumber(o) {
+  if (o.number) return o.number
+  return 'OUDA-' + String(o.id).padStart(3, '0')
+}
 
 // === Stock ===
 app.get('/api/stock', (req, res) => res.json(stock))
@@ -488,3 +550,353 @@ app.get('/api/stock/details', (req, res) => {
   })
   res.json(details)
 })
+
+// === Agent system ===
+
+// Вспомогательные
+function genPassword() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789'
+  let s = ''
+  for (let i = 0; i < 8; i++) s += chars[Math.floor(Math.random() * chars.length)]
+  return s
+}
+function genCode(seed) {
+  let base = (seed || '').toLowerCase().replace(/[^a-z0-9]/g, '') || 'agent'
+  let code = base
+  let n = 2
+  while (agents.some(a => a.code === code)) { code = base + n; n++ }
+  return code
+}
+function genTgCode() { return String(Math.floor(100000 + Math.random() * 900000)) }
+
+function rewardForOrder(o) {
+  const totalQty = (o.items || []).reduce((s, i) => s + (i.qty || 0), 0)
+  return {
+    qty: totalQty,
+    type: totalQty >= 3 ? 'wholesale' : 'retail',
+    amount: totalQty >= 3 ? (settings.wholesale_reward || 2500) : (settings.retail_reward || 7500),
+  }
+}
+
+function notifyAgent(agent, text) {
+  if (!agent) return
+  const n = { id: nextId++, agent_id: agent.id, text, read: false, created_at: new Date().toISOString() }
+  notifications.unshift(n)
+  saveAll()
+  if (agent.tg_chat_id) {
+    sendTelegramTo(agent.tg_chat_id, text).then(ok => {
+      if (ok) { n.tg_sent = true; saveAll() }
+    })
+  }
+  return n
+}
+
+function publicAgent(code) {
+  const a = agents.find(x => x.code === code && x.status !== 'blocked')
+  if (!a) return null
+  return {
+    code: a.code,
+    name: a.name,
+    max_link: a.max_link || '',
+    tg_link: a.tg_link || '',
+    wa_link: a.wa_link || '',
+    phone: a.phone || '',
+  }
+}
+
+// Публичный: данные агента для подмены контактов
+app.get('/api/agent-info', (req, res) => {
+  const info = publicAgent(req.query.ref || '')
+  res.json(info)
+})
+
+// Публичный: клик по контакту (для статистики агента)
+app.post('/api/clicks', (req, res) => {
+  const { ref, type } = req.body
+  const agent = agents.find(a => a.code === ref && a.status !== 'blocked')
+  if (!agent) return res.status(404).json({ error: 'agent not found' })
+  clicks.push({ id: nextId++, agent_id: agent.id, type: type || 'contact', created_at: new Date().toISOString() })
+  saveAll()
+  res.json({ ok: true })
+})
+
+// === Агенты: админ/менеджер ===
+function authRole(req, res, next) {
+  const role = req.headers['x-admin-role']
+  if (!role || (role !== 'admin' && role !== 'manager')) return res.status(401).json({ error: 'auth required' })
+  req.role = role
+  next()
+}
+
+app.get('/api/agents', authRole, (req, res) => {
+  const list = agents.map(a => {
+    const agentOrders = orders.filter(o => o.agent_id === a.id)
+    const agentClicks = clicks.filter(c => c.agent_id === a.id)
+    let potential = 0, actual = 0
+    agentOrders.forEach(o => {
+      const r = rewardForOrder(o)
+      potential += r.amount
+      if (o.status === 'shipped') actual += r.amount
+    })
+    return {
+      ...a,
+      password: undefined,
+      stats: {
+        clicks: agentClicks.length,
+        orders: agentOrders.length,
+        potential,
+        actual,
+        clients: clients.filter(c => c.agent_id === a.id).length,
+      },
+    }
+  })
+  res.json(list)
+})
+
+app.post('/api/agents', authRole, (req, res) => {
+  const b = req.body
+  const login = (b.login || b.code || b.name || '').toLowerCase().replace(/[^a-z0-9]/g, '')
+  if (agents.some(a => a.login === login)) return res.status(400).json({ error: 'login already exists' })
+  const agent = {
+    id: nextId++,
+    name: b.name || '',
+    code: genCode(b.code || login),
+    login: login || genCode('agent'),
+    password: genPassword(),
+    max_link: b.max_link || '',
+    tg_link: b.tg_link || '',
+    wa_link: b.wa_link || '',
+    phone: b.phone || '',
+    status: 'active',
+    tg_chat_id: null,
+    created_at: new Date().toISOString(),
+  }
+  agents.push(agent)
+  saveAll()
+  res.json({ ...agent, password: undefined, password_plain: agent.password })
+})
+
+app.patch('/api/agents/:id', authRole, (req, res) => {
+  const a = agents.find(x => x.id == req.params.id)
+  if (!a) return res.status(404).json({ error: 'not found' })
+  const { name, max_link, tg_link, wa_link, phone, status } = req.body
+  if (name !== undefined) a.name = name
+  if (max_link !== undefined) a.max_link = max_link
+  if (tg_link !== undefined) a.tg_link = tg_link
+  if (wa_link !== undefined) a.wa_link = wa_link
+  if (phone !== undefined) a.phone = phone
+  if (status !== undefined) a.status = status
+  saveAll()
+  res.json({ ...a, password: undefined })
+})
+
+app.post('/api/agents/:id/reset-password', authRole, (req, res) => {
+  const a = agents.find(x => x.id == req.params.id)
+  if (!a) return res.status(404).json({ error: 'not found' })
+  a.password = genPassword()
+  saveAll()
+  res.json({ password_plain: a.password })
+})
+
+// === Кабинет агента ===
+function authAgent(req, res, next) {
+  const token = req.headers['x-agent-token']
+  const a = agents.find(x => x.token === token && x.status !== 'blocked')
+  if (!a) return res.status(401).json({ error: 'auth required' })
+  req.agent = a
+  next()
+}
+
+app.post('/api/agent/login', (req, res) => {
+  const { login, password } = req.body
+  const a = agents.find(x => x.login === (login || '').toLowerCase().trim() && x.password === password)
+  if (!a) return res.status(401).json({ error: 'bad credentials' })
+  if (a.status === 'blocked') return res.status(403).json({ error: 'blocked' })
+  if (!a.token) { a.token = genPassword() + genPassword(); saveAll() }
+  res.json({ token: a.token, agent: { id: a.id, name: a.name, code: a.code, login: a.login } })
+})
+
+app.get('/api/agent/me', authAgent, (req, res) => {
+  const a = req.agent
+  const agentOrders = orders.filter(o => o.agent_id === a.id)
+  const agentClicks = clicks.filter(c => c.agent_id === a.id)
+  let potential = 0, actual = 0
+  const orderStats = { total: agentOrders.length, paid: 0, shipped: 0, cancelled: 0 }
+  agentOrders.forEach(o => {
+    const r = rewardForOrder(o)
+    potential += r.amount
+    if (o.status === 'shipped') { actual += r.amount; orderStats.shipped++ }
+    if (o.status === 'paid') orderStats.paid++
+    if (o.status === 'cancelled') orderStats.cancelled++
+  })
+  res.json({
+    agent: { id: a.id, name: a.name, code: a.code, login: a.login, phone: a.phone || '', max_link: a.max_link || '', tg_link: a.tg_link || '', wa_link: a.wa_link || '' },
+    link: 'https://ouda.ru/?ref=' + a.code,
+    stats: {
+      clicks: agentClicks.length,
+      potential,
+      actual,
+      orders: orderStats,
+      clients: clients.filter(c => c.agent_id === a.id).length,
+    },
+    settings: { retail_reward: settings.retail_reward || 7500, wholesale_reward: settings.wholesale_reward || 2500 },
+    tg_connected: !!a.tg_chat_id,
+  })
+})
+
+app.get('/api/agent/orders', authAgent, (req, res) => {
+  const list = orders.filter(o => o.agent_id === req.agent.id).map(o => ({ ...o, reward: rewardForOrder(o) }))
+  res.json(list)
+})
+
+app.get('/api/agent/clients', authAgent, (req, res) => res.json(clients.filter(c => c.agent_id === req.agent.id)))
+
+app.post('/api/agent/clients', authAgent, (req, res) => {
+  const b = req.body
+  const c = {
+    id: nextId++,
+    agent_id: req.agent.id,
+    name: b.name || '',
+    phone: b.phone || '',
+    city: b.city || '',
+    source: b.source || 'manual',
+    status: b.status || 'new',
+    note: b.note || '',
+    created_at: new Date().toISOString(),
+  }
+  clients.unshift(c)
+  saveAll()
+  res.json(c)
+})
+
+app.patch('/api/agent/clients/:id', authAgent, (req, res) => {
+  const c = clients.find(x => x.id == req.params.id && x.agent_id === req.agent.id)
+  if (!c) return res.status(404).json({ error: 'not found' })
+  Object.assign(c, req.body)
+  saveAll()
+  res.json(c)
+})
+
+app.delete('/api/agent/clients/:id', authAgent, (req, res) => {
+  clients = clients.filter(x => !(x.id == req.params.id && x.agent_id === req.agent.id))
+  saveAll()
+  res.json({ ok: true })
+})
+
+// Задачи/напоминания
+app.get('/api/agent/tasks', authAgent, (req, res) => res.json(tasks.filter(t => t.agent_id === req.agent.id)))
+app.post('/api/agent/tasks', authAgent, (req, res) => {
+  const b = req.body
+  const t = {
+    id: nextId++,
+    agent_id: req.agent.id,
+    client_id: b.client_id || null,
+    text: b.text || '',
+    due_date: b.due_date || '',
+    done: false,
+    created_at: new Date().toISOString(),
+  }
+  tasks.unshift(t)
+  saveAll()
+  res.json(t)
+})
+app.patch('/api/agent/tasks/:id', authAgent, (req, res) => {
+  const t = tasks.find(x => x.id == req.params.id && x.agent_id === req.agent.id)
+  if (!t) return res.status(404).json({ error: 'not found' })
+  Object.assign(t, req.body)
+  saveAll()
+  res.json(t)
+})
+app.delete('/api/agent/tasks/:id', authAgent, (req, res) => {
+  tasks = tasks.filter(x => !(x.id == req.params.id && x.agent_id === req.agent.id))
+  saveAll()
+  res.json({ ok: true })
+})
+
+// Уведомления агента
+app.get('/api/agent/notifications', authAgent, (req, res) => res.json(notifications.filter(n => n.agent_id === req.agent.id)))
+app.post('/api/agent/notifications/read', authAgent, (req, res) => {
+  notifications.forEach(n => { if (n.agent_id === req.agent.id) n.read = true })
+  saveAll()
+  res.json({ ok: true })
+})
+
+// Привязка Telegram: кабинет запрашивает код
+app.post('/api/agent/tg-code', authAgent, (req, res) => {
+  req.agent.tg_code = genTgCode()
+  req.agent.tg_code_expires = Date.now() + 10 * 60 * 1000 // 10 минут
+  saveAll()
+  res.json({ code: req.agent.tg_code })
+})
+
+// MAX/админ: добавить клиента вручную и привязать к агенту
+app.post('/api/agents/:id/clients', authRole, (req, res) => {
+  const a = agents.find(x => x.id == req.params.id)
+  if (!a) return res.status(404).json({ error: 'agent not found' })
+  const b = req.body
+  const c = {
+    id: nextId++,
+    agent_id: a.id,
+    name: b.name || '',
+    phone: b.phone || '',
+    city: b.city || '',
+    source: b.source || 'manual',
+    status: b.status || 'new',
+    note: b.note || '',
+    created_at: new Date().toISOString(),
+  }
+  clients.unshift(c)
+  saveAll()
+  notifyAgent(a, 'Новый клиент (добавил менеджер) | ' + (c.name || '') + ' | ' + (c.phone || ''))
+  res.json(c)
+})
+
+
+// Список всех клиентов CRM (админ/менеджер)
+app.get('/api/clients', authRole, (req, res) => {
+  const list = clients.map(c => ({ ...c, agent_name: (agents.find(a => a.id === c.agent_id) || {}).name || '—' }))
+  res.json(list)
+})
+
+// Настройки ставок (только admin)
+app.get('/api/settings', authRole, (req, res) => {
+  if (req.role !== 'admin') return res.status(403).json({ error: 'admin only' })
+  res.json(settings)
+})
+app.patch('/api/settings', authRole, (req, res) => {
+  if (req.role !== 'admin') return res.status(403).json({ error: 'admin only' })
+  if (req.body.retail_reward !== undefined) settings.retail_reward = Number(req.body.retail_reward) || 0
+  if (req.body.wholesale_reward !== undefined) settings.wholesale_reward = Number(req.body.wholesale_reward) || 0
+  saveAll()
+  res.json(settings)
+})
+
+// === Telegram polling: привязка агентов (/start <код>) ===
+let tgOffset = 0
+setInterval(async () => {
+  try {
+    const updates = await getUpdates(tgOffset)
+    if (!updates || updates.length === 0) return
+    for (const u of updates) {
+      tgOffset = (u.update_id || 0) + 1
+      const msg = u.message || u.edited_message
+      if (!msg || !msg.text || !msg.chat) continue
+      const text = msg.text.trim()
+      if (text.startsWith('/start')) {
+        const code = text.split(/\s+/)[1] || ''
+        if (code) {
+          const a = agents.find(x => x.tg_code === code && x.tg_code_expires && Date.now() < x.tg_code_expires)
+          if (a) {
+            a.tg_chat_id = msg.chat.id
+            a.tg_code = null
+            a.tg_code_expires = null
+            saveAll()
+            sendTelegramTo(a.tg_chat_id, 'Подключено! Теперь вы будете получать уведомления о заказах здесь.')
+          }
+        }
+      }
+    }
+  } catch (e) {
+    console.error('TG polling error:', e.message)
+  }
+}, 5000)

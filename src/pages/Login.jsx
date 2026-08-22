@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-const PASSWORDS = { '8888': 'admin', '7777': 'supplier' }
+const PASSWORDS = { '8888': 'admin', '7777': 'supplier', '6666': 'manager' }
 
 export default function Login() {
   const [pin, setPin] = useState([])

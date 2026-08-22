@@ -11,7 +11,7 @@ function getItemPrice(item, allItems) {
   return Number(item.price) || 0
 }
 
-export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRemove, onAddAnother, api, onSuccess }) {
+export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRemove, onAddAnother, api, onSuccess, agentRef }) {
   const { t } = useLang()
   const [form, setForm] = useState({ name: '', city: '', phone: '+7', transport: '', payment: 'cash' })
   const [sending, setSending] = useState(false)
@@ -49,6 +49,7 @@ export default function Cart({ open, onClose, items, totalSum, onUpdateQty, onRe
       const effectiveTotal = items.reduce((s, i) => s + getItemPrice(i, items) * i.qty, 0) + assemblyTotal
       const orderData = {
         ...form,
+        agent_ref: agentRef || '',
         city: pickup ? 'Москва' : form.city,
         transport: pickup ? 'Самовывоз (Москва)' : form.transport,
         pickup,
