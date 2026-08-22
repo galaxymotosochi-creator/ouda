@@ -2129,7 +2129,7 @@ export default function Admin() {
             <h3 style={{marginBottom:16}}>{agentForm.id ? 'Редактировать агента' : 'Новый агент'}</h3>
             <div style={{display:'flex',flexDirection:'column',gap:10}}>
               <input className="v2-input" placeholder="Имя *" value={agentForm.name} onChange={e => setAgentForm({...agentForm, name: e.target.value})} />
-              <input className="v2-input" placeholder="Код ссылки (например: sergey)" value={agentForm.code} onChange={e => setAgentForm({...agentForm, code: e.target.value})} />
+              <input className="v2-input" placeholder="Код ссылки (можно оставить пустым — создастся сам из имени)" value={agentForm.code} onChange={e => setAgentForm({...agentForm, code: e.target.value})} />
               <input className="v2-input" placeholder="WhatsApp ссылка (https://wa.me/...)" value={agentForm.wa_link} onChange={e => setAgentForm({...agentForm, wa_link: e.target.value})} />
               <input className="v2-input" placeholder="Telegram ссылка (https://t.me/...)" value={agentForm.tg_link} onChange={e => setAgentForm({...agentForm, tg_link: e.target.value})} />
               <input className="v2-input" placeholder="MAX ссылка (https://max.ru/u/...)" value={agentForm.max_link} onChange={e => setAgentForm({...agentForm, max_link: e.target.value})} />

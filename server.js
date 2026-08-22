@@ -560,8 +560,20 @@ function genPassword() {
   for (let i = 0; i < 8; i++) s += chars[Math.floor(Math.random() * chars.length)]
   return s
 }
+function translit(name) {
+  const map = {
+    а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'e',ж:'zh',з:'z',и:'i',й:'y',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'h',ц:'ts',ч:'ch',ш:'sh',щ:'sch',ъ:'',ы:'y',ь:'',э:'e',ю:'yu',я:'ya',
+    А:'a',Б:'b',В:'v',Г:'g',Д:'d',Е:'e',Ё:'e',Ж:'zh',З:'z',И:'i',Й:'y',К:'k',Л:'l',М:'m',Н:'n',О:'o',П:'p',Р:'r',С:'s',Т:'t',У:'u',Ф:'f',Х:'h',Ц:'ts',Ч:'ch',Ш:'sh',Щ:'sch',Ъ:'',Ы:'y',Ь:'',Э:'e',Ю:'yu',Я:'ya'
+  }
+  return String(name || '').split('').map(c => map[c] || (/[a-z0-9]/i.test(c) ? c.toLowerCase() : '')).join('').replace(/[^a-z0-9]/g, '')
+}
 function genCode(seed) {
-  let base = (seed || '').toLowerCase().replace(/[^a-z0-9]/g, '') || 'agent'
+  // Короткий код: из имени (транслит) или случайный, всегда уникальный
+  let base = translit(seed || '').slice(0, 12)
+  if (!base) {
+    const chars = 'abcdefghjkmnpqrstuvwxyz23456789'
+    for (let i = 0; i < 6; i++) base += chars[Math.floor(Math.random() * chars.length)]
+  }
   let code = base
   let n = 2
   while (agents.some(a => a.code === code)) { code = base + n; n++ }
@@ -655,12 +667,15 @@ app.get('/api/agents', authRole, (req, res) => {
 
 app.post('/api/agents', authRole, (req, res) => {
   const b = req.body
-  const login = (b.login || b.code || b.name || '').toLowerCase().replace(/[^a-z0-9]/g, '')
-  if (agents.some(a => a.login === login)) return res.status(400).json({ error: 'login already exists' })
+  const code = genCode(b.code || b.name || '')
+  let login = (b.login || '').toLowerCase().replace(/[^a-z0-9]/g, '') || code
+  let n = 2
+  const baseLogin = login
+  while (agents.some(a => a.login === login)) { login = baseLogin + n; n++ }
   const agent = {
     id: nextId++,
     name: b.name || '',
-    code: genCode(b.code || login),
+    code,
     login: login || genCode('agent'),
     password: genPassword(),
     max_link: b.max_link || '',
