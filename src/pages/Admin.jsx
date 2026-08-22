@@ -671,6 +671,7 @@ export default function Admin() {
   const [lastAgentCode, setLastAgentCode] = useState('')
   const [lastAgentLogin, setLastAgentLogin] = useState('')
   const [agentForm, setAgentForm] = useState({ id: null, name: '', code: '', max_link: '', tg_link: '', wa_link: '', phone: '' })
+  const [agentModalOpen, setAgentModalOpen] = useState(false)
   const [clientModal, setClientModal] = useState(null) // agent
   const [clientForm, setClientForm] = useState({ name: '', phone: '+7', city: '', note: '' })
 
@@ -686,11 +687,13 @@ export default function Admin() {
   const openAddAgent = () => {
     setNewAgentPassword('')
     setAgentForm({ id: null, name: '', code: '', max_link: '', tg_link: '', wa_link: '', phone: '' })
+    setAgentModalOpen(true)
   }
 
   const openEditAgent = (a) => {
     setNewAgentPassword('')
     setAgentForm({ id: a.id, name: a.name || '', code: a.code || '', max_link: a.max_link || '', tg_link: a.tg_link || '', wa_link: a.wa_link || '', phone: a.phone || '' })
+    setAgentModalOpen(true)
   }
 
   const saveAgent = async () => {
@@ -710,6 +713,7 @@ export default function Admin() {
         setLastAgentLogin(d.login)
       }
       setAgentForm({ id: null, name: '', code: '', max_link: '', tg_link: '', wa_link: '', phone: '' })
+      setAgentModalOpen(false)
       loadData()
     } catch (e) { alert('Ошибка: ' + e.message) }
   }
@@ -2119,8 +2123,8 @@ export default function Admin() {
       )}
 
       {/* Модалка: форма агента */}
-      {(agentForm.id !== null || agentForm.name !== '' || agentForm.code !== '' || agentForm.max_link !== '' || agentForm.tg_link !== '' || agentForm.wa_link !== '' || agentForm.phone !== '') && (
-        <div className="modal-overlay" onClick={openAddAgent}>
+      {agentModalOpen && (
+        <div className="modal-overlay" onClick={() => setAgentModalOpen(false)}>
           <div className="modal-box" style={{maxWidth:480}} onClick={e => e.stopPropagation()}>
             <h3 style={{marginBottom:16}}>{agentForm.id ? 'Редактировать агента' : 'Новый агент'}</h3>
             <div style={{display:'flex',flexDirection:'column',gap:10}}>
@@ -2133,7 +2137,7 @@ export default function Admin() {
               <div style={{fontSize:11,color:'#888'}}>Пустые мессенджеры скрываются на сайте для клиентов агента.</div>
             </div>
             <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginTop:16}}>
-              <button className="color-modal-cancel" onClick={openAddAgent}>Отмена</button>
+              <button className="color-modal-cancel" onClick={() => setAgentModalOpen(false)}>Отмена</button>
               <button className="product-add" onClick={saveAgent}>{agentForm.id ? 'Сохранить' : 'Создать'}</button>
             </div>
           </div>
