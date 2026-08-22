@@ -171,7 +171,6 @@ export default function AgentPage() {
             {error && <div className="agent-error">{error}</div>}
             <button className="agent-btn agent-btn-primary" type="submit">Войти</button>
           </form>
-          <a className="agent-back" href="/">На сайт</a>
         </div>
       </div>
     )
