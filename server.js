@@ -690,6 +690,16 @@ app.patch('/api/agents/:id', authRole, (req, res) => {
   res.json({ ...a, password: undefined })
 })
 
+
+app.delete('/api/agents/:id', authRole, (req, res) => {
+  const before = agents.length
+  agents = agents.filter(x => x.id != req.params.id)
+  clients = clients.filter(c => c.agent_id != req.params.id)
+  if (agents.length === before) return res.status(404).json({ error: 'not found' })
+  saveAll()
+  res.json({ ok: true })
+})
+
 app.post('/api/agents/:id/reset-password', authRole, (req, res) => {
   const a = agents.find(x => x.id == req.params.id)
   if (!a) return res.status(404).json({ error: 'not found' })
