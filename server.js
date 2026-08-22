@@ -673,6 +673,7 @@ app.post('/api/agents', authRole, (req, res) => {
   }
   agents.push(agent)
   saveAll()
+  sendTelegram('Новый агент: ' + agent.name + ' | ссылка: https://ouda.ru/?ref=' + agent.code + ' | логин: ' + agent.login)
   res.json({ ...agent, password: undefined, password_plain: agent.password })
 })
 
