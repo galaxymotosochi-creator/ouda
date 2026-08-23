@@ -700,7 +700,7 @@ export default function Admin() {
     if (!agentForm.name) { alert('Укажите имя агента'); return }
     try {
       const isNew = !agentForm.id
-      const r = await fetch(`${API}/api/agents`, {
+      const r = await fetch(`${API}/api/agents${isNew ? '' : '/' + agentForm.id}`, {
         method: isNew ? 'POST' : 'PATCH',
         headers: { 'X-Admin-Role': role, 'Content-Type': 'application/json' },
         body: JSON.stringify(agentForm),

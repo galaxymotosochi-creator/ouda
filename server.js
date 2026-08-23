@@ -745,8 +745,13 @@ app.post('/api/agents', authRole, (req, res) => {
 app.patch('/api/agents/:id', authRole, (req, res) => {
   const a = agents.find(x => x.id == req.params.id)
   if (!a) return res.status(404).json({ error: 'not found' })
-  const { name, max_link, tg_link, wa_link, phone, status } = req.body
+  const { name, code, max_link, tg_link, wa_link, phone, status } = req.body
   if (name !== undefined) a.name = name
+  if (code !== undefined && code !== a.code) {
+    const newCode = genCode(code || name || '')
+    if (agents.some(x => x.id !== a.id && x.code === newCode)) return res.status(400).json({ error: 'Такой код ссылки уже занят другим агентом' })
+    a.code = newCode
+  }
   if (max_link !== undefined) a.max_link = max_link
   if (tg_link !== undefined) a.tg_link = tg_link
   if (wa_link !== undefined) a.wa_link = wa_link
