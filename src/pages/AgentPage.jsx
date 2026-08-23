@@ -428,9 +428,13 @@ export default function AgentPage() {
                           {c.status === 'lost' ? '—' : (c.status === 'prepaid' ? '→ заказ' : ((c.items || []).length ? `+${fmt(clientPot(c.items))} ₽` : '—'))}
                         </td>
                         <td>
-                          <select className="agent-input agent-input-sm" value={c.status} onChange={e => onStatusChange(c, e.target.value)}>
-                            {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-                          </select>
+                          {['new', 'talk', 'prepaid', 'lost'].includes(c.status) ? (
+                            <select className="agent-input agent-input-sm" value={c.status} onChange={e => onStatusChange(c, e.target.value)}>
+                              {Object.entries(STATUS_LABELS).filter(([k]) => ['new', 'talk', 'prepaid', 'lost'].includes(k)).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                            </select>
+                          ) : (
+                            <span style={{ fontSize: 13, color: '#333' }}>{STATUS_LABELS[c.status] || c.status}</span>
+                          )}
                           {c.status === 'prepaid' && c.prepaid_amount > 0 && (
                             <div style={{ fontSize: 11, color: '#16a34a', marginTop: 4, whiteSpace: 'nowrap' }}>Предоплата: {fmt(c.prepaid_amount)} ₽</div>
                           )}
