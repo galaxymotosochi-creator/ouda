@@ -196,17 +196,13 @@ app.patch('/api/products/:id', (req, res) => {
 app.get('/api/orders', (req, res) => res.json(orders))
 app.post('/api/orders', (req, res) => {
   const o = { id: nextId++, ...req.body, status: 'new', created_at: new Date().toISOString() }
-  // Привязка агента: по ref (из cookie/ссылки) или НАВСЕГДА по телефону
+  // Привязка агента: ТОЛЬКО если клиент пришёл по реферальной ссылке (ref из cookie).
+  // Без ссылки (заход на www.ouda.ru напрямую) — заказ компании (без агента).
   const normPhone = (t) => String(t || '').replace(/[^\d]/g, '').replace(/^8(\d{10})$/, '7$1')
   const phone = normPhone(req.body.phone)
   let agent = null
   if (req.body.agent_ref) {
     agent = agents.find(a => a.code === req.body.agent_ref && a.status !== 'blocked')
-  }
-  if (!agent && phone) {
-    // Телефон уже заказывал по ссылке агента — привязываем навсегда
-    const prev = clients.find(c => c.agent_id && normPhone(c.phone) === phone)
-    if (prev) agent = agents.find(a => a.id === prev.agent_id && a.status !== 'blocked')
   }
   if (agent) {
     o.agent_id = agent.id

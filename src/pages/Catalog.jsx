@@ -39,7 +39,8 @@ export default function Catalog() {
     const cookieRef = getCookie('ouda_ref')
     const activeRef = ref || cookieRef
     if (ref) {
-      document.cookie = `ouda_ref=${encodeURIComponent(ref)}; max-age=${60 * 60 * 24 * 90}; path=/`
+      // 10 лет — клиент, перешедший по ссылке агента, остаётся его навсегда
+      document.cookie = `ouda_ref=${encodeURIComponent(ref)}; max-age=${60 * 60 * 24 * 3650}; path=/`
     }
     if (activeRef) {
       setAgentLoading(true)
