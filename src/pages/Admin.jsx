@@ -673,7 +673,7 @@ export default function Admin() {
   const [agentForm, setAgentForm] = useState({ id: null, name: '', code: '', max_link: '', tg_link: '', wa_link: '', phone: '' })
   const [agentModalOpen, setAgentModalOpen] = useState(false)
   const [clientModal, setClientModal] = useState(null) // agent
-  const [clientForm, setClientForm] = useState({ name: '', phone: '+7', city: '', note: '' })
+  const [clientForm, setClientForm] = useState({ name: '', phone: '+7', city: '', note: '', transport: '', pickup_date: '' })
 
   const loadSettings = () => {
     if (role !== 'admin') return
@@ -757,7 +757,7 @@ export default function Admin() {
 
   const openClientModal = (a) => {
     setClientModal(a)
-    setClientForm({ name: '', phone: '+7', city: '', note: '' })
+    setClientForm({ name: '', phone: '+7', city: '', note: '', transport: '', pickup_date: '' })
   }
 
   const addAgentClient = async (e) => {
@@ -2159,6 +2159,8 @@ export default function Admin() {
               <input className="v2-input" placeholder="Имя *" value={clientForm.name} onChange={e => setClientForm({...clientForm, name: e.target.value})} required />
               <input className="v2-input" placeholder="Телефон" value={clientForm.phone} onChange={e => setClientForm({...clientForm, phone: e.target.value})} />
               <input className="v2-input" placeholder="Город" value={clientForm.city} onChange={e => setClientForm({...clientForm, city: e.target.value})} />
+              <input className="v2-input" placeholder="Терминал / ТК (транспортная компания)" value={clientForm.transport} onChange={e => setClientForm({...clientForm, transport: e.target.value})} />
+              <input className="v2-input" type="date" placeholder="Дата самовывоза" value={clientForm.pickup_date} onChange={e => setClientForm({...clientForm, pickup_date: e.target.value})} />
               <input className="v2-input" placeholder="Заметка" value={clientForm.note} onChange={e => setClientForm({...clientForm, note: e.target.value})} />
               <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginTop:8}}>
                 <button type="button" className="color-modal-cancel" onClick={() => setClientModal(null)}>Отмена</button>

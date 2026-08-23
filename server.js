@@ -944,6 +944,8 @@ app.post('/api/agents/:id/clients', authRole, (req, res) => {
     source: b.source || 'manual',
     status: b.status || 'new',
     note: b.note || '',
+    transport: b.transport || '',
+    pickup_date: b.pickup_date || '',
     created_at: new Date().toISOString(),
   }
   clients.unshift(c)
