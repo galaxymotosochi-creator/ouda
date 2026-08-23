@@ -1306,11 +1306,10 @@ export default function Admin() {
             </tr></thead>
             <tbody>
               {[...orders].sort((a, b) => {
-                const priority = { 'new': 0, 'accepted': 1, 'paid': 2, 'shipped': 3, 'done': 4, 'cancelled': 5 }
-                const pa = priority[a.status] ?? 4
-                const pb = priority[b.status] ?? 4
-                if (pa !== pb) return pa - pb
-                // Внутри одной группы — новые сверху
+                // Отменённые — всегда в самом низу, остальные — по дате (новые сверху)
+                const ca = a.status === 'cancelled' ? 1 : 0
+                const cb = b.status === 'cancelled' ? 1 : 0
+                if (ca !== cb) return ca - cb
                 return new Date(b.created_at) - new Date(a.created_at)
               }).map((o, i) => (
                 <tr key={o.id}>
