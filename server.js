@@ -717,7 +717,9 @@ app.get('/api/agents', authRole, (req, res) => {
 
 app.post('/api/agents', authRole, (req, res) => {
   const b = req.body
-  const code = genCode(b.code || b.name || '')
+  let code = String(b.code || '').trim()
+  if (!code) code = genCode(b.name || '')
+  else if (agents.some(x => x.code === code)) return res.status(400).json({ error: 'Такой код ссылки уже занят другим агентом' })
   let login = (b.login || '').toLowerCase().replace(/[^a-z0-9]/g, '') || code
   let n = 2
   const baseLogin = login
@@ -738,7 +740,7 @@ app.post('/api/agents', authRole, (req, res) => {
   }
   agents.push(agent)
   saveAll()
-  sendTelegram('Новый агент: ' + agent.name + ' | ссылка: https://ouda.ru/?ref=' + agent.code + ' | логин: ' + agent.login)
+  sendTelegram('Новый агент: ' + agent.name + ' | ссылка: https://ouda.ru/?ref=' + encodeURIComponent(agent.code) + ' | логин: ' + agent.login)
   res.json({ ...agent, password: undefined, password_plain: agent.password })
 })
 
@@ -748,7 +750,7 @@ app.patch('/api/agents/:id', authRole, (req, res) => {
   const { name, code, max_link, tg_link, wa_link, phone, status } = req.body
   if (name !== undefined) a.name = name
   if (code !== undefined && code !== a.code) {
-    const newCode = genCode(code || name || '')
+    const newCode = String(code || '').trim() || genCode(name || '')
     if (agents.some(x => x.id !== a.id && x.code === newCode)) return res.status(400).json({ error: 'Такой код ссылки уже занят другим агентом' })
     a.code = newCode
   }
@@ -812,7 +814,7 @@ app.get('/api/agent/me', authAgent, (req, res) => {
   })
   res.json({
     agent: { id: a.id, name: a.name, code: a.code, login: a.login, phone: a.phone || '', max_link: a.max_link || '', tg_link: a.tg_link || '', wa_link: a.wa_link || '' },
-    link: 'https://ouda.ru/?ref=' + a.code,
+    link: 'https://ouda.ru/?ref=' + encodeURIComponent(a.code),
     stats: {
       clicks: agentClicks.length,
       potential,

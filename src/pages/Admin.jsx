@@ -741,7 +741,7 @@ export default function Admin() {
   }
 
   const sendAgentData = (a) => {
-    const text = `Здравствуйте, ${a.name}! Ваша ссылка: https://ouda.ru/?ref=${a.code} | Вход для агентов: https://ouda.ru/agent | Логин: ${a.login} | Пароль: ${a.password}`
+    const text = `Здравствуйте, ${a.name}! Ваша ссылка: https://ouda.ru/?ref=${encodeURIComponent(a.code)} | Вход для агентов: https://ouda.ru/agent | Логин: ${a.login} | Пароль: ${a.password}`
     const waMatch = (a.wa_link || '').match(/wa\.me\/([0-9]+)/)
     if (waMatch) {
       window.open('https://wa.me/' + waMatch[1] + '?text=' + encodeURIComponent(text), '_blank')
