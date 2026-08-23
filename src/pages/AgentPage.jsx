@@ -44,9 +44,11 @@ export default function AgentPage() {
   const [notifs, setNotifs] = useState([])
 
   // Client form
-  const [clientForm, setClientForm] = useState({ name: '', phone: '+7', city: '', status: 'new', note: '' })
+  const [clientForm, setClientForm] = useState({ name: '', phone: '+7', city: '', source: '', status: 'new', note: '', items: [] })
   const [taskForm, setTaskForm] = useState({ client_id: '', text: '', due_date: '' })
   const [tgCode, setTgCode] = useState('')
+  const [products, setProducts] = useState([])
+  const [itemForm, setItemForm] = useState({ product_id: '', color: '', qty: 1 })
 
   const loadAll = () => {
     if (!token) return
@@ -99,6 +101,33 @@ export default function AgentPage() {
     setNotifs(prev => prev.map(n => ({ ...n, read: true })))
   }
 
+  useEffect(() => {
+    fetch(`${API}/api/products`).then(r => r.json()).then(setProducts).catch(() => {})
+  }, [])
+
+  const clientPot = (items) => {
+    const qty = (items || []).reduce((s, i) => s + (Number(i.qty) || 0), 0)
+    if (!qty) return 0
+    return qty >= 3 ? (data ? (data.settings.wholesale_reward || 2500) : 2500) : (data ? (data.settings.retail_reward || 7500) : 7500)
+  }
+
+  const addItem = () => {
+    if (!itemForm.product_id) return
+    const p = products.find(x => String(x.id) === String(itemForm.product_id))
+    if (!p) return
+    const color = itemForm.color || ''
+    const qty = Number(itemForm.qty) || 1
+    const exists = clientForm.items.find(i => String(i.product_id) === String(itemForm.product_id) && (i.color || '') === color)
+    if (exists) {
+      setClientForm({ ...clientForm, items: clientForm.items.map(i => (String(i.product_id) === String(itemForm.product_id) && (i.color || '') === color) ? { ...i, qty: (Number(i.qty) || 0) + qty } : i) })
+    } else {
+      setClientForm({ ...clientForm, items: [...clientForm.items, { product_id: p.id, name: p.name, color, qty }] })
+    }
+    setItemForm({ product_id: '', color: '', qty: 1 })
+  }
+
+  const removeItem = (idx) => setClientForm({ ...clientForm, items: clientForm.items.filter((_, i) => i !== idx) })
+
   const addClient = async (e) => {
     e.preventDefault()
     if (!clientForm.name) return
@@ -108,7 +137,8 @@ export default function AgentPage() {
       body: JSON.stringify(clientForm),
     }).catch(() => null)
     if (r && r.ok) {
-      setClientForm({ name: '', phone: '+7', city: '', status: 'new', note: '' })
+      setClientForm({ name: '', phone: '+7', city: '', source: '', status: 'new', note: '', items: [] })
+      setItemForm({ product_id: '', color: '', qty: 1 })
       loadAll()
     }
   }
@@ -134,7 +164,7 @@ export default function AgentPage() {
     await fetch(`${API}/api/agent/tasks`, {
       method: 'POST',
       headers: { 'X-Agent-Token': token, 'Content-Type': 'application/json' },
-      body: JSON.stringify(taskForm),
+      body: JSON.stringify({ ...taskForm, client_id: taskForm.client_id ? Number(taskForm.client_id) : null }),
     }).catch(() => {})
     setTaskForm({ client_id: '', text: '', due_date: '' })
     loadAll()
@@ -231,8 +261,12 @@ export default function AgentPage() {
                 <div className="agent-stat-value">{s.clients}</div>
               </div>
               <div className="agent-stat">
-                <div className="agent-stat-label">Потенциальный заработок</div>
+                <div className="agent-stat-label">Потенциальный заработок (заказы)</div>
                 <div className="agent-stat-value">{fmt(s.potential)} ₽</div>
+              </div>
+              <div className="agent-stat">
+                <div className="agent-stat-label">Потенциал по клиентам (CRM)</div>
+                <div className="agent-stat-value">{fmt(clients.reduce((sum, c) => sum + clientPot(c.items), 0))} ₽</div>
               </div>
               <div className="agent-stat agent-stat-accent">
                 <div className="agent-stat-label">Фактический заработок (отгружено)</div>
@@ -308,10 +342,35 @@ export default function AgentPage() {
               <input className="agent-input" placeholder="Имя *" value={clientForm.name} onChange={e => setClientForm({ ...clientForm, name: e.target.value })} required />
               <input className="agent-input" placeholder="Телефон" value={clientForm.phone} onChange={e => setClientForm({ ...clientForm, phone: e.target.value })} />
               <input className="agent-input" placeholder="Город" value={clientForm.city} onChange={e => setClientForm({ ...clientForm, city: e.target.value })} />
+              <input className="agent-input" placeholder="Источник (откуда клиент: Инстаграм, знакомые…)" value={clientForm.source} onChange={e => setClientForm({ ...clientForm, source: e.target.value })} />
               <select className="agent-input" value={clientForm.status} onChange={e => setClientForm({ ...clientForm, status: e.target.value })}>
                 {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
               </select>
               <input className="agent-input" placeholder="Заметка" value={clientForm.note} onChange={e => setClientForm({ ...clientForm, note: e.target.value })} />
+              <div className="agent-client-items">
+                <div className="agent-item-row">
+                  <select className="agent-input" value={itemForm.product_id} onChange={e => setItemForm({ product_id: e.target.value, color: '', qty: 1 })}>
+                    <option value="">— Модель —</option>
+                    {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  </select>
+                  <select className="agent-input" value={itemForm.color} onChange={e => setItemForm({ ...itemForm, color: e.target.value })} disabled={!itemForm.product_id}>
+                    <option value="">— Цвет —</option>
+                    {(products.find(p => String(p.id) === String(itemForm.product_id))?.colors || []).map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
+                  </select>
+                  <input className="agent-input" type="number" min="1" placeholder="Кол-во" value={itemForm.qty} onChange={e => setItemForm({ ...itemForm, qty: e.target.value })} style={{ maxWidth: 90 }} />
+                  <button className="agent-btn" type="button" onClick={addItem} title="Добавить позицию">+ Добавить</button>
+                </div>
+                {clientForm.items.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                    {clientForm.items.map((it, idx) => (
+                      <span key={idx} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#f4f4f6', borderRadius: 8, padding: '4px 10px', fontSize: 13, color: '#333' }}>
+                        {it.name} ×{it.qty}{it.color ? ` (${it.color})` : ''}
+                        <button type="button" onClick={() => removeItem(idx)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#999', fontSize: 13, padding: 0 }} title="Убрать">✕</button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
               <button className="agent-btn agent-btn-primary" type="submit">Добавить клиента</button>
             </form>
 
@@ -319,7 +378,7 @@ export default function AgentPage() {
               <div style={{ overflowX: 'auto' }}>
                 <table className="admin-table" style={{ margin: 0 }}>
                   <thead><tr>
-                    <th>Клиент</th><th>Телефон</th><th>Город</th><th>Источник</th><th>Статус</th><th>Заметка</th><th>Добавлен</th><th></th>
+                    <th>Клиент</th><th>Телефон</th><th>Город</th><th>Источник</th><th>Позиции</th><th>Потенциал</th><th>Статус</th><th>Заметка</th><th>Добавлен</th><th></th>
                   </tr></thead>
                   <tbody>
                     {clients.map(c => (
@@ -327,7 +386,11 @@ export default function AgentPage() {
                         <td>{c.name}</td>
                         <td>{c.phone}</td>
                         <td>{c.city || '—'}</td>
-                        <td>{c.source === 'site' ? 'С сайта' : 'Свой'}</td>
+                        <td>{c.source === 'site' ? 'Сайт' : (c.source === 'manual' || !c.source ? 'Свой' : c.source)}</td>
+                        <td style={{ whiteSpace: 'normal', wordBreak: 'break-word', minWidth: 150 }}>
+                          {(c.items || []).map(it => `${it.name} ×${it.qty}${it.color ? ` (${it.color})` : ''}`).join(', ') || '—'}
+                        </td>
+                        <td style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>{(c.items || []).length ? `+${fmt(clientPot(c.items))} ₽` : '—'}</td>
                         <td>
                           <select className="agent-input agent-input-sm" value={c.status} onChange={e => updateClient(c.id, { status: e.target.value })}>
                             {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
@@ -340,7 +403,7 @@ export default function AgentPage() {
                         </td>
                       </tr>
                     ))}
-                    {clients.length === 0 && <tr><td colSpan={8} style={{ textAlign: 'center', color: '#666', padding: 40 }}>Клиентов пока нет</td></tr>}
+                    {clients.length === 0 && <tr><td colSpan={10} style={{ textAlign: 'center', color: '#666', padding: 40 }}>Клиентов пока нет</td></tr>}
                   </tbody>
                 </table>
               </div>
@@ -366,7 +429,7 @@ export default function AgentPage() {
                 <thead><tr><th>Задача</th><th>Клиент</th><th>Срок</th><th>Статус</th><th></th></tr></thead>
                 <tbody>
                   {tasks.map(tk => {
-                    const c = clients.find(c => c.id === tk.client_id)
+                    const c = clients.find(c => tk.client_id && c.id === Number(tk.client_id))
                     return (
                       <tr key={tk.id} style={{ opacity: tk.done ? 0.5 : 1 }}>
                         <td>{tk.text}</td>
