@@ -217,7 +217,7 @@ app.post('/api/orders', (req, res) => {
         phone: req.body.phone || '',
         city: req.body.city || '',
         source: 'site',
-        status: 'order',
+        status: 'new',
         note: 'Заказ с сайта',
         items: (o.items || []).map(i => ({ product_id: i.product_id || null, name: i.name || '', color: i.color || '', qty: Number(i.qty) || 0 })),
         order_id: o.id,
