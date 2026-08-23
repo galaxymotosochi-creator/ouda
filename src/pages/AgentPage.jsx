@@ -12,6 +12,11 @@ const STATUS_LABELS = {
   lost: 'Отказ',
 }
 
+// Стандартные цвета на случай, если у модели не заполнены
+const DEFAULT_COLORS = ['Чёрный', 'Белый', 'Серый', 'Чёрный матовый', 'Серый матовый', 'Зелёный матовый']
+const getColors = (p) => (p && Array.isArray(p.colors) && p.colors.length ? p.colors : DEFAULT_COLORS)
+const itemLabel = (it) => `${it.name}${it.color ? ` — ${it.color}` : ''} (${it.qty})`
+
 const ORDER_STATUS = {
   new: 'Новый',
   accepted: 'В работе',
@@ -356,7 +361,7 @@ export default function AgentPage() {
                 </select>
                 <select className="agent-input" value={itemForm.color} onChange={e => setItemForm({ ...itemForm, color: e.target.value })} disabled={!itemForm.product_id}>
                   <option value="">— Цвет —</option>
-                  {(products.find(p => String(p.id) === String(itemForm.product_id))?.colors || []).map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
+                  {getColors(products.find(p => String(p.id) === String(itemForm.product_id))).map(c => <option key={typeof c === 'string' ? c : c.name} value={typeof c === 'string' ? c : c.name}>{typeof c === 'string' ? c : c.name}</option>)}
                 </select>
                 <input className="agent-input" type="number" min="1" placeholder="Кол-во" value={itemForm.qty} onChange={e => setItemForm({ ...itemForm, qty: e.target.value })} />
                 <button className="agent-btn" type="button" onClick={addItem} title="Добавить позицию">+ Добавить</button>
@@ -365,7 +370,7 @@ export default function AgentPage() {
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                   {clientForm.items.map((it, idx) => (
                     <span key={idx} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#f4f4f6', borderRadius: 8, padding: '4px 10px', fontSize: 13, color: '#333' }}>
-                      {it.name} ×{it.qty}{it.color ? ` (${it.color})` : ''}
+                      {itemLabel(it)}
                       <button type="button" onClick={() => removeItem(idx)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#999', fontSize: 13, padding: 0 }} title="Убрать">✕</button>
                     </span>
                   ))}
@@ -388,7 +393,7 @@ export default function AgentPage() {
                         <td>{c.city || '—'}</td>
                         <td>{c.source === 'site' ? 'Сайт' : (c.source === 'manual' || !c.source ? 'Свой' : c.source)}</td>
                         <td style={{ whiteSpace: 'normal', wordBreak: 'break-word', minWidth: 150 }}>
-                          {(c.items || []).map(it => `${it.name} ×${it.qty}${it.color ? ` (${it.color})` : ''}`).join(', ') || '—'}
+                          {(c.items || []).map(it => itemLabel(it)).join(', ') || '—'}
                         </td>
                         <td style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>{(c.items || []).length ? `+${fmt(clientPot(c.items))} ₽` : '—'}</td>
                         <td>
