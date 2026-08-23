@@ -236,7 +236,7 @@ export default function Admin() {
     setShipOrder(order)
     setShipForm({
       client: { name: order.name, phone: order.phone, city: order.city || '', transport: order.transport || '' },
-      items, prepaid: 0, paid: items.reduce((s, i) => s + (i.price || 0) * (i.qty || 0), 0),
+      items, prepaid: order.prepaid || 0, paid: items.reduce((s, i) => s + (i.price || 0) * (i.qty || 0), 0),
       date: new Date().toISOString().slice(0, 10),
     })
     setShipOrderNum(orderNum)
@@ -1328,7 +1328,10 @@ export default function Admin() {
                     {o.assembly ? <div style={{fontSize:11,color:'#888',marginTop:4}}>🔧 Сборка: {o.assembly}{o.assembly_total > 0 ? ` (+${Number(o.assembly_total).toLocaleString('ru-RU')} ₽)` : ''}</div> : ''}
                   </td>
                   <td>{(o.total||0).toLocaleString('ru-RU')} ₽</td>
-                  <td>{o.payment==='usdt'?'USDT':o.payment==='discuss'?'Хочу обсудить дополнительно':t('cash')}</td>
+                  <td>
+                    {o.prepaid > 0 && <div style={{fontSize:12,color:'#b45309',fontWeight:600}}>Предоплата: {Number(o.prepaid).toLocaleString('ru-RU')} ₽</div>}
+                    {o.payment==='usdt'?'USDT':o.payment==='discuss'?'Хочу обсудить дополнительно':t('cash')}
+                  </td>
                   <td>{statusLabel(o.status)}</td>
                   <td>
                     <div className="admin-actions">
