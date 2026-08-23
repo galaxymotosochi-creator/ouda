@@ -1117,7 +1117,15 @@ img { max-width: 100%; display: block; }
 .agent-tg-ok { font-size: 13px; color: #16a34a; }
 .agent-tg-hint { font-size: 13px; color: #555; }
 .agent-crm { display: flex; flex-direction: column; }
-.agent-client-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; background: #fff; border-radius: 14px; padding: 16px; box-shadow: 0 2px 8px rgba(102,126,234,0.08); }
+.agent-client-form { display: flex; flex-direction: column; gap: 12px; background: #fff; border-radius: 14px; padding: 20px; box-shadow: 0 2px 8px rgba(102,126,234,0.08); }
+.agent-crm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.agent-item-row { display: grid; grid-template-columns: 1fr 1fr 90px auto; gap: 10px; align-items: center; }
+.agent-crm-submit { align-self: flex-start; padding: 10px 26px; font-size: 14px; }
+@media (max-width: 640px) {
+  .agent-crm-grid { grid-template-columns: 1fr; }
+  .agent-item-row { grid-template-columns: 1fr; }
+  .agent-crm-submit { align-self: stretch; }
+}
 .agent-notif { padding: 14px 18px; border-bottom: 1px solid var(--border); font-size: 14px; }
 .agent-notif-unread { background: #fafbff; font-weight: 500; border-left: 3px solid #667eea; }
 .agent-notif-date { font-size: 11px; color: #999; margin-top: 4px; }

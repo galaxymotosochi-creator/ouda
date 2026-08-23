@@ -339,39 +339,39 @@ export default function AgentPage() {
         {tab === 'clients' && (
           <div className="agent-crm">
             <form className="agent-client-form" onSubmit={addClient}>
-              <input className="agent-input" placeholder="Имя *" value={clientForm.name} onChange={e => setClientForm({ ...clientForm, name: e.target.value })} required />
-              <input className="agent-input" placeholder="Телефон" value={clientForm.phone} onChange={e => setClientForm({ ...clientForm, phone: e.target.value })} />
-              <input className="agent-input" placeholder="Город" value={clientForm.city} onChange={e => setClientForm({ ...clientForm, city: e.target.value })} />
-              <input className="agent-input" placeholder="Источник (откуда клиент: Инстаграм, знакомые…)" value={clientForm.source} onChange={e => setClientForm({ ...clientForm, source: e.target.value })} />
-              <select className="agent-input" value={clientForm.status} onChange={e => setClientForm({ ...clientForm, status: e.target.value })}>
-                {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-              </select>
-              <input className="agent-input" placeholder="Заметка" value={clientForm.note} onChange={e => setClientForm({ ...clientForm, note: e.target.value })} />
-              <div className="agent-client-items">
-                <div className="agent-item-row">
-                  <select className="agent-input" value={itemForm.product_id} onChange={e => setItemForm({ product_id: e.target.value, color: '', qty: 1 })}>
-                    <option value="">— Модель —</option>
-                    {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                  </select>
-                  <select className="agent-input" value={itemForm.color} onChange={e => setItemForm({ ...itemForm, color: e.target.value })} disabled={!itemForm.product_id}>
-                    <option value="">— Цвет —</option>
-                    {(products.find(p => String(p.id) === String(itemForm.product_id))?.colors || []).map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
-                  </select>
-                  <input className="agent-input" type="number" min="1" placeholder="Кол-во" value={itemForm.qty} onChange={e => setItemForm({ ...itemForm, qty: e.target.value })} style={{ maxWidth: 90 }} />
-                  <button className="agent-btn" type="button" onClick={addItem} title="Добавить позицию">+ Добавить</button>
-                </div>
-                {clientForm.items.length > 0 && (
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
-                    {clientForm.items.map((it, idx) => (
-                      <span key={idx} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#f4f4f6', borderRadius: 8, padding: '4px 10px', fontSize: 13, color: '#333' }}>
-                        {it.name} ×{it.qty}{it.color ? ` (${it.color})` : ''}
-                        <button type="button" onClick={() => removeItem(idx)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#999', fontSize: 13, padding: 0 }} title="Убрать">✕</button>
-                      </span>
-                    ))}
-                  </div>
-                )}
+              <div className="agent-crm-grid">
+                <input className="agent-input" placeholder="Имя *" value={clientForm.name} onChange={e => setClientForm({ ...clientForm, name: e.target.value })} required />
+                <input className="agent-input" placeholder="Телефон" value={clientForm.phone} onChange={e => setClientForm({ ...clientForm, phone: e.target.value })} />
+                <input className="agent-input" placeholder="Город" value={clientForm.city} onChange={e => setClientForm({ ...clientForm, city: e.target.value })} />
+                <input className="agent-input" placeholder="Источник (откуда клиент: Инстаграм, знакомые…)" value={clientForm.source} onChange={e => setClientForm({ ...clientForm, source: e.target.value })} />
+                <select className="agent-input" value={clientForm.status} onChange={e => setClientForm({ ...clientForm, status: e.target.value })}>
+                  {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                </select>
               </div>
-              <button className="agent-btn agent-btn-primary" type="submit">Добавить клиента</button>
+              <input className="agent-input" placeholder="Заметка" value={clientForm.note} onChange={e => setClientForm({ ...clientForm, note: e.target.value })} />
+              <div className="agent-item-row">
+                <select className="agent-input" value={itemForm.product_id} onChange={e => setItemForm({ product_id: e.target.value, color: '', qty: 1 })}>
+                  <option value="">— Модель —</option>
+                  {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                </select>
+                <select className="agent-input" value={itemForm.color} onChange={e => setItemForm({ ...itemForm, color: e.target.value })} disabled={!itemForm.product_id}>
+                  <option value="">— Цвет —</option>
+                  {(products.find(p => String(p.id) === String(itemForm.product_id))?.colors || []).map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
+                </select>
+                <input className="agent-input" type="number" min="1" placeholder="Кол-во" value={itemForm.qty} onChange={e => setItemForm({ ...itemForm, qty: e.target.value })} />
+                <button className="agent-btn" type="button" onClick={addItem} title="Добавить позицию">+ Добавить</button>
+              </div>
+              {clientForm.items.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {clientForm.items.map((it, idx) => (
+                    <span key={idx} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#f4f4f6', borderRadius: 8, padding: '4px 10px', fontSize: 13, color: '#333' }}>
+                      {it.name} ×{it.qty}{it.color ? ` (${it.color})` : ''}
+                      <button type="button" onClick={() => removeItem(idx)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#999', fontSize: 13, padding: 0 }} title="Убрать">✕</button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              <button className="agent-btn agent-btn-primary agent-crm-submit" type="submit">Добавить клиента</button>
             </form>
 
             <div className="v2-card" style={{ overflow: 'hidden', padding: 0, marginTop: 16 }}>
