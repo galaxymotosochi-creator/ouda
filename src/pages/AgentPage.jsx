@@ -7,9 +7,10 @@ const TOKEN_KEY = 'ouda_agent_token'
 const STATUS_LABELS = {
   new: 'Новый',
   talk: 'В переговорах',
-  order: 'Заказ',
-  sold: 'Продано',
+  prepaid: 'Внесена предоплата',
   lost: 'Отказ',
+  order: 'Заказ', // старые клиенты с сайта
+  sold: 'Продано', // после завершения заказа
 }
 
 // Стандартные цвета НЕ используем — цвета берутся со склада (stock/available)
@@ -47,12 +48,13 @@ export default function AgentPage() {
   const [notifs, setNotifs] = useState([])
 
   // Client form
-  const [clientForm, setClientForm] = useState({ name: '', phone: '+7', city: '', source: '', status: 'new', note: '', items: [] })
+  const [clientForm, setClientForm] = useState({ name: '', phone: '+7', city: '', source: '', status: 'new', note: '', prepaid_amount: '', items: [] })
   const [taskForm, setTaskForm] = useState({ client_id: '', text: '', due_date: '' })
   const [tgCode, setTgCode] = useState('')
   const [products, setProducts] = useState([])
   const [stock, setStock] = useState({})
   const [itemForm, setItemForm] = useState({ product_id: '', color: '', qty: 1 })
+  const [prepaidModal, setPrepaidModal] = useState(null) // { client, amount }
 
   const loadAll = () => {
     if (!token) return
@@ -146,16 +148,32 @@ export default function AgentPage() {
   const addClient = async (e) => {
     e.preventDefault()
     if (!clientForm.name) return
+    if (clientForm.status === 'prepaid' && !(Number(clientForm.prepaid_amount) > 0)) {
+      alert('Укажите сумму предоплаты')
+      return
+    }
     const r = await fetch(`${API}/api/agent/clients`, {
       method: 'POST',
       headers: { 'X-Agent-Token': token, 'Content-Type': 'application/json' },
-      body: JSON.stringify(clientForm),
+      body: JSON.stringify({ ...clientForm, prepaid_amount: Number(clientForm.prepaid_amount) || 0 }),
     }).catch(() => null)
     if (r && r.ok) {
-      setClientForm({ name: '', phone: '+7', city: '', source: '', status: 'new', note: '', items: [] })
+      setClientForm({ name: '', phone: '+7', city: '', source: '', status: 'new', note: '', prepaid_amount: '', items: [] })
       setItemForm({ product_id: '', color: '', qty: 1 })
       loadAll()
     }
+  }
+
+  // Смена статуса в таблице: «предоплата» требует ввода суммы
+  const onStatusChange = (c, val) => {
+    if (val === 'prepaid') { setPrepaidModal({ client: c, amount: c.prepaid_amount || '' }); return }
+    updateClient(c.id, { status: val })
+  }
+  const confirmPrepaid = () => {
+    const amount = Number(prepaidModal.amount)
+    if (!amount || amount <= 0) { alert('Введите сумму предоплаты'); return }
+    updateClient(prepaidModal.client.id, { status: 'prepaid', prepaid_amount: amount })
+    setPrepaidModal(null)
   }
 
   const updateClient = async (id, patch) => {
@@ -226,6 +244,7 @@ export default function AgentPage() {
   }
 
   const s = data.stats
+  const potClients = clients.filter(c => c.status === 'new' || c.status === 'talk')
 
   return (
     <div className="agent-page">
@@ -277,7 +296,7 @@ export default function AgentPage() {
               </div>
               <div className="agent-stat">
                 <div className="agent-stat-label">Потенциальный заработок</div>
-                <div className="agent-stat-value">{fmt(s.potential + clients.reduce((sum, c) => sum + clientPot(c.items), 0))} ₽</div>
+                <div className="agent-stat-value">{fmt(s.potential + potClients.reduce((sum, c) => sum + clientPot(c.items), 0))} ₽</div>
                 <div style={{ fontSize: 11, color: '#999' }}>столько вы сможете заработать при закрытии всех клиентов</div>
               </div>
               <div className="agent-stat agent-stat-accent">
@@ -357,8 +376,11 @@ export default function AgentPage() {
                 <input className="agent-input" placeholder="Город" value={clientForm.city} onChange={e => setClientForm({ ...clientForm, city: e.target.value })} />
                 <input className="agent-input" placeholder="Источник (откуда клиент: Инстаграм, знакомые…)" value={clientForm.source} onChange={e => setClientForm({ ...clientForm, source: e.target.value })} />
                 <select className="agent-input" value={clientForm.status} onChange={e => setClientForm({ ...clientForm, status: e.target.value })}>
-                  {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                  {Object.entries(STATUS_LABELS).filter(([k]) => !['order', 'sold'].includes(k)).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                 </select>
+                {clientForm.status === 'prepaid' && (
+                  <input className="agent-input" type="number" min="1" placeholder="Сумма предоплаты (₽)" value={clientForm.prepaid_amount} onChange={e => setClientForm({ ...clientForm, prepaid_amount: e.target.value })} />
+                )}
               </div>
               <input className="agent-input" placeholder="Заметка" value={clientForm.note} onChange={e => setClientForm({ ...clientForm, note: e.target.value })} />
               <div className="agent-item-row">
@@ -402,11 +424,16 @@ export default function AgentPage() {
                         <td style={{ whiteSpace: 'normal', wordBreak: 'break-word', minWidth: 150 }}>
                           {(c.items || []).map(it => itemLabel(it)).join(', ') || '—'}
                         </td>
-                        <td style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>{(c.items || []).length ? `+${fmt(clientPot(c.items))} ₽` : '—'}</td>
+                        <td style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>
+                          {c.status === 'lost' ? '—' : (c.status === 'prepaid' ? '→ заказ' : ((c.items || []).length ? `+${fmt(clientPot(c.items))} ₽` : '—'))}
+                        </td>
                         <td>
-                          <select className="agent-input agent-input-sm" value={c.status} onChange={e => updateClient(c.id, { status: e.target.value })}>
+                          <select className="agent-input agent-input-sm" value={c.status} onChange={e => onStatusChange(c, e.target.value)}>
                             {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                           </select>
+                          {c.status === 'prepaid' && c.prepaid_amount > 0 && (
+                            <div style={{ fontSize: 11, color: '#16a34a', marginTop: 4, whiteSpace: 'nowrap' }}>Предоплата: {fmt(c.prepaid_amount)} ₽</div>
+                          )}
                         </td>
                         <td style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>{c.note || '—'}</td>
                         <td>{fmtDate(c.created_at)}</td>
@@ -474,6 +501,20 @@ export default function AgentPage() {
                 <div className="agent-notif-date">{fmtDate(n.created_at)}</div>
               </div>
             ))}
+          </div>
+        )}
+        {/* МОДАЛКА ПРЕДОПЛАТЫ */}
+        {prepaidModal && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setPrepaidModal(null)}>
+            <div style={{ background: '#fff', borderRadius: 14, padding: 24, width: 340, maxWidth: '90vw', display: 'flex', flexDirection: 'column', gap: 12, boxShadow: '0 10px 40px rgba(0,0,0,.2)' }} onClick={e => e.stopPropagation()}>
+              <div style={{ fontSize: 15, fontWeight: 600 }}>Внесена предоплата</div>
+              <div style={{ fontSize: 13, color: '#555' }}>Клиент: <strong>{prepaidModal.client.name}</strong>. Введите сумму, которую внёс клиент — заказ сразу попадёт владельцу.</div>
+              <input className="agent-input" type="number" min="1" placeholder="Сумма предоплаты (₽)" value={prepaidModal.amount} onChange={e => setPrepaidModal({ ...prepaidModal, amount: e.target.value })} autoFocus />
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                <button className="agent-btn" onClick={() => setPrepaidModal(null)}>Отмена</button>
+                <button className="agent-btn agent-btn-primary" onClick={confirmPrepaid}>Подтвердить</button>
+              </div>
+            </div>
           </div>
         )}
       </div>

@@ -260,6 +260,11 @@ app.patch('/api/orders/:id', (req, res) => {
       notifyAgent(agent, `Заказ оплачен | ${o.name || ''} | ${(o.total || 0).toLocaleString('ru-RU')} ₽`)
     }
   }
+  // Заказ завершён — клиент в CRM агента автоматически становится «Продано»
+  if (o.status === 'done') {
+    const cl = clients.find(x => x.order_id == o.id)
+    if (cl && cl.status !== 'sold') { cl.status = 'sold'; cl.save_needed = true }
+  }
   saveAll()
   res.json(o || { error: 'not found' })
 })
@@ -605,6 +610,34 @@ function rewardForOrder(o) {
   }
 }
 
+const ADMIN_TG_CHAT = 5368408796
+function notifyOwner(text) {
+  if (ADMIN_TG_CHAT) sendTelegramTo(ADMIN_TG_CHAT, text).catch(() => {})
+}
+function createOrderFromClient(agent, client, prepaid) {
+  const items = (client.items || []).map(it => {
+    const pr = products.find(x => String(x.id) === String(it.product_id))
+    return { product_id: it.product_id, name: it.name || (pr ? pr.name : ''), color: it.color || '', qty: Number(it.qty) || 0, price: pr ? (pr.price || 0) : 0 }
+  })
+  const total = items.reduce((sum, i) => sum + (i.price || 0) * (i.qty || 0), 0)
+  const o = {
+    id: nextId++,
+    agent_id: agent.id,
+    agent_ref: agent.code || '',
+    name: client.name || '',
+    phone: client.phone || '',
+    city: client.city || '',
+    items,
+    total,
+    prepaid: Number(prepaid) || 0,
+    status: 'new',
+    source: 'agent_crm',
+    created_at: new Date().toISOString(),
+  }
+  orders.unshift(o)
+  return o
+}
+
 function notifyAgent(agent, text) {
   if (!agent) return
   const n = { id: nextId++, agent_id: agent.id, text, read: false, created_at: new Date().toISOString() }
@@ -803,10 +836,17 @@ app.post('/api/agent/clients', authAgent, (req, res) => {
     source: b.source || 'manual',
     status: b.status || 'new',
     note: b.note || '',
+    prepaid_amount: Number(b.prepaid_amount) || 0,
     items: Array.isArray(b.items) ? b.items.map(i => ({ product_id: i.product_id || null, name: i.name || '', color: i.color || '', qty: Number(i.qty) || 0 })) : [],
     created_at: new Date().toISOString(),
   }
   clients.unshift(c)
+  // Предоплата внесена — сразу создаём заказ владельцу
+  if (c.status === 'prepaid' && c.prepaid_amount > 0) {
+    const o = createOrderFromClient(req.agent, c, c.prepaid_amount)
+    c.order_id = o.id
+    notifyOwner(`Новый заказ от агента ${req.agent.name} | ${c.name || ''} | ${c.phone || ''} | Предоплата: ${c.prepaid_amount.toLocaleString('ru-RU')} ₽`)
+  }
   saveAll()
   res.json(c)
 })
@@ -815,6 +855,21 @@ app.patch('/api/agent/clients/:id', authAgent, (req, res) => {
   const c = clients.find(x => x.id == req.params.id && x.agent_id === req.agent.id)
   if (!c) return res.status(404).json({ error: 'not found' })
   Object.assign(c, req.body)
+  // Предоплата внесена — заказ создаётся/обновляется у владельца
+  if (c.status === 'prepaid' && c.prepaid_amount > 0) {
+    let o = c.order_id ? orders.find(x => x.id == c.order_id) : null
+    if (o) {
+      o.prepaid = Number(c.prepaid_amount) || o.prepaid || 0
+      o.agent_id = req.agent.id
+      o.agent_ref = req.agent.code || o.agent_ref
+      o.name = c.name || o.name
+      o.phone = c.phone || o.phone
+    } else {
+      o = createOrderFromClient(req.agent, c, c.prepaid_amount)
+      c.order_id = o.id
+    }
+    notifyOwner(`Предоплата от клиента агента ${req.agent.name} | ${c.name || ''} | ${c.phone || ''} | ${c.prepaid_amount.toLocaleString('ru-RU')} ₽`)
+  }
   saveAll()
   res.json(c)
 })
