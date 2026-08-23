@@ -189,7 +189,7 @@ export default function AgentPage() {
           <h2>Кабинет агента: {data.agent.name}</h2>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <a href="/" style={{ fontSize: 13, color: '#667eea' }}>На сайт</a>
+          <a href={`/?ref=${data.agent.code}`} style={{ fontSize: 13, color: '#667eea' }}>На сайт</a>
           <button className="admin-logout" onClick={logout}>Выйти</button>
         </div>
       </div>

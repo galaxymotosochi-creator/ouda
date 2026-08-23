@@ -851,11 +851,14 @@ export default function Admin() {
                   <td style={{fontWeight:500}}>{a.name}<div style={{fontSize:11,color:'#888',fontWeight:400}}>логин: {a.login}</div></td>
                   <td style={{whiteSpace:'nowrap'}}><code style={{fontSize:12,background:'#f4f4f6',padding:'3px 8px',borderRadius:6}}>ouda.ru/?ref={a.code}</code></td>
                   <td style={{fontSize:12,whiteSpace:'nowrap'}}>
-                    {a.wa_link ? <a href={a.wa_link} target="_blank" style={{color:'#25D366'}}>WhatsApp</a> : <span style={{color:'#ccc'}}>WhatsApp</span>}
-                    {' · '}
-                    {a.tg_link ? <a href={a.tg_link} target="_blank" style={{color:'#229ED9'}}>Telegram</a> : <span style={{color:'#ccc'}}>Telegram</span>}
-                    {' · '}
-                    {a.max_link ? <a href={a.max_link} target="_blank" style={{color:'#667eea'}}>MAX</a> : <span style={{color:'#ccc'}}>MAX</span>}
+                    {[
+                      a.wa_link ? { label: 'WhatsApp', href: a.wa_link, color: '#25D366' } : null,
+                      a.tg_link ? { label: 'Telegram', href: a.tg_link, color: '#229ED9' } : null,
+                      a.max_link ? { label: 'MAX', href: a.max_link, color: '#667eea' } : null,
+                    ].filter(Boolean).map((l, i) => (
+                      <span key={l.label}>{i > 0 && ' · '}<a href={l.href} target="_blank" style={{ color: l.color }}>{l.label}</a></span>
+                    ))}
+                    {!a.wa_link && !a.tg_link && !a.max_link && '—'}
                   </td>
                   <td>{a.phone || '—'}</td>
                   <td>{a.tg_chat_id ? <span style={{color:'#16a34a',fontSize:12}}>подключён</span> : <span style={{color:'#999',fontSize:12}}>нет</span>}</td>
