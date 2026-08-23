@@ -276,12 +276,8 @@ export default function AgentPage() {
                 <div className="agent-stat-value">{s.clients}</div>
               </div>
               <div className="agent-stat">
-                <div className="agent-stat-label">Потенциальный заработок (заказы)</div>
-                <div className="agent-stat-value">{fmt(s.potential)} ₽</div>
-              </div>
-              <div className="agent-stat">
-                <div className="agent-stat-label">Потенциал по клиентам (CRM)</div>
-                <div className="agent-stat-value">{fmt(clients.reduce((sum, c) => sum + clientPot(c.items), 0))} ₽</div>
+                <div className="agent-stat-label">Потенциальный заработок (заказы + клиенты)</div>
+                <div className="agent-stat-value">{fmt(s.potential + clients.reduce((sum, c) => sum + clientPot(c.items), 0))} ₽</div>
               </div>
               <div className="agent-stat agent-stat-accent">
                 <div className="agent-stat-label">Фактический заработок (отгружено)</div>
