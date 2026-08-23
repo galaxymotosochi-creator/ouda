@@ -196,8 +196,8 @@ export default function Catalog() {
           </div>
           <a href="#catalog" className="hero-btn">{t('heroBtn')}</a>
           <div className="hero-contacts">
-            {(!agentInfo || agentInfo.max_link || agentInfo.wa_link) && (
-              <a href={agentInfo ? (agentInfo.max_link || agentInfo.wa_link) : DEFAULT_MAX} target="_blank" className="glass-btn"
+            {(!agentInfo || agentInfo.max_link) && (
+              <a href={agentInfo ? agentInfo.max_link : DEFAULT_MAX} target="_blank" className="glass-btn"
                 onClick={() => agentInfo && fetch(`${API}/api/clicks`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ref: agentInfo.code, type: 'max' }) }).catch(() => {})}>
                 <img src="/manager-sapa.jpg" alt="MAX" className="glass-avatar" />
                 <span>{t('contactManager')}</span>
