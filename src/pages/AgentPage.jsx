@@ -48,7 +48,7 @@ export default function AgentPage() {
   const [notifs, setNotifs] = useState([])
 
   // Client form
-  const [clientForm, setClientForm] = useState({ name: '', phone: '+7', city: '', source: '', status: 'new', note: '', prepaid_amount: '', items: [] })
+  const [clientForm, setClientForm] = useState({ name: '', phone: '+7', city: '', source: '', status: 'new', note: '', prepaid_amount: '', transport: '', pickup_date: '', items: [] })
   const [taskForm, setTaskForm] = useState({ client_id: '', text: '', due_date: '' })
   const [tgCode, setTgCode] = useState('')
   const [products, setProducts] = useState([])
@@ -158,7 +158,7 @@ export default function AgentPage() {
       body: JSON.stringify({ ...clientForm, prepaid_amount: Number(clientForm.prepaid_amount) || 0 }),
     }).catch(() => null)
     if (r && r.ok) {
-      setClientForm({ name: '', phone: '+7', city: '', source: '', status: 'new', note: '', prepaid_amount: '', items: [] })
+      setClientForm({ name: '', phone: '+7', city: '', source: '', status: 'new', note: '', prepaid_amount: '', transport: '', pickup_date: '', items: [] })
       setItemForm({ product_id: '', color: '', qty: 1 })
       loadAll()
     }
@@ -375,6 +375,8 @@ export default function AgentPage() {
                 <input className="agent-input" placeholder="Телефон" value={clientForm.phone} onChange={e => setClientForm({ ...clientForm, phone: e.target.value })} />
                 <input className="agent-input" placeholder="Город" value={clientForm.city} onChange={e => setClientForm({ ...clientForm, city: e.target.value })} />
                 <input className="agent-input" placeholder="Источник (откуда клиент: Инстаграм, знакомые…)" value={clientForm.source} onChange={e => setClientForm({ ...clientForm, source: e.target.value })} />
+                <input className="agent-input" placeholder="Терминал / ТК (транспортная компания)" value={clientForm.transport} onChange={e => setClientForm({ ...clientForm, transport: e.target.value })} />
+                <input className="agent-input" type="date" placeholder="Дата самовывоза" value={clientForm.pickup_date} onChange={e => setClientForm({ ...clientForm, pickup_date: e.target.value })} />
                 <select className="agent-input" value={clientForm.status} onChange={e => setClientForm({ ...clientForm, status: e.target.value })}>
                   {Object.entries(STATUS_LABELS).filter(([k]) => !['order', 'sold'].includes(k)).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                 </select>

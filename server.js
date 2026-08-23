@@ -627,6 +627,8 @@ function createOrderFromClient(agent, client, prepaid) {
     name: client.name || '',
     phone: client.phone || '',
     city: client.city || '',
+    transport: client.transport || '',
+    pickup_date: client.pickup_date || '',
     items,
     total,
     prepaid: Number(prepaid) || 0,
@@ -864,6 +866,8 @@ app.patch('/api/agent/clients/:id', authAgent, (req, res) => {
       o.agent_ref = req.agent.code || o.agent_ref
       o.name = c.name || o.name
       o.phone = c.phone || o.phone
+      o.transport = c.transport || o.transport
+      o.pickup_date = c.pickup_date || o.pickup_date
     } else {
       o = createOrderFromClient(req.agent, c, c.prepaid_amount)
       c.order_id = o.id
