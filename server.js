@@ -196,14 +196,25 @@ app.patch('/api/products/:id', (req, res) => {
 app.get('/api/orders', (req, res) => res.json(orders))
 app.post('/api/orders', (req, res) => {
   const o = { id: nextId++, ...req.body, status: 'new', created_at: new Date().toISOString() }
-  // Привязка агента по ref (из cookie/ссылки)
+  // Привязка агента: по ref (из cookie/ссылки) или НАВСЕГДА по телефону
+  const normPhone = (t) => String(t || '').replace(/[^\d]/g, '').replace(/^8(\d{10})$/, '7$1')
+  const phone = normPhone(req.body.phone)
+  let agent = null
   if (req.body.agent_ref) {
-    const agent = agents.find(a => a.code === req.body.agent_ref && a.status !== 'blocked')
-    if (agent) {
-      o.agent_id = agent.id
-      o.agent_ref = agent.code
-      // Авто-карточка клиента в CRM агента
-      const client = {
+    agent = agents.find(a => a.code === req.body.agent_ref && a.status !== 'blocked')
+  }
+  if (!agent && phone) {
+    // Телефон уже заказывал по ссылке агента — привязываем навсегда
+    const prev = clients.find(c => c.agent_id && normPhone(c.phone) === phone)
+    if (prev) agent = agents.find(a => a.id === prev.agent_id && a.status !== 'blocked')
+  }
+  if (agent) {
+    o.agent_id = agent.id
+    o.agent_ref = agent.code
+    // Авто-карточка клиента в CRM (без дублей по телефону)
+    let client = clients.find(c => c.agent_id === agent.id && normPhone(c.phone) === phone)
+    if (!client) {
+      client = {
         id: nextId++,
         agent_id: agent.id,
         name: req.body.name || '',
@@ -212,16 +223,24 @@ app.post('/api/orders', (req, res) => {
         source: 'site',
         status: 'order',
         note: 'Заказ с сайта',
+        items: (o.items || []).map(i => ({ product_id: i.product_id || null, name: i.name || '', color: i.color || '', qty: Number(i.qty) || 0 })),
         order_id: o.id,
         created_at: new Date().toISOString(),
       }
       clients.unshift(client)
-      // Уведомление агенту
-      const totalQty = (o.items || []).reduce((s, i) => s + (i.qty || 0), 0)
-      const type = totalQty >= 3 ? 'опт' : 'розница'
-      const reward = totalQty >= 3 ? (settings.wholesale_reward || 2500) : (settings.retail_reward || 7500)
-      notifyAgent(agent, `Новый заказ ${o.id ? '' : ''}${formatOrderNumber(o)} | ${o.name || ''} | ${o.phone || ''} | ${(o.total || 0).toLocaleString('ru-RU')} ₽ | ${type} (+${reward} ₽)`)
+    } else {
+      client.name = req.body.name || client.name
+      client.phone = req.body.phone || client.phone
+      client.city = req.body.city || client.city
+      client.status = 'order'
+      client.items = (o.items || []).map(i => ({ product_id: i.product_id || null, name: i.name || '', color: i.color || '', qty: Number(i.qty) || 0 }))
+      client.order_id = o.id
     }
+    // Уведомление агенту
+    const totalQty = (o.items || []).reduce((s, i) => s + (i.qty || 0), 0)
+    const type = totalQty >= 3 ? 'опт' : 'розница'
+    const reward = totalQty >= 3 ? (settings.wholesale_reward || 2500) : (settings.retail_reward || 7500)
+    notifyAgent(agent, `Новый заказ ${formatOrderNumber(o)} | ${o.name || ''} | ${o.phone || ''} | ${(o.total || 0).toLocaleString('ru-RU')} ₽ | ${type} (+${reward} ₽)`)
   }
   orders.unshift(o)
   saveAll()
@@ -788,6 +807,7 @@ app.post('/api/agent/clients', authAgent, (req, res) => {
     source: b.source || 'manual',
     status: b.status || 'new',
     note: b.note || '',
+    items: Array.isArray(b.items) ? b.items.map(i => ({ product_id: i.product_id || null, name: i.name || '', color: i.color || '', qty: Number(i.qty) || 0 })) : [],
     created_at: new Date().toISOString(),
   }
   clients.unshift(c)
@@ -933,5 +953,5 @@ async function ensureWebhook() {
   if (ok) { webhookOk = true; console.log('Telegram webhook set: OK') }
   else console.log('Telegram webhook set: FAIL (повтор через 2 мин)')
 }
-setTimeout(ensureWebhook, 3000)
-setInterval(ensureWebhook, 120000)
+//setTimeout(ensureWebhook, 3000) // отключено: входящие идут через NL-мост (bridge.js)
+//setInterval(ensureWebhook, 120000) // отключено: входящие идут через NL-мост (bridge.js)
