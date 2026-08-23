@@ -357,7 +357,7 @@ export default function AgentPage() {
         {tab === 'info' && (
           <div className="agent-crm">
             <input className="agent-input" placeholder="🔍 Поиск ответа… (например: предоплата, сборка, права)" value={faqQuery}
-              onChange={e => setFaqQuery(e.target.value)} />
+              onChange={e => setFaqQuery(e.target.value)} style={{ margin: '4px 0 14px' }} />
             <div className="v2-card" style={{ overflow: 'hidden', padding: 0, marginTop: 12 }}>
               {(() => {
                 const q = faqQuery.trim().toLowerCase()
