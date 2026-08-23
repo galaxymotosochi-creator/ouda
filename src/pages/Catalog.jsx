@@ -31,6 +31,7 @@ export default function Catalog() {
 
   // Agent referral
   const [agentInfo, setAgentInfo] = useState(null)
+  const [agentLoading, setAgentLoading] = useState(false)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -41,10 +42,12 @@ export default function Catalog() {
       document.cookie = `ouda_ref=${encodeURIComponent(ref)}; max-age=${60 * 60 * 24 * 90}; path=/`
     }
     if (activeRef) {
+      setAgentLoading(true)
       fetch(`${API}/api/agent-info?ref=${encodeURIComponent(activeRef)}`)
         .then(r => r.json())
         .then(data => { if (data && data.code) setAgentInfo(data) })
         .catch(() => {})
+        .finally(() => setAgentLoading(false))
     }
   }, [])
 
@@ -192,25 +195,25 @@ export default function Catalog() {
           <div className="hero-desc-glass">
             <p>{t('heroGlass')}</p>
             <p className="hero-offices">{t('officeSochi')}</p>
-            <p className="hero-phone">{agentInfo && agentInfo.phone ? `Телефон: ${agentInfo.phone}` : t('heroPhone')}</p>
+            <p className="hero-phone">{agentLoading ? '' : (agentInfo && agentInfo.phone ? `Телефон: ${agentInfo.phone}` : t('heroPhone'))}</p>
           </div>
           <a href="#catalog" className="hero-btn">{t('heroBtn')}</a>
           <div className="hero-contacts">
-            {(!agentInfo || agentInfo.max_link) && (
+            {!agentLoading && (!agentInfo || agentInfo.max_link) && (
               <a href={agentInfo ? agentInfo.max_link : DEFAULT_MAX} target="_blank" className="glass-btn"
                 onClick={() => agentInfo && fetch(`${API}/api/clicks`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ref: agentInfo.code, type: 'max' }) }).catch(() => {})}>
                 <img src="/manager-sapa.jpg" alt="MAX" className="glass-avatar" />
                 <span>{t('contactManager')}</span>
               </a>
             )}
-            {(!agentInfo || agentInfo.tg_link) && (
+            {!agentLoading && (!agentInfo || agentInfo.tg_link) && (
               <a href={agentInfo ? agentInfo.tg_link : DEFAULT_TG} target="_blank" className="glass-btn"
                 onClick={() => agentInfo && fetch(`${API}/api/clicks`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ref: agentInfo.code, type: 'tg' }) }).catch(() => {})}>
                 <img src="/manager-tg.jpg" alt="Telegram" className="glass-avatar" />
                 <span>{t('contactTelegram')}</span>
               </a>
             )}
-            {(!agentInfo || agentInfo.wa_link) && (
+            {!agentLoading && (!agentInfo || agentInfo.wa_link) && (
               <a href={agentInfo ? agentInfo.wa_link : DEFAULT_WA} target="_blank" className="glass-btn"
                 onClick={() => agentInfo && fetch(`${API}/api/clicks`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ref: agentInfo.code, type: 'wa' }) }).catch(() => {})}>
                 <svg className="glass-avatar" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{background:'#25D366',borderRadius:'50%',padding:6}}>
