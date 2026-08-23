@@ -39,7 +39,7 @@ export default function Catalog() {
     // Красивая ссылка агента: ouda.ru/код (путь без ?ref=)
     const path = window.location.pathname
     const KNOWN_PATHS = ['/', '/login', '/admin', '/agent']
-    if (!ref && path && path !== '/' && !KNOWN_PATHS.includes(path) && !path.includes('/')) {
+    if (!ref && path && path !== '/' && !KNOWN_PATHS.includes(path) && !path.slice(1).includes('/')) {
       ref = decodeURIComponent(path.slice(1)).toLowerCase().trim()
       window.history.replaceState(null, '', '/?ref=' + encodeURIComponent(ref))
     }
