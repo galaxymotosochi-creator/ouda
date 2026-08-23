@@ -46,6 +46,7 @@ const AGENT_FAQ = [
 const ORDER_STATUS = {
   new: 'Новый',
   accepted: 'В работе',
+  prepaid: 'Предоплата',
   paid: 'Оплачен',
   shipped: 'Отгружен',
   done: 'Завершён',

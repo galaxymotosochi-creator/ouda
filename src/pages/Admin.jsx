@@ -661,7 +661,7 @@ export default function Admin() {
     setTimeout(loadData, 300)
   }
 
-  const statusLabel = (s) => { const map = { new: t('new'), accepted: 'В работе', paid: 'Оплачен', shipped: 'Отгружен', done: t('completed'), cancelled: 'Отменён' }; return map[s] || s }
+  const statusLabel = (s) => { const map = { new: t('new'), accepted: 'В работе', paid: 'Оплачен', prepaid: 'Предоплата', shipped: 'Отгружен', done: t('completed'), cancelled: 'Отменён' }; return map[s] || s }
   const statusClass = (s) => { const map = { new: 'status-new', accepted: 'status-accepted', done: 'status-done' }; return map[s] || '' }
   const logout = () => { sessionStorage.removeItem('ouda_admin'); navigate('/login') }
 
@@ -1335,7 +1335,7 @@ export default function Admin() {
                   <td>
                     <div className="admin-actions">
                       {o.status==='new' && <><button className="admin-btn admin-btn-accept" onClick={() => updateStatus(o.id,'accepted')}>{t('takeToWork')}</button><button className="admin-btn admin-btn-danger" onClick={() => updateStatus(o.id,'cancelled')}>{t('cancel')}</button></>}
-                      {['new','accepted'].includes(o.status) && <button className="admin-btn" onClick={() => updateStatus(o.id,'paid')}>Оплачен</button>}
+                      {['new','accepted','prepaid'].includes(o.status) && <button className="admin-btn" onClick={() => updateStatus(o.id,'paid')}>Оплачен</button>}
                       {o.status==='paid' && <button className="admin-btn admin-btn-ship" onClick={() => updateStatus(o.id,'shipped')} style={{background:"linear-gradient(135deg,#667eea,#764ba2)",color:"#fff",padding:"5px 12px",borderRadius:8,fontSize:13,border:"none",cursor:"pointer",fontWeight:500}}>Отгружен</button>}
                       {o.status==='shipped' && <button className="admin-btn admin-btn-done" onClick={() => updateStatus(o.id,'done')}>Завершён</button>}
                       {o.status==='accepted' && <button className="admin-btn admin-btn-ship" onClick={() => openShipFromOrder(o, i+1)} style={{background:"linear-gradient(135deg,#667eea,#764ba2)",color:"#fff",padding:"5px 12px",borderRadius:8,fontSize:13,border:"none",cursor:"pointer",fontWeight:500}}>{t('ship')}</button>}

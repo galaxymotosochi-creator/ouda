@@ -632,7 +632,7 @@ function createOrderFromClient(agent, client, prepaid) {
     items,
     total,
     prepaid: Number(prepaid) || 0,
-    status: 'new',
+    status: 'prepaid',
     source: 'agent_crm',
     created_at: new Date().toISOString(),
   }
@@ -868,6 +868,7 @@ app.patch('/api/agent/clients/:id', authAgent, (req, res) => {
       o.phone = c.phone || o.phone
       o.transport = c.transport || o.transport
       o.pickup_date = c.pickup_date || o.pickup_date
+      if (['new', 'accepted'].includes(o.status)) o.status = 'prepaid'
     } else {
       o = createOrderFromClient(req.agent, c, c.prepaid_amount)
       c.order_id = o.id
