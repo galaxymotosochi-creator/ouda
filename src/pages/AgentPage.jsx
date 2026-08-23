@@ -512,7 +512,7 @@ export default function AgentPage() {
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setPrepaidModal(null)}>
             <div style={{ background: '#fff', borderRadius: 14, padding: 24, width: 340, maxWidth: '90vw', display: 'flex', flexDirection: 'column', gap: 12, boxShadow: '0 10px 40px rgba(0,0,0,.2)' }} onClick={e => e.stopPropagation()}>
               <div style={{ fontSize: 15, fontWeight: 600 }}>Внесена предоплата</div>
-              <div style={{ fontSize: 13, color: '#555' }}>Клиент: <strong>{prepaidModal.client.name}</strong>. Введите сумму, которую внёс клиент — заказ сразу попадёт владельцу.</div>
+              <div style={{ fontSize: 13, color: '#555' }}>Клиент: <strong>{prepaidModal.client.name}</strong>. Введите сумму, которую внёс клиент — заказ сразу попадёт на отгрузку.</div>
               <input className="agent-input" type="number" min="1" placeholder="Сумма предоплаты (₽)" value={prepaidModal.amount} onChange={e => setPrepaidModal({ ...prepaidModal, amount: e.target.value })} autoFocus />
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                 <button className="agent-btn" onClick={() => setPrepaidModal(null)}>Отмена</button>
