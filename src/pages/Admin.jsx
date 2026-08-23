@@ -902,7 +902,7 @@ export default function Admin() {
                     <td>{c.city || '—'}</td>
                     <td>{c.agent_name}</td>
                     <td>{c.source === 'site' ? 'С сайта' : 'Свой'}</td>
-                    <td>{{new:'Новый',talk:'В переговорах',order:'Заказ',sold:'Продано',lost:'Отказ'}[c.status] || c.status}</td>
+                    <td>{{new:'Новый',talk:'В переговорах',prepaid:'Внесена предоплата',order:'Заказ',sold:'Продано',lost:'Отказ'}[c.status] || c.status}</td>
                     <td style={{whiteSpace:'normal',wordBreak:'break-word'}}>{c.note || '—'}</td>
                     <td>{formatDate(c.created_at)}</td>
                   </tr>
