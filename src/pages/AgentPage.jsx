@@ -258,7 +258,7 @@ export default function AgentPage() {
                         href={`https://t.me/myouda_bot?start=${tgCode}`} target="_blank" rel="noreferrer">
                         Подключить Telegram
                       </a>
-                      <div className="agent-tg-hint" style={{fontSize:12,color:'#999'}}>Если ссылка не сработала — напишите боту @myouda_bot вручную: /start {tgCode}</div>
+                      <div className="agent-tg-hint" style={{fontSize:12,color:'#999'}}>Если ссылка не сработала — напишите боту @myouda_bot вручную <strong>одним сообщением</strong>: <code>/start {tgCode}</code> (команду и код — вместе, в одну строку)</div>
                     </>
                   ) : (
                     <button className="agent-btn" onClick={requestTgCode}>Получить код</button>

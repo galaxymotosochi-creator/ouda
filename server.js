@@ -4,7 +4,7 @@ const fs = require('fs')
 const path = require('path')
 const multer = require('multer')
 const sharp = require('sharp')
-const { sendTelegram, sendTelegramTo, getUpdates } = require('./telegram')
+const { sendTelegram, sendTelegramTo, setWebhook } = require('./telegram')
 const app = express()
 
 app.use(cors())
@@ -897,32 +897,41 @@ app.patch('/api/settings', authRole, (req, res) => {
   res.json(settings)
 })
 
-// === Telegram polling: привязка агентов (/start <код>) ===
-let tgOffset = 0
-setInterval(async () => {
+// === Telegram webhook: привязка агентов (/start <код>) ===
+app.post('/tg-hook', (req, res) => {
+  res.json({ ok: true })
   try {
-    const updates = await getUpdates(tgOffset)
-    if (!updates || updates.length === 0) return
-    for (const u of updates) {
-      tgOffset = (u.update_id || 0) + 1
-      const msg = u.message || u.edited_message
-      if (!msg || !msg.text || !msg.chat) continue
-      const text = msg.text.trim()
-      if (text.startsWith('/start')) {
-        const code = text.split(/\s+/)[1] || ''
-        if (code) {
-          const a = agents.find(x => x.tg_code === code && x.tg_code_expires && Date.now() < x.tg_code_expires)
-          if (a) {
-            a.tg_chat_id = msg.chat.id
-            a.tg_code = null
-            a.tg_code_expires = null
-            saveAll()
-            sendTelegramTo(a.tg_chat_id, 'Подключено! Теперь вы будете получать уведомления о заказах здесь.')
-          }
+    const u = req.body || {}
+    const msg = u.message || u.edited_message
+    if (!msg || !msg.text || !msg.chat) return
+    const text = msg.text.trim()
+    if (text.startsWith('/start')) {
+      const code = text.split(/\s+/)[1] || ''
+      if (code) {
+        const a = agents.find(x => x.tg_code === code && x.tg_code_expires && Date.now() < x.tg_code_expires)
+        if (a) {
+          a.tg_chat_id = msg.chat.id
+          a.tg_code = null
+          a.tg_code_expires = null
+          saveAll()
+          sendTelegramTo(a.tg_chat_id, 'Подключено! Теперь вы будете получать уведомления о заказах здесь.')
+        } else {
+          sendTelegramTo(msg.chat.id, 'Код не найден или истёк. Запросите новый код в кабинете агента.')
         }
       }
     }
   } catch (e) {
-    console.error('TG polling error:', e.message)
+    console.error('TG webhook error:', e.message)
   }
-}, 5000)
+})
+
+// Установка webhook при старте + повтор каждые 2 минуты, пока не установится
+let webhookOk = false
+async function ensureWebhook() {
+  if (webhookOk) return
+  const ok = await setWebhook('https://ouda.ru/tg-hook')
+  if (ok) { webhookOk = true; console.log('Telegram webhook set: OK') }
+  else console.log('Telegram webhook set: FAIL (повтор через 2 мин)')
+}
+setTimeout(ensureWebhook, 3000)
+setInterval(ensureWebhook, 120000)
