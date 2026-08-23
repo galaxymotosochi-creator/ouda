@@ -236,7 +236,7 @@ export default function Admin() {
     setShipOrder(order)
     setShipForm({
       client: { name: order.name, phone: order.phone, city: order.city || '', transport: order.transport || '' },
-      items, prepaid: order.prepaid || 0, paid: items.reduce((s, i) => s + (i.price || 0) * (i.qty || 0), 0),
+      items, prepaid: order.prepaid || 0, paid: Math.max(items.reduce((s, i) => s + (i.price || 0) * (i.qty || 0), 0) - (order.prepaid || 0), 0),
       date: new Date().toISOString().slice(0, 10),
     })
     setShipOrderNum(orderNum)
