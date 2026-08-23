@@ -12,9 +12,7 @@ const STATUS_LABELS = {
   lost: 'Отказ',
 }
 
-// Стандартные цвета на случай, если у модели не заполнены
-const DEFAULT_COLORS = ['Чёрный', 'Белый', 'Серый', 'Чёрный матовый', 'Серый матовый', 'Зелёный матовый']
-const getColors = (p) => (p && Array.isArray(p.colors) && p.colors.length ? p.colors : DEFAULT_COLORS)
+// Стандартные цвета НЕ используем — цвета берутся со склада (stock/available)
 const itemLabel = (it) => `${it.name}${it.color ? ` — ${it.color}` : ''} (${it.qty})`
 
 const ORDER_STATUS = {
@@ -53,6 +51,7 @@ export default function AgentPage() {
   const [taskForm, setTaskForm] = useState({ client_id: '', text: '', due_date: '' })
   const [tgCode, setTgCode] = useState('')
   const [products, setProducts] = useState([])
+  const [stock, setStock] = useState({})
   const [itemForm, setItemForm] = useState({ product_id: '', color: '', qty: 1 })
 
   const loadAll = () => {
@@ -108,7 +107,18 @@ export default function AgentPage() {
 
   useEffect(() => {
     fetch(`${API}/api/products`).then(r => r.json()).then(setProducts).catch(() => {})
+    fetch(`${API}/api/stock/available`).then(r => r.json()).then(setStock).catch(() => {})
   }, [])
+
+  // Цвета модели — только те, что реально есть на складе (остаток > 0)
+  const getStockColors = (productId) => {
+    if (!productId) return []
+    const prefix = `${productId}:`
+    return Object.entries(stock)
+      .filter(([k, v]) => k.startsWith(prefix) && Number(v) > 0)
+      .map(([k]) => k.slice(prefix.length))
+  }
+  const stockQty = (productId, color) => Number(stock[`${productId}:${color}`] || 0)
 
   const clientPot = (items) => {
     const qty = (items || []).reduce((s, i) => s + (Number(i.qty) || 0), 0)
@@ -359,9 +369,9 @@ export default function AgentPage() {
                   <option value="">— Модель —</option>
                   {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
-                <select className="agent-input" value={itemForm.color} onChange={e => setItemForm({ ...itemForm, color: e.target.value })} disabled={!itemForm.product_id}>
+                <select className="agent-input" value={itemForm.color} onChange={e => setItemForm({ ...itemForm, color: e.target.value })} disabled={!itemForm.product_id || getStockColors(itemForm.product_id).length === 0}>
                   <option value="">— Цвет —</option>
-                  {getColors(products.find(p => String(p.id) === String(itemForm.product_id))).map(c => <option key={typeof c === 'string' ? c : c.name} value={typeof c === 'string' ? c : c.name}>{typeof c === 'string' ? c : c.name}</option>)}
+                  {getStockColors(itemForm.product_id).map(c => <option key={c} value={c}>{c} (на складе: {stockQty(itemForm.product_id, c)})</option>)}
                 </select>
                 <input className="agent-input" type="number" min="1" placeholder="Кол-во" value={itemForm.qty} onChange={e => setItemForm({ ...itemForm, qty: e.target.value })} />
                 <button className="agent-btn" type="button" onClick={addItem} title="Добавить позицию">+ Добавить</button>
