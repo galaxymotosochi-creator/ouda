@@ -35,7 +35,14 @@ export default function Catalog() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
-    const ref = (params.get('ref') || '').toLowerCase().trim()
+    let ref = (params.get('ref') || '').toLowerCase().trim()
+    // Красивая ссылка агента: ouda.ru/код (путь без ?ref=)
+    const path = window.location.pathname
+    const KNOWN_PATHS = ['/', '/login', '/admin', '/agent']
+    if (!ref && path && path !== '/' && !KNOWN_PATHS.includes(path) && !path.includes('/')) {
+      ref = decodeURIComponent(path.slice(1)).toLowerCase().trim()
+      window.history.replaceState(null, '', '/?ref=' + encodeURIComponent(ref))
+    }
     const cookieRef = getCookie('ouda_ref')
     const activeRef = ref || cookieRef
     if (ref) {

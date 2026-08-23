@@ -741,7 +741,7 @@ export default function Admin() {
   }
 
   const sendAgentData = (a) => {
-    const text = `Здравствуйте, ${a.name}! Ваша ссылка: https://ouda.ru/?ref=${encodeURIComponent(a.code)} | Вход для агентов: https://ouda.ru/agent | Логин: ${a.login} | Пароль: ${a.password}`
+    const text = `Здравствуйте, ${a.name}! Ваша ссылка: https://ouda.ru/${encodeURIComponent(a.code)} | Вход для агентов: https://ouda.ru/agent | Логин: ${a.login} | Пароль: ${a.password}`
     const waMatch = (a.wa_link || '').match(/wa\.me\/([0-9]+)/)
     if (waMatch) {
       window.open('https://wa.me/' + waMatch[1] + '?text=' + encodeURIComponent(text), '_blank')
@@ -849,7 +849,7 @@ export default function Admin() {
               {agents.map(a => (
                 <tr key={a.id} style={{borderTop:'1px solid #f0f2ff'}}>
                   <td style={{fontWeight:500}}>{a.name}<div style={{fontSize:11,color:'#888',fontWeight:400}}>логин: {a.login}</div></td>
-                  <td style={{whiteSpace:'nowrap'}}><code style={{fontSize:12,background:'#f4f4f6',padding:'3px 8px',borderRadius:6}}>ouda.ru/?ref={a.code}</code></td>
+                  <td style={{whiteSpace:'nowrap'}}><code style={{fontSize:12,background:'#f4f4f6',padding:'3px 8px',borderRadius:6}}>ouda.ru/{a.code}</code></td>
                   <td style={{fontSize:12,whiteSpace:'nowrap'}}>
                     {[
                       a.wa_link ? { label: 'WhatsApp', href: a.wa_link, color: '#25D366' } : null,

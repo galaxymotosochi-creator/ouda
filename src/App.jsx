@@ -13,6 +13,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/agent" element={<AgentPage />} />
+        <Route path="*" element={<Catalog />} />
       </Routes>
     </LangProvider>
   )

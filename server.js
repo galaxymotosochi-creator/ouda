@@ -740,7 +740,7 @@ app.post('/api/agents', authRole, (req, res) => {
   }
   agents.push(agent)
   saveAll()
-  sendTelegram('Новый агент: ' + agent.name + ' | ссылка: https://ouda.ru/?ref=' + encodeURIComponent(agent.code) + ' | логин: ' + agent.login)
+  sendTelegram('Новый агент: ' + agent.name + ' | ссылка: https://ouda.ru/' + encodeURIComponent(agent.code) + ' | логин: ' + agent.login)
   res.json({ ...agent, password: undefined, password_plain: agent.password })
 })
 
@@ -814,7 +814,7 @@ app.get('/api/agent/me', authAgent, (req, res) => {
   })
   res.json({
     agent: { id: a.id, name: a.name, code: a.code, login: a.login, phone: a.phone || '', max_link: a.max_link || '', tg_link: a.tg_link || '', wa_link: a.wa_link || '' },
-    link: 'https://ouda.ru/?ref=' + encodeURIComponent(a.code),
+    link: 'https://ouda.ru/' + encodeURIComponent(a.code),
     stats: {
       clicks: agentClicks.length,
       potential,
