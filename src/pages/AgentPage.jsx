@@ -376,7 +376,10 @@ export default function AgentPage() {
                 <input className="agent-input" placeholder="Город" value={clientForm.city} onChange={e => setClientForm({ ...clientForm, city: e.target.value })} />
                 <input className="agent-input" placeholder="Источник (откуда клиент: Инстаграм, знакомые…)" value={clientForm.source} onChange={e => setClientForm({ ...clientForm, source: e.target.value })} />
                 <input className="agent-input" placeholder="Терминал / ТК (транспортная компания)" value={clientForm.transport} onChange={e => setClientForm({ ...clientForm, transport: e.target.value })} />
-                <input className="agent-input" type="date" placeholder="Дата самовывоза" value={clientForm.pickup_date} onChange={e => setClientForm({ ...clientForm, pickup_date: e.target.value })} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <span style={{ fontSize: 11, color: '#777' }}>Дата самовывоза из Москвы</span>
+                  <input className="agent-input" type="date" value={clientForm.pickup_date} onChange={e => setClientForm({ ...clientForm, pickup_date: e.target.value })} />
+                </div>
                 <select className="agent-input" value={clientForm.status} onChange={e => setClientForm({ ...clientForm, status: e.target.value })}>
                   {Object.entries(STATUS_LABELS).filter(([k]) => !['order', 'sold'].includes(k)).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                 </select>
