@@ -74,6 +74,7 @@ let clients = loadData('clients', [])
 let clicks = loadData('clicks', [])
 let notifications = loadData('notifications', [])
 let tasks = loadData('tasks', [])
+let chat = loadData('chat', [])
 let settings = loadData('settings', { retail_reward: 7500, wholesale_reward: 2500 })
 
 function saveAll() {
@@ -90,6 +91,7 @@ function saveAll() {
   saveData('clicks', clicks)
   saveData('notifications', notifications)
   saveData('tasks', tasks)
+  saveData('chat', chat)
   saveData('settings', settings)
 }
 
@@ -926,6 +928,47 @@ app.delete('/api/agent/tasks/:id', authAgent, (req, res) => {
 app.get('/api/agent/notifications', authAgent, (req, res) => res.json(notifications.filter(n => n.agent_id === req.agent.id)))
 app.post('/api/agent/notifications/read', authAgent, (req, res) => {
   notifications.forEach(n => { if (n.agent_id === req.agent.id) n.read = true })
+  saveAll()
+  res.json({ ok: true })
+})
+
+// === Общий чат агентов (история сохраняется навсегда) ===
+function authAny(req, res, next) {
+  const token = req.headers['x-agent-token']
+  const a = token ? agents.find(x => x.token === token && x.status !== 'blocked') : null
+  if (a) { req.senderId = 'agent:' + a.id; req.senderType = 'agent'; req.senderName = a.name; return next() }
+  const role = req.headers['x-admin-role']
+  if (role === 'admin' || role === 'manager') { req.senderId = 'admin'; req.senderType = role; req.senderName = role === 'admin' ? 'Админ' : 'Менеджер'; return next() }
+  return res.status(401).json({ error: 'auth required' })
+}
+
+app.get('/api/agent/chat', authAny, (req, res) => {
+  res.json(chat.slice(-500)) // последние 500 сообщений, полная история в chat.json
+})
+
+app.post('/api/agent/chat', authAny, (req, res) => {
+  const text = String(req.body.text || '').trim().slice(0, 1000)
+  if (!text) return res.status(400).json({ error: 'empty message' })
+  const m = {
+    id: nextId++,
+    sender_id: req.senderId,
+    sender_type: req.senderType,
+    name: req.senderName,
+    text,
+    created_at: new Date().toISOString(),
+  }
+  chat.push(m)
+  saveAll()
+  if (m.sender_type !== 'admin') {
+    sendTelegramTo(ADMIN_TG_CHAT, '💬 Чат агентов | ' + m.name + ': ' + text).catch(() => {})
+  }
+  res.json(m)
+})
+
+// Модерация: только админ может удалить сообщение
+app.delete('/api/agent/chat/:id', authRole, (req, res) => {
+  if (req.role !== 'admin') return res.status(403).json({ error: 'admin only' })
+  chat = chat.filter(x => x.id != req.params.id)
   saveAll()
   res.json({ ok: true })
 })

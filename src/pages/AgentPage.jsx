@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useLang } from '../i18n'
 
 const API = import.meta.env.VITE_API_URL || ''
@@ -86,6 +86,9 @@ export default function AgentPage() {
   const [prepaidModal, setPrepaidModal] = useState(null) // { client, amount }
   const [faqQuery, setFaqQuery] = useState('')
   const [faqOpen, setFaqOpen] = useState({})
+  const [chatMsgs, setChatMsgs] = useState([])
+  const [chatText, setChatText] = useState('')
+  const chatRef = useRef(null)
 
   const loadAll = () => {
     if (!token) return
@@ -95,6 +98,7 @@ export default function AgentPage() {
     fetch(`${API}/api/agent/clients`, { headers }).then(r => r.json()).then(setClients).catch(() => {})
     fetch(`${API}/api/agent/tasks`, { headers }).then(r => r.json()).then(setTasks).catch(() => {})
     fetch(`${API}/api/agent/notifications`, { headers }).then(r => r.json()).then(setNotifs).catch(() => {})
+    fetch(`${API}/api/agent/chat`, { headers }).then(r => r.ok ? r.json() : []).then(setChatMsgs).catch(() => {})
   }
 
   useEffect(() => {
@@ -248,6 +252,27 @@ export default function AgentPage() {
     loadAll()
   }
 
+  // Чат агентов
+  const sendChat = async (e) => {
+    e.preventDefault()
+    const text = chatText.trim()
+    if (!text) return
+    const r = await fetch(`${API}/api/agent/chat`, {
+      method: 'POST',
+      headers: { 'X-Agent-Token': token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    }).catch(() => null)
+    if (r && r.ok) {
+      setChatText('')
+      loadAll()
+    }
+  }
+
+  // Автоскролл вниз при новых сообщениях
+  useEffect(() => {
+    if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight
+  }, [chatMsgs])
+
   const requestTgCode = async () => {
     const r = await fetch(`${API}/api/agent/tg-code`, { method: 'POST', headers: { 'X-Agent-Token': token } }).then(r => r.json()).catch(() => ({}))
     if (r.code) setTgCode(r.code)
@@ -294,6 +319,7 @@ export default function AgentPage() {
           {[
             { key: 'overview', label: 'Обзор' },
             { key: 'info', label: 'Информация' },
+            { key: 'chat', label: 'Чат' },
             { key: 'orders', label: `Заказы (${orders.length})` },
             { key: 'clients', label: `Клиенты (${clients.length})` },
             { key: 'tasks', label: `Напоминания (${tasks.filter(x => !x.done).length})` },
@@ -387,6 +413,28 @@ export default function AgentPage() {
                 ))
               })()}
             </div>
+          </div>
+        )}
+
+        {/* ЧАТ АГЕНТОВ */}
+        {tab === 'chat' && (
+          <div className="v2-card agent-chat-card">
+            <div className="agent-chat-head">💬 Общий чат агентов <span style={{ fontWeight: 400, color: '#999', fontSize: 12 }}>— история сохраняется</span></div>
+            <div className="agent-chat-body" ref={chatRef}>
+              {chatMsgs.length === 0 && <div style={{ textAlign: 'center', color: '#999', padding: 60 }}>Сообщений пока нет — напишите первым!</div>}
+              {chatMsgs.map(m => (
+                <div key={m.id} className={`agent-chat-row ${m.sender_type === 'admin' || m.sender_type === 'manager' ? 'agent-chat-admin' : ''}`}>
+                  <div className="agent-chat-bubble">
+                    <div className="agent-chat-meta">{m.name} · {new Date(m.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</div>
+                    <div className="agent-chat-text">{m.text}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <form className="agent-chat-form" onSubmit={sendChat}>
+              <input className="agent-input" placeholder="Написать сообщение…" value={chatText} onChange={e => setChatText(e.target.value)} style={{ margin: 0, flex: 1 }} />
+              <button className="agent-btn agent-btn-primary" type="submit" style={{ whiteSpace: 'nowrap' }}>Отправить</button>
+            </form>
           </div>
         )}
 

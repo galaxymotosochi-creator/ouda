@@ -1138,3 +1138,18 @@ img { max-width: 100%; display: block; }
 .agent-entry a:hover { color: #667eea; }
 .agent-login-box form { display: flex; flex-direction: column; gap: 12px; }
 .agent-login-box form .agent-btn-primary { align-self: flex-end; }
+
+/* Общий чат агентов */
+.agent-chat-card { display: flex; flex-direction: column; height: calc(100vh - 230px); min-height: 420px; padding: 0; overflow: hidden; }
+.agent-chat-head { padding: 14px 18px; font-size: 14px; font-weight: 600; color: #1a1a1a; border-bottom: 1px solid var(--border); background: #fafbff; }
+.agent-chat-body { flex: 1; overflow-y: auto; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; background: #fff; }
+.agent-chat-row { display: flex; }
+.agent-chat-admin { justify-content: flex-end; }
+.agent-chat-bubble { max-width: 78%; background: #f3f4ff; border: 1px solid #e8eaff; border-radius: 12px 12px 12px 4px; padding: 10px 14px; }
+.agent-chat-admin .agent-chat-bubble { background: #667eea; border-color: #667eea; border-radius: 12px 12px 4px 12px; }
+.agent-chat-meta { font-size: 11px; color: #999; margin-bottom: 4px; }
+.agent-chat-admin .agent-chat-meta { color: rgba(255,255,255,.75); }
+.agent-chat-text { font-size: 13.5px; color: #333; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+.agent-chat-admin .agent-chat-text { color: #fff; }
+.agent-chat-form { display: flex; gap: 10px; padding: 12px 14px; border-top: 1px solid var(--border); background: #fafbff; }
+.agent-chat-form .agent-input { margin: 0; flex: 1; }

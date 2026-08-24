@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLang } from '../i18n'
 import { PRESET_COLORS, getColorHex } from '../colors'
@@ -39,6 +39,9 @@ export default function Admin() {
   const [writeoffs, setWriteoffs] = useState([])
   const [agents, setAgents] = useState([])
   const [agentClients, setAgentClients] = useState([])
+  const [chatMsgs, setChatMsgs] = useState([])
+  const [chatText, setChatText] = useState('')
+  const chatRef = useRef(null)
   const [writeoffForm, setWriteoffForm] = useState({ items: [{ product_id: '', product_name: '', colors: {} }], reason: 'sale', comment: '', client_name: '', client_phone: '+7', price: '' })
   const [deleteStockItem, setDeleteStockItem] = useState(null)
 
@@ -201,8 +204,36 @@ export default function Admin() {
     if (role === 'admin' || role === 'manager') {
       fetch(`${API}/api/agents`, { headers: { 'X-Admin-Role': role } }).then(r => r.ok ? r.json() : []).then(setAgents).catch(() => {})
       fetch(`${API}/api/clients`, { headers: { 'X-Admin-Role': role } }).then(r => r.ok ? r.json() : []).then(setAgentClients).catch(() => {})
+      fetch(`${API}/api/agent/chat`, { headers: { 'X-Admin-Role': role } }).then(r => r.ok ? r.json() : []).then(setChatMsgs).catch(() => {})
     }
   }
+
+  // Чат агентов (админ/менеджер)
+  const sendChat = async (e) => {
+    e.preventDefault()
+    const text = chatText.trim()
+    if (!text) return
+    const r = await fetch(`${API}/api/agent/chat`, {
+      method: 'POST',
+      headers: { 'X-Admin-Role': role, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    }).catch(() => null)
+    if (r && r.ok) {
+      setChatText('')
+      fetch(`${API}/api/agent/chat`, { headers: { 'X-Admin-Role': role } }).then(r => r.ok ? r.json() : []).then(setChatMsgs).catch(() => {})
+    }
+  }
+
+  const deleteChatMsg = async (id) => {
+    if (!confirm('Удалить сообщение?')) return
+    await fetch(`${API}/api/agent/chat/${id}`, { method: 'DELETE', headers: { 'X-Admin-Role': role } }).catch(() => {})
+    fetch(`${API}/api/agent/chat`, { headers: { 'X-Admin-Role': role } }).then(r => r.ok ? r.json() : []).then(setChatMsgs).catch(() => {})
+  }
+
+  // Автоскролл чата вниз
+  useEffect(() => {
+    if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight
+  }, [chatMsgs])
 
   const updateStatus = (id, status) => {
     fetch(`${API}/api/orders/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) })
@@ -800,6 +831,7 @@ export default function Admin() {
         <div className="admin-tabs">
           {[
             { key: 'agents', label: `Агенты (${agents.length})`, role: 'admin' },
+            { key: 'chat', label: 'Чат агентов', role: 'admin' },
             { key: 'products', label: `${t('products')} (${products.length})`, role: 'admin' },
             { key: 'stock', label: `${t('stock')}`, role: 'all' },
             { key: 'inventory', label: t('inventory'), role: 'all' },
@@ -916,6 +948,31 @@ export default function Admin() {
 
           </div>
         </>)}
+
+        {/* === CHAT TAB (админ/менеджер) === */}
+        {tab === 'chat' && (
+          <div className="v2-card agent-chat-card">
+            <div className="agent-chat-head">💬 Чат агентов <span style={{ fontWeight: 400, color: '#999', fontSize: 12 }}>— история сохраняется, вы пишете как Админ</span></div>
+            <div className="agent-chat-body" ref={chatRef}>
+              {chatMsgs.length === 0 && <div style={{ textAlign: 'center', color: '#999', padding: 60 }}>Сообщений пока нет</div>}
+              {chatMsgs.map(m => (
+                <div key={m.id} className={`agent-chat-row ${m.sender_type === 'admin' || m.sender_type === 'manager' ? 'agent-chat-admin' : ''}`}>
+                  <div className="agent-chat-bubble">
+                    <div className="agent-chat-meta">{m.name} · {new Date(m.created_at).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</div>
+                    <div className="agent-chat-text">{m.text}</div>
+                    {role === 'admin' && (
+                      <button onClick={() => deleteChatMsg(m.id)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,.55)', cursor: 'pointer', fontSize: 11, padding: '4px 0 0', fontFamily: 'inherit' }}>Удалить</button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <form className="agent-chat-form" onSubmit={sendChat}>
+              <input className="agent-input" placeholder="Написать сообщение…" value={chatText} onChange={e => setChatText(e.target.value)} style={{ margin: 0, flex: 1 }} />
+              <button className="agent-btn agent-btn-primary" type="submit" style={{ whiteSpace: 'nowrap' }}>Отправить</button>
+            </form>
+          </div>
+        )}
 
         {/* === PRODUCTS TAB === */}
 
