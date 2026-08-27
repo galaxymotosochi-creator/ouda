@@ -97,6 +97,10 @@ img { max-width: 100%; display: block; }
 .catalog { max-width: 1200px; margin: 0 auto; padding: 0 24px 100px; }
 .catalog h2 { font-size: 22px; font-weight: 500; margin-bottom: 36px; letter-spacing: 0.5px; color: var(--text-muted); }
 .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+.catalog-sort-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }
+.catalog-sort-label { font-size: 14px; color: var(--text-muted); }
+.catalog-sort-select { font-size: 14px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); cursor: pointer; outline: none; }
+.catalog-sort-select:hover { border-color: var(--accent); }
 
 /* Product Card */
 .product-card {

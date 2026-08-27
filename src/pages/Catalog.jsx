@@ -26,6 +26,9 @@ export default function Catalog() {
   const [cartOpen, setCartOpen] = useState(false)
   const [toast, setToast] = useState(null)
 
+  // Sorting state
+  const [sortBy, setSortBy] = useState('price-asc') // default: cheapest first
+
   // Preorder modal state
   const [preorderModal, setPreorderModal] = useState(null) // product or null
 
@@ -69,6 +72,17 @@ export default function Catalog() {
       .then(setProducts)
       .catch(() => { setProducts([]) })
   }, [])
+
+  // Sorted products (by retail price)
+  const sortedProducts = useMemo(() => {
+    const list = [...products]
+    if (sortBy === 'price-asc') {
+      list.sort((a, b) => (Number(a.price) || 0) - (Number(b.price) || 0))
+    } else if (sortBy === 'price-desc') {
+      list.sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0))
+    }
+    return list
+  }, [products, sortBy])
 
   // Cart index: product_id_color -> qty in cart
   const cartQtys = useMemo(() => {
@@ -245,8 +259,21 @@ export default function Catalog() {
       </section>
 
       <section className="catalog" id="catalog">
+        <div className="catalog-sort-bar">
+          <label className="catalog-sort-label" htmlFor="catalog-sort">Сортировка:</label>
+          <select
+            id="catalog-sort"
+            className="catalog-sort-select"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+          >
+            <option value="price-asc">Сначала дешевле</option>
+            <option value="price-desc">Сначала дороже</option>
+            <option value="default">По умолчанию</option>
+          </select>
+        </div>
         <div className="catalog-grid">
-          {products.map(product => {
+          {sortedProducts.map(product => {
             const inCart = (productCartQty[product.id] || 0) > 0
             return (
               <ProductCard
